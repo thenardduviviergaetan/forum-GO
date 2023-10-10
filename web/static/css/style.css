@@ -4,10 +4,37 @@
   box-sizing: border-box;
 }
 
-body {
-  background-color: chocolate;
+html {
+  background-color: #181a1b;
+  color: #fff;
 }
 
-h1 {
-  color: blue;
+.alert {
+  color: #FF0000;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 2% 5%;
+  background-color: #151718;
+}
+header nav {
+  width: 33%;
+  display: flex;
+  justify-content: space-around;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  padding: 2%;
+  background-color: #151718;
+}
+
+main {
+  width: 90%;
+  margin: auto;
 }/*# sourceMappingURL=style.css.map */

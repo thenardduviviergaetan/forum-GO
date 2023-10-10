@@ -1,0 +1,25 @@
+
+{{ template "header" .}}
+
+<a href="/">Back Home</a>
+
+
+<p>Register</p>
+
+
+<form action="" method="post">
+  <label for="username">Username</label>
+  <input type="text" name="username" />
+  <label for="email">Email</label>
+  <input type="email" name="email" />
+  <label for="password">Password</label>
+  <input type="password" name="password" />
+  <label for="confirmation">Confirmation Password</label>
+  <input type="password" name="confirmation"/>
+  <button type="submit">Register</button>
+</form>
+
+{{ if .ErrorMessage }}
+  <div class="alert">*{{ .ErrorMessage }}</div>
+{{ end }}
+{{ template "footer" .}}
