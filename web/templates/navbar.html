@@ -1,0 +1,15 @@
+{{define "navbar" }}
+
+<header>
+  <a href="/">Home</a>
+  <nav>
+    {{ if .  }}
+    <a href="#">link</a>
+    <a href="/logout">Logout</a>
+    {{ else }}
+    <a href="/login">Login</a>
+    {{end}}
+  </nav>
+</header>
+
+{{end}}

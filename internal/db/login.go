@@ -7,10 +7,11 @@ import (
 	"text/template"
 )
 
+// Connect existing user to forum by comparing their credentials with database
 func (app *App_db) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles(
 		"web/templates/login.html",
-		"web/templates/header.html",
+		"web/templates/head.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
@@ -21,7 +22,7 @@ func (app *App_db) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	errMsg := r.URL.Query().Get("error")
 	if r.Method == "POST" {
 		// user := &models.User{}
-		if err := middle.Auth(app.DB, r); err != nil {
+		if err := middle.Auth(app.DB, w, r); err != nil {
 			if err.Error() == "invalid email" {
 				errMsg = "Invalid email address"
 			}
@@ -33,6 +34,7 @@ func (app *App_db) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
+
 	if err := tmpl.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

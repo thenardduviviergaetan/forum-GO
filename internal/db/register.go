@@ -29,7 +29,7 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles(
 		"web/templates/register.html",
-		"web/templates/header.html",
+		"web/templates/head.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
@@ -56,6 +56,7 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
+
 	if err := tmpl.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
