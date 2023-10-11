@@ -25,7 +25,7 @@ func main() {
 	// err = Register(db, "jim", "azerty", "jim@email.com")
 
 	http.HandleFunc("/", ForumHandler)
-	http.HandleFunc("/login", LoginHandler)
+	http.HandleFunc("/login", app.LoginHandler)
 	http.HandleFunc("/register", app.RegisterHandler)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
 	fmt.Println("Listening on port 8080...")

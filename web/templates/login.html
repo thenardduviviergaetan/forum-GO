@@ -5,14 +5,15 @@
 
 <p>Login</p>
 <form action="" method="post">
-  <label for="">Username</label>
-  <input type="text" />
+  <label for="">email</label>
+  <input type="email" name="email"/>
   <label for="">Password</label>
-  <input type="text" />
+  <input type="password" name="password"/>
   <button type="submit">Submit</button>
 </form>
-
-
+{{ if .ErrorMessage}}
+  <div class="alert">*{{ .ErrorMessage}}</div>
+{{ end }}
 <p>No account? <a href="/register">Register</a> now</p>
 
 {{ template "footer" .}}

@@ -45,7 +45,7 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 				errMsg = "Email already exists!"
 			}
 			if err.Error() == "passwords do not match" {
-				errMsg = "passwords do not match!"
+				errMsg = "Passwords do not match!"
 			}
 			http.Redirect(w, r, "/register?error="+url.QueryEscape(errMsg), http.StatusFound)
 			return
