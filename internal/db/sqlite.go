@@ -21,9 +21,10 @@ func (app *App_db) Migrate() error {
 	query := `
 		CREATE TABLE IF NOT EXISTS users(
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
-			username TEXT, 
-			password TEXT,
-			email TEXT);
+			username TEXT NOT NULL, 
+			password TEXT NOT NULL,
+			email TEXT NOT NULL,
+			session_token TEXT);
 
 		CREATE TABLE IF NOT EXISTS post(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -26,7 +26,6 @@ func (app *App_db) CreateUser(user *models.User) error {
 }
 
 func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
-
 	tmpl, err := template.ParseFiles(
 		"web/templates/register.html",
 		"web/templates/head.html",

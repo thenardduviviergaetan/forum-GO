@@ -1,7 +1,8 @@
 package forum
 
 import (
-	models "forum/pkg/models"
+	"database/sql"
+	"log"
 	"net/http"
 	"time"
 
@@ -9,13 +10,23 @@ import (
 )
 
 // Set Token and send it to the server session and user cookie
-func SetToken(w http.ResponseWriter, r *http.Request, username string) {
+func SetToken(db *sql.DB, w http.ResponseWriter, r *http.Request, ID int64) {
 	sessionToken, _ := uuid.NewV4()
-	expiresAt := time.Now().Add(120 * time.Second)
+	expiresAt := time.Now().Add(30 * time.Second)
 
-	models.Sessions[sessionToken.String()] = models.Session{
-		Username: username,
-		EndLife:  expiresAt,
+	// models.Sessions[sessionToken.String()] = models.Session{
+	// 	Username: username,
+	// 	EndLife:  expiresAt,
+	// }
+
+	// Update the user data in the database
+	stmt, err := db.Prepare("UPDATE users SET session_token = ? WHERE id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = stmt.Exec(sessionToken.String(), ID)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	http.SetCookie(w, &http.Cookie{
