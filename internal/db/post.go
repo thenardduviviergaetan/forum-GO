@@ -2,6 +2,8 @@ package forum
 
 import (
 	"fmt"
+	middle "forum/pkg/middleware"
+	models "forum/pkg/models"
 	"html/template"
 	"net/http"
 )
@@ -38,17 +40,23 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 		if errParse != nil {
 			http.Error(w, errParse.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		//TODO check Category to be sure that it exist
+		//TODO retrieve user ID to store in the post
 
-		// post := models.Post{
-		// 	Author:   "Tristan",
-		// 	Category: r.FormValue("categories"),
-		// 	Title:    r.FormValue("title"),
-		// 	Content:  r.FormValue("content"),
-		// }
+		post := models.Post{
+			Author:   "Tristan",
+			Category: r.FormValue("categories"),
+			Title:    r.FormValue("title"),
+			Content:  r.FormValue("content"),
+		}
 
+		if errCreaPost := middle.CreatePost(app.DB, post); errCreaPost != nil {
+			http.Error(w, errCreaPost.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
