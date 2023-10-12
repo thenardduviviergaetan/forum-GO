@@ -2,13 +2,12 @@ package forum
 
 import (
 	"fmt"
-	models "forum/pkg/models"
 	"html/template"
 	"net/http"
 )
 
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
-	token := "test_token"
+	// token := "test_token"
 	// if token, err := r.Cookie("session_token"); err == nil {
 	// 	http.Redirect(w, r, "http://localhost:8080/", http.StatusUnauthorized)
 	// 	return
@@ -43,12 +42,12 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 		//TODO check Category to be sure that it exist
 
-		post := models.Post{
-			Author:   "Tristan",
-			Category: r.FormValue("categories"),
-			Title:    r.FormValue("title"),
-			Content:  r.FormValue("content"),
-		}
+		// post := models.Post{
+		// 	Author:   "Tristan",
+		// 	Category: r.FormValue("categories"),
+		// 	Title:    r.FormValue("title"),
+		// 	Content:  r.FormValue("content"),
+		// }
 
 	}
 }

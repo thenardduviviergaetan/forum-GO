@@ -4,9 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	. "forum/internal/db"
-	. "forum/pkg/handlers"
-	handlers "forum/pkg/handlers"
-	. "forum/pkg/middleware"
 	"log"
 	"net/http"
 )
@@ -25,10 +22,10 @@ func main() {
 	}
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
 
-	http.HandleFunc("/", handlers.ForumHandler)
+	http.HandleFunc("/", app.ForumHandler)
 	http.HandleFunc("/login", app.LoginHandler)
 	http.HandleFunc("/register", app.RegisterHandler)
-	http.HandleFunc("/logout", LogoutHandler)
+	http.HandleFunc("/logout", app.LogoutHandler)
 
 	//Post related handlers
 	http.HandleFunc("/post/create", app.PostCreateHandler)

@@ -3,6 +3,8 @@ package forum
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+	models "forum/pkg/models"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -14,7 +16,8 @@ func Auth(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
 	password := r.FormValue("password")
 
 	var username, valid_email, valid_password string
-	err := db.QueryRow("SELECT username,email, password FROM users WHERE email=?", email).Scan(&username, &valid_email, &valid_password)
+	var ID int64
+	err := db.QueryRow("SELECT id,username,email, password FROM users WHERE email=?", email).Scan(&ID, &username, &valid_email, &valid_password)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
@@ -26,6 +29,8 @@ func Auth(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return errors.New("invalid password")
 	}
-	SetToken(w, r, username)
+
+	SetToken(db, w, r, ID)
+	fmt.Println(models.Sessions)
 	return nil
 }
