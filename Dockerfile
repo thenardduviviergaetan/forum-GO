@@ -9,7 +9,7 @@ LABEL author="qdelooze"
 LABEL support-contact="delooze.quentin@gmail.com"
 
 
-WORKDIr /app
+WORKDIR /app
 
 ADD . ./
 RUN go mod download
