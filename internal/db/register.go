@@ -40,8 +40,8 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		user := &models.User{}
 		if err := middle.CheckRegister(app.DB, r, user); err != nil {
-			if err.Error() == "email already exist" {
-				errMsg = "Email already exists!"
+			if err.Error() == "username or email already exist" {
+				errMsg = "Username or Email already exist!"
 			}
 			if err.Error() == "passwords do not match" {
 				errMsg = "Passwords do not match!"

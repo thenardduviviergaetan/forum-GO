@@ -9,26 +9,23 @@ import (
 
 func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
 
-	username := r.FormValue("username")
-	email := r.FormValue("email")
+	username, email := r.FormValue("username"), r.FormValue("email")
 	password := r.FormValue("password")
-	confirmation := r.FormValue("confirmation")
-	if password != confirmation {
+	if password != r.FormValue("confirmation") {
 		return errors.New("passwords do not match")
 	}
 
-	err := db.QueryRow("SELECT email FROM users WHERE email =  ?", email).Scan(&user.Email)
+	err := db.QueryRow(
+		"SELECT username,email FROM users WHERE username=? OR email=?",
+		username,
+		email).Scan(&user.Username, &user.Email)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
 	} else {
-		return errors.New("email already exist")
+		return errors.New("username or email already exist")
 	}
-
-	user.Username = username
-	user.Email = email
-	user.Password = password
-
+	user.Username, user.Email, user.Password = username, email, password
 	return nil
 }

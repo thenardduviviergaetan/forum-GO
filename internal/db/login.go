@@ -2,6 +2,7 @@ package forum
 
 import (
 	middle "forum/pkg/middleware"
+	models "forum/pkg/models"
 	"net/http"
 	"net/url"
 	"text/template"
@@ -21,8 +22,8 @@ func (app *App_db) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	errMsg := r.URL.Query().Get("error")
 	if r.Method == "POST" {
-		// user := &models.User{}
-		if err := middle.Auth(app.DB, w, r); err != nil {
+		user := &models.User{}
+		if err := middle.Auth(app.DB, w, r, user); err != nil {
 			if err.Error() == "invalid email" {
 				errMsg = "Invalid email address"
 			}

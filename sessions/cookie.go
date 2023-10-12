@@ -6,25 +6,27 @@ import (
 	"net/http"
 	"time"
 
+	models "forum/pkg/models"
+
 	"github.com/gofrs/uuid"
 )
 
 // Set Token and send it to the server session and user cookie
-func SetToken(db *sql.DB, w http.ResponseWriter, r *http.Request, ID int64) {
+func SetToken(db *sql.DB, w http.ResponseWriter, r *http.Request, user *models.User) {
 	sessionToken, _ := uuid.NewV4()
-	expiresAt := time.Now().Add(30 * time.Second)
+	expiresAt := time.Now().Add(10 * time.Second)
 
-	// models.Sessions[sessionToken.String()] = models.Session{
-	// 	Username: username,
-	// 	EndLife:  expiresAt,
-	// }
+	GlobalSessions[sessionToken.String()] = Session{
+		Username: user.Username,
+		UserID:   user.ID,
+		EndLife:  expiresAt,
+	}
 
-	// Update the user data in the database
 	stmt, err := db.Prepare("UPDATE users SET session_token = ? WHERE id = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = stmt.Exec(sessionToken.String(), ID)
+	_, err = stmt.Exec(sessionToken.String(), user.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,6 +36,8 @@ func SetToken(db *sql.DB, w http.ResponseWriter, r *http.Request, ID int64) {
 		Value:   sessionToken.String(),
 		Expires: expiresAt,
 	})
+
+	// fmt.Println(models.Sessions)
 }
 
 // Return token from cookie or error if token does not exist
