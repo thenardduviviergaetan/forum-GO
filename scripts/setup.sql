@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS userstype(
     rank TEXT NOT NULL
 );
 
-INSERT INTO userstype (id, rank) VALUES(0,"user"),(1, "moderator"),(2, "admitrator");
+INSERT INTO userstype (id, rank) VALUES(0,"guest"),(1, "user"),(2, "moderator"),(4, "administrator");
 
 CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
