@@ -37,4 +37,55 @@ footer {
 main {
   width: 90%;
   margin: auto;
+}
+
+.form {
+  width: 90%;
+  margin: auto;
+}
+.form .back_btn {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 20px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  background-color: #e11919;
+  border: none;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+.form .back_btn:hover {
+  background-color: #f65a5a;
+}
+.form form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin: 20% 0;
+}
+.form form h5 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+.form form .field {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+  width: 50%;
+}
+.form form .field label {
+  margin-bottom: 5px;
+}
+.form form .field input {
+  padding: 5px;
+}
+.form form button {
+  width: 100px;
+  padding: 5px 3px;
+}
+.form p {
+  text-align: center;
 }/*# sourceMappingURL=style.css.map */

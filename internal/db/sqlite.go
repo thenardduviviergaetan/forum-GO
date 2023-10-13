@@ -24,6 +24,11 @@ func (app *App_db) Migrate() error {
 			username TEXT NOT NULL, 
 			password TEXT NOT NULL,
 			email TEXT NOT NULL,
+<<<<<<< Updated upstream
+=======
+			validation INTEGER NOT NULL,
+			time DATETIME NOT NULL,
+>>>>>>> Stashed changes
 			session_token TEXT);
 
 		CREATE TABLE IF NOT EXISTS post(

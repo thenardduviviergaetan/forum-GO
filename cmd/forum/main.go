@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	. "forum/internal/db"
-
-	// . "forum/pkg/handlers"
 	"log"
 	"net/http"
 )
@@ -19,6 +17,10 @@ func main() {
 	defer db.Close()
 
 	app := InitDB(db)
+<<<<<<< Updated upstream
+=======
+	app.DB.Exec("PRAGMA foreign_keys = ON")
+>>>>>>> Stashed changes
 	if err := app.Migrate(); err != nil {
 		log.Fatal(err)
 	}
