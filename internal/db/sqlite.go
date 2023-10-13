@@ -3,9 +3,7 @@ package forum
 import (
 	"database/sql"
 	"errors"
-
 	. "forum/pkg/models"
-
 	"github.com/mattn/go-sqlite3"
 )
 
@@ -19,23 +17,39 @@ func InitDB(db *sql.DB) *App_db {
 
 func (app *App_db) Migrate() error {
 	query := `
+		CREATE TABLE IF NOT EXISTS userstype(
+			id INTEGER PRIMARY KEY AUTOINCREMENT, 
+			rank TEXT NOT NULL);
+
 		CREATE TABLE IF NOT EXISTS users(
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
+			userstypeid INTEGER NOT NULL,
 			username TEXT NOT NULL, 
 			password TEXT NOT NULL,
 			email TEXT NOT NULL,
-			session_token TEXT);
+			validation INTEGER NOT NULL,
+			time DATETIME NOT NULL,
+			session_token TEXT,
+			FOREIGN KEY(userstypeid)REFERENCES userstype(id) ON DELETE CASCADE);
 
 		CREATE TABLE IF NOT EXISTS post(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			author TEXT NOT NULL,
+			usersid INTEGER NOT NULL,
 			category TEXT NOT NULL,
 			title TEXT NOT NULL UNIQUE,
 			content TEXT NOT NULL,
 			like INTEGER NOT NULL,
-			dislikes INTEGER NOT NULL);
+			dislikes INTEGER NOT NULL,
+			FOREIGN KEY(usersid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)
+	if err == nil {
+		var count int
+		err := app.DB.QueryRow("SELECT COUNT(id) FROM userstype").Scan(&count)
+		if err == nil && count == 0 {
+			_, err = app.DB.Exec("INSERT INTO userstype(rank) VALUES (?)", 4)
+		}
+	}
 	return err
 }
 

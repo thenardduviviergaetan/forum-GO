@@ -17,8 +17,8 @@ func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
 
 	err := db.QueryRow(
 		"SELECT username,email FROM users WHERE username=? OR email=?",
-		username,
-		email).Scan(&user.Username, &user.Email)
+		user.Username,
+		user.Email).Scan(&user.Username, &user.Email)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
