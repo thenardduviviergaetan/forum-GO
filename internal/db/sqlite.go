@@ -3,7 +3,9 @@ package forum
 import (
 	"database/sql"
 	"errors"
+
 	. "forum/pkg/models"
+
 	"github.com/mattn/go-sqlite3"
 )
 
@@ -31,8 +33,8 @@ func (app *App_db) Migrate() error {
 			time DATETIME NOT NULL,
 			session_token TEXT,
 			FOREIGN KEY(userstypeid)REFERENCES userstype(id) ON DELETE CASCADE);
-
-		CREATE TABLE IF NOT EXISTS post(
+		
+			CREATE TABLE IF NOT EXISTS post(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			usersid INTEGER NOT NULL,
 			category TEXT NOT NULL,
@@ -43,13 +45,6 @@ func (app *App_db) Migrate() error {
 			FOREIGN KEY(usersid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)
-	if err == nil {
-		var count int
-		err := app.DB.QueryRow("SELECT COUNT(id) FROM userstype").Scan(&count)
-		if err == nil && count == 0 {
-			_, err = app.DB.Exec("INSERT INTO userstype(rank) VALUES (?)", 4)
-		}
-	}
 	return err
 }
 
