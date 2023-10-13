@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
+	. "forum/internal/db"
+	middle "forum/pkg/middleware"
+	models "forum/pkg/models"
 	"log"
 	"time"
-	models "forum/pkg/models"
-	middle "forum/pkg/middleware"
-	. "forum/internal/db"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 
 	var answer string
 	fmt.Println("Do you want to create a superuser? y + enter to confirm, enter or any key(s) + enter to cancel.")
-    fmt.Scanln(&answer)
+	fmt.Scanln(&answer)
 	if answer == "y" || answer == "Y" {
 		user := &models.User{}
 		user.UserType = 0
@@ -46,8 +46,8 @@ func main() {
 
 		fmt.Println("Confirm the password:")
 		fmt.Scanln(&answer)
-		
-		if err := middle.CheckRegister(app.DB, answer, user); err != nil {
+
+		if err := middle.CheckAdminRegister(app.DB, answer, user); err != nil {
 			if err.Error() == "email already exist" {
 				log.Fatal("Email already exists!")
 			}
@@ -55,7 +55,7 @@ func main() {
 				log.Fatal("Passwords do not match!")
 			}
 		}
-		
+
 		if err := app.CreateUser(user); err != nil {
 			log.Fatal(err)
 		}
