@@ -7,8 +7,8 @@ import (
 	"net/http"
 )
 
+// Prevent duplicate credentials in database during register procedure
 func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
-
 	username, email := r.FormValue("username"), r.FormValue("email")
 	password := r.FormValue("password")
 	if password != r.FormValue("confirmation") {

@@ -19,12 +19,15 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	isLogin := false
-	if _, err := r.Cookie("session_token"); err == nil {
-		isLogin = true
-		s.CheckSession(app.DB, w, r)
-	}
-	if err := tmpl.Execute(w, isLogin); err != nil {
+
+	if err := tmpl.Execute(w, func() bool {
+		if _, err := r.Cookie("session_token"); err == nil {
+			s.CheckSession(app.DB, w, r)
+			return true
+		}
+		s.CheckActive()
+		return false
+	}()); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

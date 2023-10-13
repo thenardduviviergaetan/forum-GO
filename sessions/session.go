@@ -2,8 +2,6 @@ package forum
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
 	"net/http"
 	"time"
 )
@@ -16,24 +14,17 @@ type Session struct {
 	EndLife  time.Time
 }
 
-func IsExpired(s Session) bool {
-	return s.EndLife.Before(time.Now())
-}
-
+// Check if session token is the same as user token to avoid multiple instances of session conflict
 func CheckSession(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+	var userToken string
 	c, err := r.Cookie("session_token")
 	if err != nil {
-		fmt.Println("no session token")
 		return
 	}
 	session_token := c.Value
-
 	session := GlobalSessions[session_token]
-
-	var userToken string
 	err = db.QueryRow("SELECT session_token FROM users where id = ?", session.UserID).Scan(&userToken)
 	if err != nil {
-		fmt.Println("no session token in database")
 		return
 	}
 	if userToken != session_token {
@@ -44,17 +35,13 @@ func CheckSession(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		})
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
+}
 
-	if IsExpired(session) {
-		// err = db.QueryRow("UPDATE users SET session_token where id = ?", session.UserID)
-		fmt.Println("time out")
-		stmt, err := db.Prepare("UPDATE users SET session_token = ? WHERE id = ?")
-		if err != nil {
-			log.Fatal(err)
-		}
-		_, err = stmt.Exec(nil, session.UserID)
-		if err != nil {
-			log.Fatal(err)
+// Clear the session token to prevent memory leaks
+func CheckActive() {
+	for k := range GlobalSessions {
+		if GlobalSessions[k].EndLife.Before(time.Now()) {
+			delete(GlobalSessions, k)
 		}
 	}
 }

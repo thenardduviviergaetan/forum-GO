@@ -14,7 +14,7 @@ import (
 // Set Token and send it to the server session and user cookie
 func SetToken(db *sql.DB, w http.ResponseWriter, r *http.Request, user *models.User) {
 	sessionToken, _ := uuid.NewV4()
-	expiresAt := time.Now().Add(10 * time.Second)
+	expiresAt := time.Now().Add(20 * time.Second)
 
 	GlobalSessions[sessionToken.String()] = Session{
 		Username: user.Username,
@@ -36,20 +36,4 @@ func SetToken(db *sql.DB, w http.ResponseWriter, r *http.Request, user *models.U
 		Value:   sessionToken.String(),
 		Expires: expiresAt,
 	})
-
-	// fmt.Println(models.Sessions)
-}
-
-// Return token from cookie or error if token does not exist
-func GetCookie(w http.ResponseWriter, r *http.Request) (*http.Cookie, error) {
-	c, err := r.Cookie(("session_token"))
-	if err != nil {
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			return nil, err
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		return nil, err
-	}
-	return c, nil
 }

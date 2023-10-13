@@ -10,12 +10,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Create a new entry in the database with the given information about the new user
 func (app *App_db) CreateUser(user *models.User) error {
 	hashPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-
 	_, err = app.DB.Exec(
 		"INSERT INTO users(username, password, email) VALUES (?,?,?)",
 		user.Username,
@@ -25,6 +25,7 @@ func (app *App_db) CreateUser(user *models.User) error {
 	return err
 }
 
+// Register new user in application
 func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles(
 		"web/templates/register.html",
