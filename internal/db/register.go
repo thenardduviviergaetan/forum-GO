@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"text/template"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -17,11 +18,14 @@ func (app *App_db) CreateUser(user *models.User) error {
 		return err
 	}
 	_, err = app.DB.Exec(
-		"INSERT INTO users(username, password, email) VALUES (?,?,?)",
+		"INSERT INTO users(username, userstypeid, password, email, validation, time) VALUES (?,?,?,?,?,?)",
 		user.Username,
+		user.UserType,
 		string(hashPass),
-		user.Email)
-
+		user.Email,
+		1,
+		time.Now(),
+	)
 	return err
 }
 
@@ -36,7 +40,6 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	errMsg := r.URL.Query().Get("error")
 	if r.Method == "POST" {
 		user := &models.User{}
@@ -56,7 +59,6 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
-
 	if err := tmpl.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

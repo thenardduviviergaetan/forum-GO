@@ -1,10 +1,10 @@
-* {
+*{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html {
+html{
     background-color: #181a1b;
     color: #fff;
 }
@@ -13,20 +13,20 @@ html {
     color: #FF0000;
 }
 
-header {
+header{
     display: flex;
     justify-content: space-between;
     padding: 2% 5%;
     background-color: #151718;
 
-    nav {
+    nav{
         width: 33%;
         display: flex;
         justify-content: space-around;
     }
 }
 
-footer {
+footer{
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -38,65 +38,4 @@ footer {
 main {
     width: 90%;
     margin: auto;
-}
-
-
-.form {
-    width: 90%;
-    margin: auto;
-
-    .back_btn {
-        display: inline-block;
-        padding: 10px 20px;
-        font-size: 20px;
-        cursor: pointer;
-        text-align: center;
-        text-decoration: none;
-        color: #fff;
-        background-color: #e11919;
-        border: none;
-        border-radius: 15px;
-        margin-top: 20px;
-    }
-
-    .back_btn:hover {
-        background-color: #f65a5a;
-    }
-
-    
-    form {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        align-items: center;
-        margin: 20% 0;
-        
-        h5 {
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-
-        .field{
-            display: flex;
-            flex-direction: column;
-            margin: 10px 0;
-            width: 50%;
-
-            label{
-                margin-bottom: 5px;
-            }
-            
-            input{
-                padding: 5px;
-            }
-        }
-
-        button{
-            width: 100px;
-            padding: 5px 3px;
-        }
-    }
-    p{
-        text-align: center;
-    }
 }

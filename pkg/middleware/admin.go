@@ -4,14 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	models "forum/pkg/models"
-	"net/http"
 )
 
 // Prevent duplicate credentials in database during register procedure
-func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
-	username, email := r.FormValue("username"), r.FormValue("email")
-	password := r.FormValue("password")
-	if password != r.FormValue("confirmation") {
+func CheckAdminRegister(db *sql.DB, confirmation string, user *models.User) error {
+
+	if confirmation != user.Password {
 		return errors.New("passwords do not match")
 	}
 
@@ -26,6 +24,5 @@ func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
 	} else {
 		return errors.New("username or email already exist")
 	}
-	user.Username, user.Email, user.Password = username, email, password
 	return nil
 }
