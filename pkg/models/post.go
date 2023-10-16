@@ -6,6 +6,7 @@ import (
 
 type Post struct {
 	ID           int64     `json:"id"`
+	AuthorID     int64     `json:"author_id"`
 	Author       string    `json:"author"`
 	Category     string    `json:"category"`
 	Title        string    `json:"title"`

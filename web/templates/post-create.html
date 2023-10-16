@@ -1,0 +1,20 @@
+{{ template "head" .}}
+{{ template "navbar" .}}
+<main>
+  <h1>Post Creation</h1>
+  <form name="postForm" action="" method="POST">
+    <!-- <form> -->
+    <input type="text" name="title" value="">
+    <label for="categories">
+      <select name="categories" id="categories">
+        <option value="minecraft">Minecraft</option>
+        <option value="job_search">Job Search</option>
+        <option value="food">Food</option>
+      </select>
+    </label>
+    <textarea id="" name="content" rows="5" cols="13"></textarea>
+    <button type="submit">Create Post</button>
+  </form>
+</main>
+
+{{ template "footer" .}}

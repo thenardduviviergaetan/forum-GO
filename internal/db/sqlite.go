@@ -3,7 +3,6 @@ package forum
 import (
 	"database/sql"
 	"errors"
-
 	. "forum/pkg/models"
 
 	"github.com/mattn/go-sqlite3"
@@ -36,13 +35,14 @@ func (app *App_db) Migrate() error {
 		
 			CREATE TABLE IF NOT EXISTS post(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			usersid INTEGER NOT NULL,
+			authorid INTEGER NOT NULL,
+			author TEXT NOT NULL,
 			category TEXT NOT NULL,
 			title TEXT NOT NULL UNIQUE,
 			content TEXT NOT NULL,
 			like INTEGER NOT NULL,
 			dislikes INTEGER NOT NULL,
-			FOREIGN KEY(usersid)REFERENCES users(id) ON DELETE CASCADE);
+			FOREIGN KEY(authorid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)
 	return err
