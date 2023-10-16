@@ -6,9 +6,9 @@ import (
 	models "forum/pkg/models"
 )
 
-func CreatePost(db *sql.DB, post models.Post) error {
-	_, err := db.Exec("INSERT INTO post(author, category, title, content, like, dislikes) VALUES(?,?,?,?,?,?)",
-		post.Author, post.Category, post.Title, post.Content, 0, 0)
+func CreatePost(db *sql.DB, post *models.Post) error {
+	_, err := db.Exec("INSERT INTO post(authorid, author, category, title, content, like, dislikes) VALUES(?,?,?,?,?,?,?)",
+		post.AuthorID, post.Author, post.Category, post.Title, post.Content, 0, 0)
 
 	if err != nil {
 		fmt.Println("Bonjour", err)

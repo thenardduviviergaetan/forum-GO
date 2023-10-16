@@ -3,21 +3,22 @@ package forum
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	models "forum/pkg/models"
+	s "forum/sessions"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 // Check user credentials
-func Auth(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
-	email := r.FormValue("email")
-	password := r.FormValue("password")
+func Auth(db *sql.DB, w http.ResponseWriter, r *http.Request, user *models.User) error {
+	email, password := r.FormValue("email"), r.FormValue("password")
 
-	var username, valid_email, valid_password string
-	var ID int64
-	err := db.QueryRow("SELECT id,username,email, password FROM users WHERE email=?", email).Scan(&ID, &username, &valid_email, &valid_password)
+	err := db.QueryRow("SELECT id,username,email, password FROM users WHERE email=?", email).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
@@ -25,12 +26,10 @@ func Auth(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
 			return errors.New("invalid email")
 		}
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(valid_password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return errors.New("invalid password")
 	}
-
-	SetToken(db, w, r, ID)
-	fmt.Println(models.Sessions)
+	s.SetToken(db, w, r, user)
 	return nil
 }

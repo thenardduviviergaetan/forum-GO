@@ -5,6 +5,7 @@ import (
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -35,6 +36,8 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "POST":
+		c, _ := r.Cookie("session_token")
+		// current := c.Value
 		fmt.Println("A post has been submitted")
 		errParse := r.ParseForm()
 
@@ -45,13 +48,25 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 		//TODO check Category to be sure that it exist
 		//TODO retrieve user ID to store in the post
+		var post *models.Post
 
-		post := models.Post{
-			Author:   "Tristan",
+		post = &models.Post{
+			// AuthorID: current.UserID,
+			// Author:   current.Username,
 			Category: r.FormValue("categories"),
 			Title:    r.FormValue("title"),
 			Content:  r.FormValue("content"),
 		}
+
+		// query := (`SELECT userid, username FROM users WHERE session_token = ?`)
+		err := app.DB.QueryRow("SELECT id, username FROM users where session_token = ?", c.Value).Scan(&post.AuthorID, &post.Author)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(post.AuthorID)
+		fmt.Println(post.Author)
+		fmt.Println(post.Category)
 
 		if errCreaPost := middle.CreatePost(app.DB, post); errCreaPost != nil {
 			http.Error(w, errCreaPost.Error(), http.StatusInternalServerError)
