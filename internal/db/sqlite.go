@@ -21,7 +21,8 @@ func (app *App_db) Migrate() error {
 	query := `
 		CREATE TABLE IF NOT EXISTS userstype(
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
-			rank TEXT NOT NULL);
+			rank INTEGER NOT NULL,
+			label TEXT NOT NULL);
 
 		CREATE TABLE IF NOT EXISTS users(
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -34,7 +35,7 @@ func (app *App_db) Migrate() error {
 			session_token TEXT,
 			FOREIGN KEY(userstypeid)REFERENCES userstype(id) ON DELETE CASCADE);
 		
-			CREATE TABLE IF NOT EXISTS post(
+		CREATE TABLE IF NOT EXISTS post(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			usersid INTEGER NOT NULL,
 			category TEXT NOT NULL,
@@ -45,6 +46,24 @@ func (app *App_db) Migrate() error {
 			FOREIGN KEY(usersid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)
+
+	//creation usertype
+	var count int
+	errChecker := app.DB.QueryRow("SELECT COUNT(*) FROM main_table").Scan(&count)
+	if errChecker == sql.ErrNoRows || count == 0 {
+		_, err = app.DB.Exec("INSERT INTO userstype(rank, label) VALUES (?,?)",1,"user")
+		if err != nil {
+			return err
+		}
+		_, err = app.DB.Exec("INSERT INTO userstype(rank, label) VALUES (?,?)",2,"moderator")
+		if err != nil {
+			return err
+		}
+		_, err = app.DB.Exec("INSERT INTO userstype(rank, label) VALUES (?,?)",3,"admin")
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 

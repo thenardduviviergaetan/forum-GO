@@ -33,6 +33,7 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 		var user models.User
         err = rows.Scan(user.ID, user.Username, user.Email, user.UserType, user.Validation, user.CreationDate)
         if err != nil {
+			//error
             log.Fatal(err)
         }
 		userlst = append(userlst, user)

@@ -28,7 +28,7 @@ func main() {
 	fmt.Scanln(&answer)
 	if answer == "y" || answer == "Y" {
 		user := &models.User{}
-		user.UserType = 0
+		user.UserType = 3
 		user.Validation = 1
 		user.CreationDate = time.Now()
 
