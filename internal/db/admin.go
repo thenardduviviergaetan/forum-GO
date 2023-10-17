@@ -2,15 +2,11 @@ package forum
 
 import (
 	//"database/sql"
-	//middle "forum/pkg/middleware"
+	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	"html/template"
 	"log"
-<<<<<<< HEAD
 	"net/http"
-=======
-	"fmt"
->>>>>>> 257ec57 (work on admin continued)
 	//"time"
 )
 
@@ -27,44 +23,40 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := app.DB.Query("SELECT id, userstypeid, username, email, validation, time FROM users")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	var userlst []models.User
-	for rows.Next() {
-		var user models.User
-<<<<<<< HEAD
-		err = rows.Scan(user.ID, user.Username, user.Email, user.UserType, user.Validation, user.CreationDate)
-		if err != nil {
-			log.Fatal(err)
+	//check if user is admin
+	if cookie, err := r.Cookie("session_token"); err == nil {
+		var userstypeid int
+		err = app.DB.QueryRow("SELECT userstypeid FROM users WHERE session_token=?", cookie.Value).Scan(&userstypeid)
+		if err != nil || userstypeid != 3 {
+			http.Redirect(w, r, "/", http.StatusFound)
 		}
-=======
-        err = rows.Scan(&user.ID, &user.UserType, &user.Username, &user.Email, &user.Validation, &user.CreationDate)
-        if err != nil {
-            log.Fatal(err)
-        }
->>>>>>> 257ec57 (work on admin continued)
-		userlst = append(userlst, user)
+	} else {
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
-	isLogin := false
-	if _, err := r.Cookie("session_token"); err == nil {
-		isLogin = true
+	if r.Method == "POST" {
+		if len(r.FormValue("deletion")) > 0 {
+			if err := middle.RmUser(app.DB, r); err != nil {
+				log.Fatal(err)
+			}
+		} else if len(r.FormValue("delmod")) > 0 {
+			if err := middle.Delmod(app.DB, r); err != nil {
+				log.Fatal(err)
+			}
+		} else if len(r.FormValue("addmod")) > 0 {
+			if err := middle.Addmod(app.DB, r); err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
+
+	userlst := middle.FetchUsers(app.DB)
 
 	type Context struct {
-<<<<<<< HEAD
-		isLogin bool
-=======
-		isLogin	bool
-		userlst []models.User
->>>>>>> 257ec57 (work on admin continued)
+		Userlst []models.User
 	}
 	var context Context
-	context.isLogin = isLogin
-	context.userlst = userlst
+	context.Userlst = userlst
 
 	if err := tmpl.Execute(w, context); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

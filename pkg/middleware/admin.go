@@ -3,6 +3,9 @@ package forum
 import (
 	"database/sql"
 	"errors"
+	"strconv"
+	"net/http"
+	"log"
 	models "forum/pkg/models"
 )
 
@@ -25,4 +28,61 @@ func CheckAdminRegister(db *sql.DB, confirmation string, user *models.User) erro
 		return errors.New("username or email already exist")
 	}
 	return nil
+}
+
+func RmUser(db *sql.DB, r *http.Request) error {
+
+	id, err := strconv.Atoi(r.FormValue("deletion"))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("DELETE FROM users WHERE id=?", id)
+	if err != nil {
+        return err
+    }
+	return nil
+}
+
+func Addmod(db *sql.DB, r *http.Request) error {
+
+	id, err := strconv.Atoi(r.FormValue("addmod"))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("UPDATE users SET userstypeid=?, askedmod=? WHERE id=?", 2, 0, id)
+	if err != nil {
+        return err
+    }
+	return nil
+}
+
+func Delmod(db *sql.DB, r *http.Request) error {
+
+	id, err := strconv.Atoi(r.FormValue("delmod"))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("UPDATE users SET userstypeid=? WHERE id=?", 1, id)
+	if err != nil {
+        return err
+    }
+	return nil
+}
+
+func FetchUsers(db *sql.DB) []models.User {
+	rows, err := db.Query("SELECT id, userstypeid, username, email, validation, askedmod, time FROM users")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var userlst []models.User
+	for rows.Next() {
+		var user models.User
+        err = rows.Scan(&user.ID, &user.UserType, &user.Username, &user.Email, &user.Validation, &user.AskedMod, &user.CreationDate)
+        if err != nil {
+            log.Fatal(err)
+        }
+		userlst = append(userlst, user)
+	}
+	return userlst
 }

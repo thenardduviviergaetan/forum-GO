@@ -13,5 +13,6 @@ type Post struct {
 	Content      string    `json:"content"`
 	Like         int       `json:"like"`
 	Dislike      int       `json:"dislike"`
+	Flaged		 int	   `json:"flaged"`
 	CreationDate time.Time `json:"time"`
 }

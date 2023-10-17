@@ -30,6 +30,7 @@ func (app *App_db) Migrate() error {
 			password TEXT NOT NULL,
 			email TEXT NOT NULL,
 			validation INTEGER NOT NULL,
+			askedmod INTEGER DEFAULT 0,
 			time DATETIME NOT NULL,
 			session_token TEXT,
 			FOREIGN KEY(userstypeid)REFERENCES userstype(id) ON DELETE CASCADE);
@@ -43,6 +44,7 @@ func (app *App_db) Migrate() error {
 			content TEXT NOT NULL,
 			like INTEGER NOT NULL,
 			dislikes INTEGER NOT NULL,
+			flaged INTEGER DEFAULT 0,
 			FOREIGN KEY(authorid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)
