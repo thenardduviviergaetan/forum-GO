@@ -55,6 +55,7 @@ func GetRecentPosts(app *App_db) error {
 			&post.Like,
 			&post.Dislike,
 			&post.CreationDate,
+			&post.Flaged,
 		)
 		if err != nil {
 			return err
