@@ -54,6 +54,31 @@
                 </tbody>
             </table>
         </div>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="5">Categories</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $val := .Categorylst}}
+                        <tr>
+                            <td>{{$val.ID}}</td>
+                            <td>{{$val.Title}}</td>
+                            <td>{{$val.Description}}</td>
+                            <td>link to modify it</td>
+                            <td>
+                                <form action="/admin" method="post">
+                                    <button type="submit" name="delcat" value="{{$val.ID}}">Delete that category</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            <div>link to category creation</div>
+        </div>
     </div>
 </main>
 {{ template "footer" .}}

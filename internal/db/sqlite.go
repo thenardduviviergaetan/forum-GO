@@ -23,6 +23,11 @@ func (app *App_db) Migrate() error {
 			rank INTEGER NOT NULL,
 			label TEXT NOT NULL);
 
+		CREATE TABLE IF NOT EXISTS category(
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+    		title TEXT NOT NULL UNIQUE,
+    		description TEXT NOT NULL);
+
 		CREATE TABLE IF NOT EXISTS users(
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
 			userstypeid INTEGER NOT NULL,

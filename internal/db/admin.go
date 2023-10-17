@@ -51,12 +51,14 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userlst := middle.FetchUsers(app.DB)
-
+	categorylst := middle.FetchCategory(app.DB)
 	type Context struct {
 		Userlst []models.User
+		Categorylst []models.Category
 	}
 	var context Context
 	context.Userlst = userlst
+	context.Categorylst = categorylst
 
 	if err := tmpl.Execute(w, context); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

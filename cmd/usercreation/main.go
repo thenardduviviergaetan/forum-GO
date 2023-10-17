@@ -59,5 +59,6 @@ func main() {
 		if err := app.CreateUser(user); err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println("User created.")
 	}
 }

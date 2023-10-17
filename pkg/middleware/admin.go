@@ -86,3 +86,21 @@ func FetchUsers(db *sql.DB) []models.User {
 	}
 	return userlst
 }
+
+func FetchCategory(db *sql.DB) []models.Category {
+	rows, err := db.Query("SELECT * FROM category")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var categorylst []models.Category
+	for rows.Next() {
+		var category models.Category
+        err = rows.Scan(&category.ID, &category.Title, &category.Description)
+        if err != nil {
+            log.Fatal(err)
+        }
+		categorylst = append(categorylst, category)
+	}
+	return categorylst
+}
