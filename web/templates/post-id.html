@@ -2,11 +2,16 @@
 {{ template "navbar" .}}
 <main>
 
-<div class="post">
-            <h1>{{ .CurrentPost.Title }}</h1>
+<div class="post-details">
+    <h1>{{ .CurrentPost.Title }}</h1>
+        <div class="head-post">
+            <p>Category: {{.CurrentPost.Category}}</p>
+            <p>Author: {{.CurrentPost.Author}}</p>
+            <p>Date: {{.CurrentPost.CreationDate}}</p>
+        </div>
+        <div class="body-post">
             <p>{{.CurrentPost.Content}}</p>
-            <p>{{.CurrentPost.Author}}</p>
-            <p>{{.CurrentPost.CreationDate}}</p>
+        </div>
     </div>
 </main>
 {{ template "footer" .}}

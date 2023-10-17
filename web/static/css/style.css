@@ -89,9 +89,47 @@ main {
 .form p {
   text-align: center;
 }
-.form .post {
+
+.post {
   width: 100%;
   display: flex;
   justify-content: space-between;
+  border: 1px solid #fff;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+a {
+  text-decoration: none;
   color: #fff;
+}
+
+a:hover {
+  cursor: pointer;
+  color: blue;
+}
+
+.link {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.post-details {
+  margin: 10px 0;
+  padding: 20px;
+  border: 1px solid #fff;
+}
+.post-details h1 {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.head-post {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.body-post {
+  padding: 20px 0;
 }/*# sourceMappingURL=style.css.map */
