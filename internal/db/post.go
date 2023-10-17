@@ -42,6 +42,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			&post.Like,
 			&post.Dislike,
 			&post.CreationDate,
+			&post.Flaged,
 		)
 		app.Data.CurrentPost = post
 		if err != nil {
@@ -91,6 +92,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			&post.Like,
 			&post.Dislike,
 			&post.CreationDate,
+			&post.Flaged,
 		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

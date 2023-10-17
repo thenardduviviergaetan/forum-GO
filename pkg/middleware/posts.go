@@ -7,8 +7,8 @@ import (
 )
 
 func CreatePost(db *sql.DB, post *models.Post) (int, error) {
-	_, err := db.Exec("INSERT INTO post(authorid, author, category, title, content, like, dislikes, creation) VALUES(?,?,?,?,?,?,?, date())",
-		post.AuthorID, post.Author, post.Category, post.Title, post.Content, 0, 0)
+	_, err := db.Exec("INSERT INTO post(authorid, author, category, title, content, like, dislikes, creation, flaged) VALUES(?,?,?,?,?,?,?, date(), ?)",
+		post.AuthorID, post.Author, post.Category, post.Title, post.Content, 0, 0, 0)
 	if err != nil {
 		fmt.Println("Bonjour", err)
 	}
