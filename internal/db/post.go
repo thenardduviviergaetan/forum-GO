@@ -3,12 +3,15 @@ package forum
 import (
 	"database/sql"
 	"fmt"
-	middle "forum/pkg/middleware"
-	models "forum/pkg/models"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+
+	middle "forum/pkg/middleware"
+	models "forum/pkg/models"
+	s "forum/sessions"
 )
 
 func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,6 +21,8 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 		"web/templates/post-id.html",
 		"web/templates/head.html",
 		"web/templates/navbar.html",
+		"web/templates/comment.html",
+		"web/templates/comment-create.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
@@ -55,11 +60,47 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// if err := tmpl.Execute(w, app.Data); err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
+
+	var currentuser int64
+	c, _ := r.Cookie("session_token")
+	if c != nil {
+		currentuser = s.GlobalSessions[c.Value].UserID
+	}
+	Returncomment(app, currentuser)
+	switch r.Method {
+	case "POST":
+		if r.FormValue("Content") != "" {
+			var comment models.Comment
+			comment.AuthorID = currentuser
+			comment.Content = r.FormValue("Content")
+			comment.Postid = post.ID
+			middle.Createcomment(app.DB, &comment)
+		}
+		if r.FormValue("like") != "" {
+			like := strings.Split(r.FormValue("like"), " ")[0] == "true"
+			idcomment, _ := strconv.Atoi(strings.Split(r.FormValue("like"), " ")[1])
+			c, _ := r.Cookie("session_token")
+			userid := s.GlobalSessions[c.Value].UserID
+			middle.Updatelike(app.DB, int64(idcomment), userid, like)
+		}
+		if r.FormValue("delete") != "" {
+			idcomment, _ := strconv.Atoi(r.FormValue("delete"))
+			middle.Removecomment(app.DB, int64(idcomment))
+		}
+	}
+	Returncomment(app, currentuser)
+	renderpost_id(w, tmpl, app)
+}
+
+func renderpost_id(w http.ResponseWriter, tmpl *template.Template, app *App_db) {
 	if err := tmpl.Execute(w, app.Data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
@@ -128,7 +169,6 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			"web/templates/navbar.html",
 			"web/templates/footer.html",
 		)
-
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -150,8 +190,8 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		//TODO check Category to be sure that it exist
-		//TODO retrieve user ID to store in the post
+		// TODO check Category to be sure that it exist
+		// TODO retrieve user ID to store in the post
 		var post *models.Post
 
 		post = &models.Post{
@@ -178,9 +218,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostUpdateHandler(w http.ResponseWriter, r *http.Request) {
-
 }
 
 func PostDeleteHandler(w http.ResponseWriter, r *http.Request) {
-
 }

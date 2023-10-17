@@ -11,4 +11,5 @@ type Post struct {
 	Dislike      int    `json:"dislike"`
 	CreationDate string `json:"time"`
 	Flaged       int    `json:"flaged"`
+	Tab_comment  []Comment
 }
