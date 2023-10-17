@@ -173,7 +173,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, errCreaPost.Error(), http.StatusInternalServerError)
 			return
 		}
-		http.Redirect(w, r, "/post?id="+strconv.Itoa(id), http.StatusFound)
+		http.Redirect(w, r, "/post/id?id="+strconv.Itoa(id), http.StatusFound)
 	}
 }
 
