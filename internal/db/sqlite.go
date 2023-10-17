@@ -49,7 +49,7 @@ func (app *App_db) Migrate() error {
 
 	//creation usertype
 	var count int
-	errChecker := app.DB.QueryRow("SELECT COUNT(*) FROM main_table").Scan(&count)
+	errChecker := app.DB.QueryRow("SELECT COUNT(*) FROM userstype").Scan(&count)
 	if errChecker == sql.ErrNoRows || count == 0 {
 		_, err = app.DB.Exec("INSERT INTO userstype(rank, label) VALUES (?,?)",1,"user")
 		if err != nil {

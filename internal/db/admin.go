@@ -6,7 +6,11 @@ import (
 	models "forum/pkg/models"
 	"html/template"
 	"log"
+<<<<<<< HEAD
 	"net/http"
+=======
+	"fmt"
+>>>>>>> 257ec57 (work on admin continued)
 	//"time"
 )
 
@@ -31,10 +35,17 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	var userlst []models.User
 	for rows.Next() {
 		var user models.User
+<<<<<<< HEAD
 		err = rows.Scan(user.ID, user.Username, user.Email, user.UserType, user.Validation, user.CreationDate)
 		if err != nil {
 			log.Fatal(err)
 		}
+=======
+        err = rows.Scan(&user.ID, &user.UserType, &user.Username, &user.Email, &user.Validation, &user.CreationDate)
+        if err != nil {
+            log.Fatal(err)
+        }
+>>>>>>> 257ec57 (work on admin continued)
 		userlst = append(userlst, user)
 	}
 
@@ -44,10 +55,16 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Context struct {
+<<<<<<< HEAD
 		isLogin bool
+=======
+		isLogin	bool
+		userlst []models.User
+>>>>>>> 257ec57 (work on admin continued)
 	}
 	var context Context
 	context.isLogin = isLogin
+	context.userlst = userlst
 
 	if err := tmpl.Execute(w, context); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
