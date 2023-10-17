@@ -27,5 +27,6 @@ CREATE TABLE IF NOT EXISTS post(
     content TEXT NOT NULL,
     like INTEGER NOT NULL,
     dislikes INTEGER NOT NULL,
+	creation CURRENT_TIMESTAMP,
     FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE
 );

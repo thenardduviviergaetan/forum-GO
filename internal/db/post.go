@@ -1,13 +1,99 @@
 package forum
 
 import (
+	"database/sql"
 	"fmt"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 )
+
+func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
+	var post models.Post
+	var posts []models.Post
+
+	tmpl, err := template.ParseFiles(
+		"web/templates/post.html",
+		"web/templates/head.html",
+		"web/templates/navbar.html",
+		"web/templates/footer.html",
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if r.URL.Query().Has("id") {
+		id, err := strconv.Atoi(r.URL.Query().Get("id"))
+		if err != nil {
+			http.Error(w, "invalid query", http.StatusBadRequest)
+			return
+		}
+
+		err = app.DB.QueryRow("SELECT * FROM post where id = ?", id).Scan(
+			&post.ID,
+			&post.AuthorID,
+			&post.Author,
+			&post.Category,
+			&post.Title,
+			&post.Content,
+			&post.Like,
+			&post.Dislike,
+			&post.CreationDate,
+		)
+		posts = append(posts, post)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "No such post", http.StatusNotFound)
+			} else {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			return
+		}
+		if err := tmpl.Execute(w, posts); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+
+		rows, err := app.DB.Query("SELECT * FROM post")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		for rows.Next() {
+			err := rows.Scan(
+				&post.ID,
+				&post.AuthorID,
+				&post.Author,
+				&post.Category,
+				&post.Title,
+				&post.Content,
+				&post.Like,
+				&post.Dislike,
+				&post.CreationDate,
+			)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			posts = append(posts, post)
+		}
+
+		if err := rows.Err(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := tmpl.Execute(w, posts); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
 
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// token := "test_token"
@@ -64,14 +150,12 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 
-		fmt.Println(post.AuthorID)
-		fmt.Println(post.Author)
-		fmt.Println(post.Category)
-
-		if errCreaPost := middle.CreatePost(app.DB, post); errCreaPost != nil {
+		id, errCreaPost := middle.CreatePost(app.DB, post)
+		if errCreaPost != nil {
 			http.Error(w, errCreaPost.Error(), http.StatusInternalServerError)
 			return
 		}
+		http.Redirect(w, r, "/post?id="+strconv.Itoa(id), http.StatusFound)
 	}
 }
 

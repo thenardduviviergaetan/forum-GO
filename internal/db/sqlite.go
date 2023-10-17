@@ -42,6 +42,7 @@ func (app *App_db) Migrate() error {
 			content TEXT NOT NULL,
 			like INTEGER NOT NULL,
 			dislikes INTEGER NOT NULL,
+			creation CURRENT_TIMESTAMP,
 			FOREIGN KEY(authorid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)

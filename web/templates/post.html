@@ -1,0 +1,15 @@
+{{ template "head" .}} 
+{{ template "navbar" .}}
+<main>
+{{range .}}
+<div class="post">
+        <a href="/post?id={{ .ID }}">
+            <h1>{{ .Title }}</h1>
+            <p>{{.Content}}</p>
+            <p>{{.Author}}</p>
+            <p>{{.CreationDate}}</p>
+        </a>
+    </div>
+    {{end}}
+</main>
+{{ template "footer" .}}
