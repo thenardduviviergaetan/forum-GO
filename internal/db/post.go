@@ -63,7 +63,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 	var post models.Post
-
+	app.Data.Posts = nil
 	tmpl, err := template.ParseFiles(
 		"web/templates/post.html",
 		"web/templates/head.html",
