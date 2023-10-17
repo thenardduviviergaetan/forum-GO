@@ -2,11 +2,13 @@
 {{ template "navbar" .}}
 <main>
 {{range .Posts}}
+<a href="/post/id?id={{ .ID }}">
 <div class="post">
-        <a href="/post/id?id={{ .ID }}">
-            <h3>{{ .Title }}{{.Category}}{{.CreationDate}}</h3>
-        </a>
-    </div>
+            <h3>{{ .Title }}
+            <span>{{.Category}}</span>
+            <span>{{.CreationDate}}</span></h3>
+        </div>
+    </a>
     {{end}}
 </main>
 {{ template "footer" .}}

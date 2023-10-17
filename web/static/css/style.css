@@ -88,4 +88,10 @@ main {
 }
 .form p {
   text-align: center;
+}
+.form .post {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  color: #fff;
 }/*# sourceMappingURL=style.css.map */
