@@ -11,12 +11,11 @@ import (
 	"strconv"
 )
 
-func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
+func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 	var post models.Post
-	var posts []models.Post
 
 	tmpl, err := template.ParseFiles(
-		"web/templates/post.html",
+		"web/templates/post-id.html",
 		"web/templates/head.html",
 		"web/templates/navbar.html",
 		"web/templates/footer.html",
@@ -44,7 +43,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			&post.Dislike,
 			&post.CreationDate,
 		)
-		posts = append(posts, post)
+		app.Data.CurrentPost = post
 		if err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "No such post", http.StatusNotFound)
@@ -53,45 +52,62 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-		if err := tmpl.Execute(w, posts); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
+	}
 
-		rows, err := app.DB.Query("SELECT * FROM post")
+	if err := tmpl.Execute(w, app.Data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
+	var post models.Post
+
+	tmpl, err := template.ParseFiles(
+		"web/templates/post.html",
+		"web/templates/head.html",
+		"web/templates/navbar.html",
+		"web/templates/footer.html",
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := app.DB.Query("SELECT * FROM post")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	for rows.Next() {
+		err := rows.Scan(
+			&post.ID,
+			&post.AuthorID,
+			&post.Author,
+			&post.Category,
+			&post.Title,
+			&post.Content,
+			&post.Like,
+			&post.Dislike,
+			&post.CreationDate,
+		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-
-		for rows.Next() {
-			err := rows.Scan(
-				&post.ID,
-				&post.AuthorID,
-				&post.Author,
-				&post.Category,
-				&post.Title,
-				&post.Content,
-				&post.Like,
-				&post.Dislike,
-				&post.CreationDate,
-			)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			posts = append(posts, post)
-		}
-
-		if err := rows.Err(); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		if err := tmpl.Execute(w, posts); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+
+		app.Data.Posts = append(app.Data.Posts, post)
+	}
+
+	if err := rows.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := tmpl.Execute(w, app.Data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 

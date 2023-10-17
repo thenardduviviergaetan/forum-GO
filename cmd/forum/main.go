@@ -31,6 +31,7 @@ func main() {
 	//Post related handlers
 	http.HandleFunc("/post/create", app.PostCreateHandler)
 	http.HandleFunc("/post", app.PostHandler)
+	http.HandleFunc("/post/id", app.PostIdHandler)
 	// http.HandleFunc("/post/update", handlers.PostUpdateHandler)
 	// http.HandleFunc("/post/delete", handlers.PostDeleteHandler)
 

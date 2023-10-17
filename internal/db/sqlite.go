@@ -9,7 +9,8 @@ import (
 )
 
 type App_db struct {
-	DB *sql.DB
+	DB   *sql.DB
+	Data Data
 }
 
 func InitDB(db *sql.DB) *App_db {

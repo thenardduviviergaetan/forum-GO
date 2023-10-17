@@ -1,0 +1,12 @@
+{{ template "head" .}} 
+{{ template "navbar" .}}
+<main>
+
+<div class="post">
+            <h1>{{ .CurrentPost.Title }}</h1>
+            <p>{{.CurrentPost.Content}}</p>
+            <p>{{.CurrentPost.Author}}</p>
+            <p>{{.CurrentPost.CreationDate}}</p>
+    </div>
+</main>
+{{ template "footer" .}}

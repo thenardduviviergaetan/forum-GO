@@ -1,9 +1,9 @@
 {{ template "head" .}} 
 {{ template "navbar" .}}
 <main>
-{{range .}}
+{{range .Posts}}
 <div class="post">
-        <a href="/post?id={{ .ID }}">
+        <a href="/post/id?id={{ .ID }}">
             <h1>{{ .Title }}</h1>
             <p>{{.Content}}</p>
             <p>{{.Author}}</p>
