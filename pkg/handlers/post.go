@@ -1,5 +1,0 @@
-package forum
-
-func CreatePost() {
-
-}

@@ -3,14 +3,14 @@ package forum
 import (
 	"database/sql"
 	"errors"
-
 	. "forum/pkg/models"
 
 	"github.com/mattn/go-sqlite3"
 )
 
 type App_db struct {
-	DB *sql.DB
+	DB   *sql.DB
+	Data Data
 }
 
 func InitDB(db *sql.DB) *App_db {
@@ -37,13 +37,15 @@ func (app *App_db) Migrate() error {
 		
 		CREATE TABLE IF NOT EXISTS post(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			usersid INTEGER NOT NULL,
+			authorid INTEGER NOT NULL,
+			author TEXT NOT NULL,
 			category TEXT NOT NULL,
 			title TEXT NOT NULL UNIQUE,
 			content TEXT NOT NULL,
 			like INTEGER NOT NULL,
 			dislikes INTEGER NOT NULL,
-			FOREIGN KEY(usersid)REFERENCES users(id) ON DELETE CASCADE);
+			creation CURRENT_TIMESTAMP,
+			FOREIGN KEY(authorid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)
 

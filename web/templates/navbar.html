@@ -3,8 +3,9 @@
 <header>
   <a href="/">Home</a>
   <nav>
-    {{ if .  }}
-    <a href="#">link</a>
+    <a href="/post">Show Post</a>
+    {{ if .Connected  }}
+    <a href="/post/create">Create Post</a>
     <a href="/logout">Logout</a>
     {{ else }}
     <a href="/login">Login</a>

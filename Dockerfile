@@ -9,7 +9,7 @@ LABEL author=""
 LABEL support-contact=""
 
 
-WORKDIr /app
+WORKDIR /app
 
 ADD . ./
 RUN go mod download
