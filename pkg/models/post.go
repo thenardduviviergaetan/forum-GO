@@ -10,4 +10,5 @@ type Post struct {
 	Like         int    `json:"like"`
 	Dislike      int    `json:"dislike"`
 	CreationDate string `json:"time"`
+	Flaged       int    `json:"flaged"`
 }

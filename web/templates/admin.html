@@ -1,6 +1,59 @@
 {{ template "head" .}} 
 {{ template "navbar" .}}
 <main>
-    <div>coucou</div>
+    <div>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="8">Users</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $val := .Userlst}}
+                        <tr>
+                            <td>{{$val.ID}}</td>
+                            <td>{{$val.UserType}}</td>
+                            <td>{{$val.Username}}</td>
+                            <td>{{$val.Email}}</td>
+                            <td>{{$val.Validation}}</td>
+                            <td>{{$val.CreationDate}}</td>
+                            {{if eq $val.UserType 1}}
+                                <td>
+                                    <form action="/admin" method="post">
+                                        <button type="submit" name="addmod" value="{{$val.ID}}">Add moderation right</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="/admin" method="post">
+                                        <button type="submit" name="deletion" value="{{$val.ID}}">Delete user</button>
+                                    </form>
+                                </td>
+                            {{else if eq $val.UserType 2}}
+                                <td>
+                                    <form action="/admin" method="post">
+                                        <button type="submit" name="delmod" value="{{$val.ID}}">Remove moderation right</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="/admin" method="post">
+                                        <button type="submit" name="deletion" value="{{$val.ID}}">Delete user</button>
+                                    </form>
+                                </td>
+                            {{else}}
+                                <td></td>
+                                <td></td>
+                            {{end}}
+                            {{if eq $val.AskedMod 1}}
+                                <td style="color:green">has asked to become a moderator</td>
+                            {{else}}
+                                <td></td>
+                            {{end}}
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </main>
 {{ template "footer" .}}

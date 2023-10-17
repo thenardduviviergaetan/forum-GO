@@ -1,0 +1,17 @@
+{{ template "head" .}} 
+{{ template "navbar" .}}
+<main>
+    <div>
+        <div>Your current status is {{.User.UserType}} (find an elegant way to replace id by label, .User.UserType.Label doesn't work)</div>
+        <div>
+            {{if and (eq .User.AskedMod 0) (eq .User.UserType 1)}}
+                <form action="/profile" method="post">
+                    <button type="submit" name="askmod" value="{{.User.ID}}">Ask to become a moderator.</button>
+                </form>
+            {{else if eq .User.AskedMod 1}}
+                <div>Your demande to become a moderator is being examinated.</div>
+            {{end}}
+        </div>
+    </div>
+</main>
+{{ template "footer" .}}

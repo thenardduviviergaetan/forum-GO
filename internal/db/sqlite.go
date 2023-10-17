@@ -30,6 +30,7 @@ func (app *App_db) Migrate() error {
 			password TEXT NOT NULL,
 			email TEXT NOT NULL,
 			validation INTEGER NOT NULL,
+			askedmod INTEGER DEFAULT 0,
 			time DATETIME NOT NULL,
 			session_token TEXT,
 			FOREIGN KEY(userstypeid)REFERENCES userstype(id) ON DELETE CASCADE);
@@ -44,13 +45,14 @@ func (app *App_db) Migrate() error {
 			like INTEGER NOT NULL,
 			dislikes INTEGER NOT NULL,
 			creation CURRENT_TIMESTAMP,
+			flaged INTEGER DEFAULT 0,
 			FOREIGN KEY(authorid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)
 
 	//creation usertype
 	var count int
-	errChecker := app.DB.QueryRow("SELECT COUNT(*) FROM main_table").Scan(&count)
+	errChecker := app.DB.QueryRow("SELECT COUNT(*) FROM userstype").Scan(&count)
 	if errChecker == sql.ErrNoRows || count == 0 {
 		_, err = app.DB.Exec("INSERT INTO userstype(rank, label) VALUES (?,?)", 1, "user")
 		if err != nil {

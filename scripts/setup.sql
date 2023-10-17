@@ -1,10 +1,11 @@
 --setup.sql
 CREATE TABLE IF NOT EXISTS userstype(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    rank TEXT NOT NULL
+    rank INTEGER NOT NULL,
+    label TEXT NOT NULL
 );
 
-INSERT INTO userstype (id, rank) VALUES(0,"guest"),(1, "user"),(2, "moderator"),(4, "administrator");
+INSERT INTO userstype (rank, label) VALUES(1, "user"),(2, "moderator"),(3, "administrator");
 
 CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users(
     password TEXT NOT NULL,
     email TEXT NOT NULL,
     validation INTEGER NOT NULL,
+    askedmod INTEGER DEFAULT 0,
     time DATETIME NOT NULL,
     session_token TEXT,
     FOREIGN KEY(userstypeid) REFERENCES userstype(id) ON DELETE CASCADE
@@ -28,5 +30,6 @@ CREATE TABLE IF NOT EXISTS post(
     like INTEGER NOT NULL,
     dislikes INTEGER NOT NULL,
 	creation CURRENT_TIMESTAMP,
+    flaged INTEGER DEFAULT 0,
     FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE
 );
