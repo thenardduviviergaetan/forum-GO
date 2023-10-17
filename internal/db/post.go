@@ -132,7 +132,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := tmpl.Execute(w, true); err != nil {
+		if err := tmpl.Execute(w, app.Data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

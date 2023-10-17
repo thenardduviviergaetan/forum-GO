@@ -4,12 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	models "forum/pkg/models"
-	"time"
 )
 
 func CreatePost(db *sql.DB, post *models.Post) (int, error) {
-	_, err := db.Exec("INSERT INTO post(authorid, author, category, title, content, like, dislikes, creation) VALUES(?,?,?,?,?,?,?, ?)",
-		post.AuthorID, post.Author, post.Category, post.Title, post.Content, 0, 0, time.Now())
+	_, err := db.Exec("INSERT INTO post(authorid, author, category, title, content, like, dislikes, creation) VALUES(?,?,?,?,?,?,?, date())",
+		post.AuthorID, post.Author, post.Category, post.Title, post.Content, 0, 0)
 	if err != nil {
 		fmt.Println("Bonjour", err)
 	}

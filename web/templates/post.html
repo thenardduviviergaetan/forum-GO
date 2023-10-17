@@ -4,10 +4,7 @@
 {{range .Posts}}
 <div class="post">
         <a href="/post/id?id={{ .ID }}">
-            <h1>{{ .Title }}</h1>
-            <p>{{.Content}}</p>
-            <p>{{.Author}}</p>
-            <p>{{.CreationDate}}</p>
+            <h3>{{ .Title }}{{.Category}}{{.CreationDate}}</h3>
         </a>
     </div>
     {{end}}
