@@ -63,7 +63,8 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 	var currentuser int64
 	c, _ := r.Cookie("session_token")
 	if c != nil {
-		currentuser = s.GlobalSessions[c.Value].UserID
+		// currentuser = s.GlobalSessions[c.Value].UserID -> Valentin: doesn't work on my PC?
+		app.DB.QueryRow("SELECT id FROM users WHERE session_token=?", c.Value).Scan(&currentuser)
 	}
 	Returncomment(app, currentuser)
 	switch r.Method {
@@ -164,7 +165,19 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := tmpl.Execute(w, app.Data); err != nil {
+		type Context struct {
+			Connected	bool
+			Moderator	bool
+			Admin		bool
+			Categories	[]models.Categories
+		}
+		var context Context
+		context.Connected = app.Data.Connected
+		context.Moderator = app.Data.Moderator
+		context.Admin = app.Data.Admin
+		context.Categories = middle.FetchCat(app.DB)
+
+		if err := tmpl.Execute(w, context); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

@@ -5,6 +5,7 @@ type Post struct {
 	AuthorID     int64  `json:"author_id"`
 	Author       string `json:"author"`
 	Category     string `json:"category"`
+	Categoryid	 int	`json:"category_id"`
 	Title        string `json:"title"`
 	Content      string `json:"content"`
 	Like         int    `json:"like"`

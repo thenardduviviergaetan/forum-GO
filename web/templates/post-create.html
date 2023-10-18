@@ -11,9 +11,12 @@
     <div class="field">
       <label for="categories">Category</label>
         <select name="categories" id="categories">
-          <option value="minecraft">Minecraft</option>
+          {{range $val := .Categories}}
+            <option value={{$val.ID}}>{{$val.Title}}</option>
+          <!-- <option value="minecraft">Minecraft</option>
           <option value="job_search">Job Search</option>
-          <option value="food">Food</option>
+          <option value="food">Food</option> -->
+          {{end}}
         </select>
     </div>
     <div class="field">
