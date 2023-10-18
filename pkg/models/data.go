@@ -7,4 +7,6 @@ type Data struct {
 	Posts          []Post
 	CurrentPost    Post
 	CurrentComment Comment
+	Categories	[]Categories
+	
 }

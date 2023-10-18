@@ -25,8 +25,10 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+		app.Data.Categories = middle.FetchCat(app.DB)
+
 	Returncurentpost(app, w, r, currentuser)
-	fmt.Println(app.Data.CurrentPost)
+	// fmt.Println(app.Data.CurrentPost)
 	renderpost_id(w, tmpl, app)
 }
 
@@ -100,7 +102,8 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			post.Content = r.FormValue("content-editor")
 			id, _ := strconv.Atoi(r.FormValue("post-editor"))
 			post.ID = int64(id)
-			post.Category = r.FormValue("categories-editor")
+			cat , _ :=strconv.Atoi( r.FormValue("categories-editor"))
+			post.Categoryid = cat
 			post.Title = r.FormValue("title-editor")
 			middle.UpdatePost(app.DB, &post)
 			Returncurentpost(app, w, r, currentuser)
@@ -144,37 +147,6 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			return
 		}
 	}
-
-	var currentuser int64
-	c, _ := r.Cookie("session_token")
-	if c != nil {
-		// currentuser = s.GlobalSessions[c.Value].UserID -> Valentin: doesn't work on my PC?
-		app.DB.QueryRow("SELECT id FROM users WHERE session_token=?", c.Value).Scan(&currentuser)
-	}
-	Returncomment(app, currentuser)
-	switch r.Method {
-	case "POST":
-		if r.FormValue("content") != "" {
-			var comment models.Comment
-			comment.AuthorID = currentuser
-			comment.Content = r.FormValue("content")
-			comment.Postid = post.ID
-			middle.Createcomment(app.DB, &comment)
-		}
-		if r.FormValue("like") != "" {
-			like := strings.Split(r.FormValue("like"), " ")[0] == "true"
-			idcomment, _ := strconv.Atoi(strings.Split(r.FormValue("like"), " ")[1])
-			c, _ := r.Cookie("session_token")
-			userid := s.GlobalSessions[c.Value].UserID
-			middle.Updatelike(app.DB, int64(idcomment), userid, like)
-		}
-		if r.FormValue("delete") != "" {
-			idcomment, _ := strconv.Atoi(r.FormValue("delete"))
-			middle.Removecomment(app.DB, int64(idcomment))
-		}
-	}
-	Returncomment(app, currentuser)
-	renderpost_id(w, tmpl, app)
 }
 
 func renderpost_id(w http.ResponseWriter, tmpl *template.Template, app *App_db) {
@@ -250,19 +222,20 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		type Context struct {
-			Connected	bool
-			Moderator	bool
-			Admin		bool
-			Categories	[]models.Categories
-		}
-		var context Context
-		context.Connected = app.Data.Connected
-		context.Moderator = app.Data.Moderator
-		context.Admin = app.Data.Admin
-		context.Categories = middle.FetchCat(app.DB)
+		// type Context struct {
+		// 	Connected	bool
+		// 	Moderator	bool
+		// 	Admin		bool
+		// 	Categories	[]models.Categories
+		// }
+		// var context Context
+		// context.Connected = app.Data.Connected
+		// context.Moderator = app.Data.Moderator
+		// context.Admin = app.Data.Admin
+		// context.Categories = middle.FetchCat(app.DB)
+		app.Data.Categories = middle.FetchCat(app.DB)
 
-		if err := tmpl.Execute(w, context); err != nil {
+		if err := tmpl.Execute(w, app.Data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

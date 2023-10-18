@@ -29,7 +29,7 @@ func RemovePost(db *sql.DB, idpost int64) error {
 }
 
 func UpdatePost(db *sql.DB, post *models.Post) error {
-	_, err := db.Exec("UPDATE post SET content = ? , title = ? , category = ? WHERE id = ?", post.Content, post.Title, post.Category, post.ID)
+	_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid = ? WHERE id = ?", post.Content, post.Title, post.Categoryid, post.ID)
 	if err != nil {
 		fmt.Println("Update comment : ", err)
 		return err
