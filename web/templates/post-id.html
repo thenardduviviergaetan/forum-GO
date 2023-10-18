@@ -2,8 +2,8 @@
 {{ template "navbar" .}}
 <main>
 <a href="/post" class="back_btn">Back</a>
-<div class="post-details">
-    <h1>{{ .CurrentPost.Title }}</h1>
+    <div class="post-details">
+        <h1>{{ .CurrentPost.Title }}</h1>
         <div class="head-post">
             <p>Category: {{.CurrentPost.Category}}</p>
             <p>Author: {{.CurrentPost.Author}}</p>
@@ -13,5 +13,9 @@
             <p>{{.CurrentPost.Content}}</p>
         </div>
     </div>
+    {{ template "comment" .}}
+    {{ if .Connected}}
+    {{ template "comment-create" .}}
+    {{ end }}
 </main>
 {{ template "footer" .}}

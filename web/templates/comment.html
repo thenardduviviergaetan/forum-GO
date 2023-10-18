@@ -1,0 +1,30 @@
+{{define "comment" }}
+    <div class="tab-comment">
+        {{ if .Connected  }}
+            {{ range .CurrentPost.Tab_comment}}
+            <div class="comment">
+                <h5>{{.Author}}</h5>
+                <p>{{.Content}}</p>
+                <p>{{.CreationDate}}</p>
+                    <form method="POST" action="/post/id?id={{ .Postid}}">
+                        {{if .Ifcurrentuser }}
+                            <button type="delete" name="delete" value="{{ .ID}}">delete?</button>
+                        {{ end }}
+                       <button type="submit" name="like" value="true {{ .ID}}">like : {{.Like}}</button>
+                       <button type="submit" name="like" value="false {{ .ID}}">dislike : {{.Dislike}}</button>
+                    </form>
+            </div>
+            {{end}}
+        {{ else }}
+        {{ range .CurrentPost.Tab_comment}}
+            <div class="comment">
+                <h5>{{.Author}}</h5>
+                <p>{{.Content}}</p>
+                <p>{{.CreationDate}}</p>
+                    like : {{.Like}}</button>
+                    dislike : {{.Dislike}}
+            </div>
+            {{end}}
+        {{ end }}
+    </div>
+{{ end }}

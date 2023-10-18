@@ -1,0 +1,10 @@
+{{define "comment-create" }}
+
+<div class="comment-create">
+    <form method="POST" action="/post/id?id={{ .CurrentPost.ID}}">
+        <textarea id="Content" name="Content" rows="5" cols="33"></textarea>
+        <input type="submit" class="btn btn-primary" value="submit">
+    </form>
+</div>
+
+{{ end }}
