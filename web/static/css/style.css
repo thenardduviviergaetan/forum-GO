@@ -100,6 +100,43 @@ main {
   background-color: #f65a5a;
 }
 
+.dislike_btn {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  background-color: #e11919;
+  border: none;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+
+.dislike_btn:hover {
+  background-color: #f65a5a;
+}
+
+.like_btn {
+  display: inline-block;
+  padding: 5px 10px;
+  margin-right: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  background-color: #07df2f;
+  border: none;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+
+.like_btn:hover {
+  background-color: #07b647;
+}
+
 a {
   text-decoration: none;
   color: #fff;
@@ -113,6 +150,21 @@ a:hover {
 .link {
   font-weight: bold;
   text-decoration: underline;
+}
+
+.delete_btn {
+  display: inline-block;
+  padding: 5px 10px;
+  margin-right: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  background-color: #676767;
+  border: none;
+  border-radius: 15px;
+  margin-top: 20px;
 }
 
 /**************POST*****************/
@@ -143,4 +195,61 @@ a:hover {
 
 .body-post {
   padding: 20px 0;
+}
+
+/**********COMMENT***********/
+.tab-comment {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 100%;
+  border: solid 1px #fff;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.comment {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  border: solid 1px #fff;
+}
+.comment .comment-head {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.comment .comment-head h5 {
+  font-size: 20px;
+}
+.comment .comment-content {
+  padding: 10px 0;
+}
+.comment .comment-rate {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rate {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  border: none;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+
+.like {
+  background-color: #07df2f;
+  margin-right: 10px;
+}
+
+.dislike {
+  background-color: #e11919;
 }/*# sourceMappingURL=style.css.map */
