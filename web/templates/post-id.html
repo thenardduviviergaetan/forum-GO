@@ -12,6 +12,25 @@
         <div class="body-post">
             <p>{{.CurrentPost.Content}}</p>
         </div>
+    {{ if .Connected }}
+        <form class="comment-rate" method="POST" action="/post/id?id={{ .CurrentPost.ID}}">
+            {{if .CurrentPost.Ifcurrentuser }}
+            <button class="delete_btn" type="delete" name="delete-post" value="{{ .CurrentPost.ID}}">delete</button>
+            <button class="edit_btn" type="submit" name="edit-post" value="{{ .CurrentPost.ID}}">edit</button>
+            {{ end }}
+            <button class="like_btn" type="submit" name="like-post" value="true {{ .CurrentPost.ID}}">like : {{.CurrentPost.Like}}</button>
+            <button class="dislike_btn" type="submit" name="like-post" value="false {{ .CurrentPost.ID}}">dislike : {{.CurrentPost.Dislike}}</button>
+        </form>
+    {{else}}
+    <div class="comment-rate">
+        <span class="rate like">
+            like : {{.CurrentPost.Like}}
+        </span> 
+        <span class="rate dislike">
+        dislike : {{.CurrentPost.Dislike}}
+    </span> 
+    </div>
+    {{ end }}
     </div>
     {{ template "comment" .}}
     {{ if .Connected}}
