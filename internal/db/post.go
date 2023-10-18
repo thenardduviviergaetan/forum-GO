@@ -41,7 +41,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Category,
+			&post.Categoryid,
 			&post.Title,
 			&post.Content,
 			&post.Like,
@@ -49,6 +49,8 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			&post.CreationDate,
 			&post.Flaged,
 		)
+				err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid ).Scan(&post.Category)
+
 		app.Data.CurrentPost = post
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -123,7 +125,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Category,
+			&post.Categoryid,
 			&post.Title,
 			&post.Content,
 			&post.Like,
@@ -135,6 +137,8 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid ).Scan(&post.Category)
 
 		app.Data.Posts = append(app.Data.Posts, post)
 	}
@@ -184,7 +188,6 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "POST":
 		c, _ := r.Cookie("session_token")
-		// current := c.Value
 		fmt.Println("A post has been submitted")
 		errParse := r.ParseForm()
 
@@ -195,8 +198,9 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 		var post *models.Post
 
+		cat, _ := strconv.Atoi(r.FormValue("categories"))
 		post = &models.Post{
-			Category: r.FormValue("categories"),
+			Categoryid: cat,
 			Title:    r.FormValue("title"),
 			Content:  r.FormValue("content"),
 		}
@@ -213,10 +217,4 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/post/id?id="+strconv.Itoa(id), http.StatusFound)
 	}
-}
-
-func PostUpdateHandler(w http.ResponseWriter, r *http.Request) {
-}
-
-func PostDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
