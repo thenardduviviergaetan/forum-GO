@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Category struct {
+type Categories struct {
 	ID           int64     `json:"id"`
 	Title        string    `json:"title"`
 	Description  string    `json:"category"`

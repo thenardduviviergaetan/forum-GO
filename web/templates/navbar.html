@@ -4,11 +4,17 @@
   <a href="/">Home</a>
   <nav>
     <a href="/post">Show Post</a>
-    {{ if .Connected  }}
-    <a href="/post/create">Create Post</a>
-    <a href="/logout">Logout</a>
+    {{ if .Connected }}
+      {{ if .Moderator }}
+
+      {{end}}
+      {{if .Admin}}
+        <a href="/admin">Administration</a>
+      {{end}}
+      <a href="/post/create">Create Post</a>
+      <a href="/logout">Logout</a>
     {{ else }}
-    <a href="/login">Login</a>
+      <a href="/login">Login</a>
     {{end}}
   </nav>
 </header>

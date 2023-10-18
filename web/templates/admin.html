@@ -20,23 +20,23 @@
                             <td>{{$val.CreationDate}}</td>
                             {{if eq $val.UserType 1}}
                                 <td>
-                                    <form action="/admin" method="post">
+                                    <form action="/admin" method="POST">
                                         <button type="submit" name="addmod" value="{{$val.ID}}">Add moderation right</button>
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="/admin" method="post">
+                                    <form action="/admin" method="POST">
                                         <button type="submit" name="deletion" value="{{$val.ID}}">Delete user</button>
                                     </form>
                                 </td>
                             {{else if eq $val.UserType 2}}
                                 <td>
-                                    <form action="/admin" method="post">
+                                    <form action="/admin" method="POST">
                                         <button type="submit" name="delmod" value="{{$val.ID}}">Remove moderation right</button>
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="/admin" method="post">
+                                    <form action="/admin" method="POST">
                                         <button type="submit" name="deletion" value="{{$val.ID}}">Delete user</button>
                                     </form>
                                 </td>
@@ -53,6 +53,43 @@
                     {{end}}
                 </tbody>
             </table>
+        </div>
+        <div style="height:10vh"></div>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="5">Categories</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $val := .Categories}}
+                        <tr>
+                            <td>{{$val.ID}}</td>
+                            <td>{{$val.Title}}</td>
+                            <td>{{$val.Description}}</td>
+                            <td>
+                                <a href="/category?id={{$val.ID}}">Modify</a>
+                            </td>
+                            <td>
+                                <form action="/admin" method="POST">
+                                    <button type="submit" name="delcat" value="{{$val.ID}}">Delete category</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        <div style="height:10vh"></div>
+        <div>
+            <a href="/category">Create a category</a>
+            <!-- <div>category creation</div>
+            <form method="POST" action="/admin">
+                <input name="catitle" type="text" required>
+                <textarea name="catdescription" rows="5" cols="33" required></textarea>
+                <button type="submit" name="creatcat" value="send">Create</button>
+            </form> -->
         </div>
     </div>
 </main>

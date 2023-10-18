@@ -22,11 +22,20 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.Data.Connected = func() bool {
-		if _, err := r.Cookie("session_token"); err == nil {
+		if cookie, err := r.Cookie("session_token"); err == nil {
 			s.CheckSession(app.DB, w, r)
+			var userstypeid int
+			app.DB.QueryRow("SELECT userstypeid FROM users WHERE session_token=?", cookie.Value).Scan(&userstypeid)
+			if userstypeid == 2 {
+				app.Data.Moderator = true
+			} else if userstypeid == 3 {
+				app.Data.Admin = true
+			}
 			return true
 		}
 		s.CheckActive()
+		app.Data.Moderator = false
+		app.Data.Admin = false
 		return false
 	}()
 

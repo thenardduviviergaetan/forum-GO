@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	//"fmt"
 	//"time"
 )
 
@@ -24,13 +25,7 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//check if user is admin
-	if cookie, err := r.Cookie("session_token"); err == nil {
-		var userstypeid int
-		err = app.DB.QueryRow("SELECT userstypeid FROM users WHERE session_token=?", cookie.Value).Scan(&userstypeid)
-		if err != nil || userstypeid != 3 {
-			http.Redirect(w, r, "/", http.StatusFound)
-		}
-	} else {
+	if !app.Data.Admin {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
@@ -47,16 +42,30 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 			if err := middle.Addmod(app.DB, r); err != nil {
 				log.Fatal(err)
 			}
+		// } else if len(r.FormValue("catitle")) > 0 {
+		// 	if err := middle.AddCategory(app.DB, r); err != nil {
+		// 		log.Fatal(err)
+		// 	}
+		} else if len(r.FormValue("delcat")) > 0 {
+			if err := middle.DelCategory(app.DB, r); err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 
-	userlst := middle.FetchUsers(app.DB)
-
 	type Context struct {
-		Userlst []models.User
+		Userlst		[]models.User
+		Categories	[]models.Categories
+		Connected	bool
+		Moderator	bool
+		Admin		bool
 	}
 	var context Context
-	context.Userlst = userlst
+	context.Userlst = middle.FetchUsers(app.DB)
+	context.Categories = middle.FetchCat(app.DB)
+	context.Connected = app.Data.Connected
+	context.Moderator = app.Data.Moderator
+	context.Admin = app.Data.Admin
 
 	if err := tmpl.Execute(w, context); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

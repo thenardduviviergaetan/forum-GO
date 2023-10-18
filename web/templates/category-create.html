@@ -1,0 +1,15 @@
+{{ template "head" .}} 
+{{ template "navbar" .}}
+<div>
+    <div>category creation</div>
+    <form method="POST" action="/category">
+        <input name="catitle" type="text" required value="{{.Title}}">
+        <textarea name="catdescription" rows="5" cols="33" required >{{.Description}}</textarea>
+        {{ if .Title }}
+            <button type="submit" name="creatcat" value="{{.ID}}">Modify</button>
+        {{else}}
+            <button type="submit" name="creatcat" value="create">Create</button>
+        {{end}}
+    </form>
+</div>
+{{ template "footer" .}}
