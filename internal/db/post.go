@@ -44,13 +44,13 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			&post.Categoryid,
 			&post.Title,
 			&post.Content,
-			&post.Like,
-			&post.Dislike,
 			&post.CreationDate,
 			&post.Flaged,
 		)
 				err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid ).Scan(&post.Category)
 
+		post.User_like, post.User_dislike = linkpost(app, post.ID)
+		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		app.Data.CurrentPost = post
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -128,8 +128,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			&post.Categoryid,
 			&post.Title,
 			&post.Content,
-			&post.Like,
-			&post.Dislike,
 			&post.CreationDate,
 			&post.Flaged,
 		)
@@ -139,7 +137,8 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid ).Scan(&post.Category)
-
+		post.User_like, post.User_dislike = linkpost(app, post.ID)
+		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		app.Data.Posts = append(app.Data.Posts, post)
 	}
 
@@ -155,7 +154,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 	case "GET":
 		tmpl, err := template.ParseFiles(
@@ -217,4 +215,23 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/post/id?id="+strconv.Itoa(id), http.StatusFound)
 	}
+}
+func linkpost(app *App_db, postid int64) (tablike map[int64]bool, tabdislike map[int64]bool) {
+	tablike, tabdislike = make(map[int64]bool), make(map[int64]bool)
+	rows, err := app.DB.Query("SELECT userid,likes FROM linkpost WHERE postid = ?", postid)
+	if err != nil {
+		fmt.Println(err)
+		return nil, nil
+	}
+	var userid int64
+	var like bool
+	for rows.Next() {
+		rows.Scan(&userid, &like)
+		if like {
+			tablike[userid] = true
+		} else {
+			tabdislike[userid] = true
+		}
+	}
+	return
 }

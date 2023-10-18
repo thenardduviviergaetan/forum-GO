@@ -1,10 +1,11 @@
 package forum
 
 import (
-	models "forum/pkg/models"
-	s "forum/sessions"
 	"html/template"
 	"net/http"
+
+	models "forum/pkg/models"
+	s "forum/sessions"
 )
 
 // Display the home page handler
@@ -61,8 +62,6 @@ func GetRecentPosts(app *App_db) error {
 			&post.Categoryid,
 			&post.Title,
 			&post.Content,
-			&post.Like,
-			&post.Dislike,
 			&post.CreationDate,
 			&post.Flaged,
 		)

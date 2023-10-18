@@ -2,6 +2,7 @@ package forum
 
 import (
 	"database/sql"
+
 	. "forum/pkg/models"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -49,14 +50,21 @@ func (app *App_db) Migrate() error {
 			categoryid INTEGER NOT NULL,
 			title TEXT NOT NULL UNIQUE,
 			content TEXT NOT NULL,
-			likes INTEGER NOT NULL,
-			dislikes INTEGER NOT NULL,
 			creation CURRENT_TIMESTAMP,
 			flaged INTEGER DEFAULT 0,
 			FOREIGN KEY(categoryid) REFERENCES categories(id) ON DELETE CASCADE,
 			FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE
 		);
 		
+		CREATE TABLE IF NOT EXISTS linkpost(
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			userid INTEGER NOT NULL,
+			postid INTEGER NOT NULL,
+			likes BOOLEAN NOT NULL,
+			FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE
+			FOREIGN KEY(postid) REFERENCES post(id) ON DELETE CASCADE
+		);
+
 		CREATE TABLE IF NOT EXISTS comment(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			authorid INTEGER NOT NULL,
@@ -78,7 +86,7 @@ func (app *App_db) Migrate() error {
 	`
 	_, err := app.DB.Exec(query)
 
-	//creation usertype
+	// creation usertype
 	var count int
 	errChecker := app.DB.QueryRow("SELECT COUNT(*) FROM userstype").Scan(&count)
 	if errChecker == sql.ErrNoRows || count == 0 {
