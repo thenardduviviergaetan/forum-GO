@@ -20,17 +20,25 @@ CREATE TABLE IF NOT EXISTS users(
     FOREIGN KEY(userstypeid) REFERENCES userstype(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS categories(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    time DATETIME NOT NULL   
+);
+
 CREATE TABLE IF NOT EXISTS post(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     authorid INTEGER NOT NULL,
     author TEXT NOT NULL,
-    category TEXT NOT NULL,
+    categoryid INTEGER NOT NULL,
     title TEXT NOT NULL UNIQUE,
     content TEXT NOT NULL,
     like INTEGER NOT NULL,
     dislikes INTEGER NOT NULL,
 	creation CURRENT_TIMESTAMP,
     flaged INTEGER DEFAULT 0,
+    FOREIGN KEY(categoryid) REFERENCES categories(id) ON DELETE CASCADE,
     FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -40,7 +48,7 @@ CREATE TABLE IF NOT EXISTS comment(
     postid INTEGER NOT NULL,
     content TEXT NOT NULL,
 	creation CURRENT_TIMESTAMP,
-    FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY(postid) REFERENCES post(id) ON DELETE CASCADE
 );
 
@@ -49,6 +57,6 @@ CREATE TABLE IF NOT EXISTS linkcomment(
     userid INTEGER NOT NULL,
     commentid INTEGER NOT NULL,
     like BOOLEAN NOT NULL,
-    FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY(commentid) REFERENCES comment(id) ON DELETE CASCADE
 );

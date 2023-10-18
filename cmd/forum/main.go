@@ -30,6 +30,7 @@ func main() {
 	http.HandleFunc("/logout", app.LogoutHandler)
 
 	//Post related handlers
+	http.HandleFunc("/category", app.CategoryHandler)
 	http.HandleFunc("/post/create", app.PostCreateHandler)
 	http.HandleFunc("/post", app.PostHandler)
 	http.HandleFunc("/post/id", app.PostIdHandler)
