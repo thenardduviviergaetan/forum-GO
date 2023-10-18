@@ -47,6 +47,8 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			&post.CreationDate,
 			&post.Flaged,
 		)
+		post.User_like, post.User_dislike = linkpost(app, post.ID)
+		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		app.Data.CurrentPost = post
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -130,7 +132,8 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
+		post.User_like, post.User_dislike = linkpost(app, post.ID)
+		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		app.Data.Posts = append(app.Data.Posts, post)
 	}
 
@@ -201,4 +204,24 @@ func PostUpdateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostDeleteHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+func linkpost(app *App_db, postid int64) (tablike map[int64]bool, tabdislike map[int64]bool) {
+	tablike, tabdislike = make(map[int64]bool), make(map[int64]bool)
+	rows, err := app.DB.Query("SELECT userid,likes FROM linkpost WHERE postid = ?", postid)
+	if err != nil {
+		fmt.Println(err)
+		return nil, nil
+	}
+	var userid int64
+	var like bool
+	for rows.Next() {
+		rows.Scan(&userid, &like)
+		if like {
+			tablike[userid] = true
+		} else {
+			tabdislike[userid] = true
+		}
+	}
+	return
 }
