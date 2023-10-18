@@ -19,7 +19,22 @@ func CreatePost(db *sql.DB, post *models.Post) (int, error) {
 	return int(id), nil
 }
 
-func UpdatePost(db *sql.DB, id int, post models.Post) {
+func RemovePost(db *sql.DB, idpost int64) error {
+	_, err := db.Exec("DELETE FROM post WHERE id = ?", idpost)
+	if err != nil {
+		fmt.Println("Remove post : ", err)
+		return err
+	}
+	return nil
+}
+
+func UpdatePost(db *sql.DB, post *models.Post) error {
+	_, err := db.Exec("UPDATE post SET content = ? , title = ? , category = ? WHERE id = ?", post.Content, post.Title, post.Category, post.ID)
+	if err != nil {
+		fmt.Println("Update comment : ", err)
+		return err
+	}
+	return nil
 }
 
 func Updatelikepost(db *sql.DB, idpost, iduser int64, like bool) {

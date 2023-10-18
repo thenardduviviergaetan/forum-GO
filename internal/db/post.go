@@ -14,9 +14,23 @@ import (
 	s "forum/sessions"
 )
 
-func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
-	var post models.Post
+func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, currentuser int64) {
+	tmpl, err := template.ParseFiles(
+		"web/templates/edit-post.html",
+		"web/templates/head.html",
+		"web/templates/navbar.html",
+		"web/templates/footer.html",
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	Returncurentpost(app, w, r, currentuser)
+	fmt.Println(app.Data.CurrentPost)
+	renderpost_id(w, tmpl, app)
+}
 
+func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles(
 		"web/templates/post-id.html",
 		"web/templates/head.html",
@@ -29,7 +43,75 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	var currentuser int64
+	c, _ := r.Cookie("session_token")
+	if c != nil {
+		currentuser = s.GlobalSessions[c.Value].UserID
+	}
+	Returncurentpost(app, w, r, currentuser)
+	Returncomment(app, currentuser)
+	switch r.Method {
+	case "POST":
+		if r.FormValue("content") != "" {
+			var comment models.Comment
+			comment.AuthorID = currentuser
+			comment.Content = r.FormValue("content")
+			comment.Postid = app.Data.CurrentPost.ID
+			middle.Createcomment(app.DB, &comment)
+		}
+		if r.FormValue("like") != "" {
+			like := strings.Split(r.FormValue("like"), " ")[0] == "true"
+			idcomment, _ := strconv.Atoi(strings.Split(r.FormValue("like"), " ")[1])
+			middle.Updatelike(app.DB, int64(idcomment), currentuser, like)
+		}
+		if r.FormValue("delete") != "" {
+			idcomment, _ := strconv.Atoi(r.FormValue("delete"))
+			middle.Removecomment(app.DB, int64(idcomment))
+		}
+		if r.FormValue("edit-post") != "" {
+			app.PosteditHandler(w, r, currentuser)
+			return
+		}
+		if r.FormValue("edit-comment") != "" {
+			idcomment, _ := strconv.Atoi(r.FormValue("edit-comment"))
+			app.CommentHandler(w, r, int64(idcomment))
+			return
+		}
+		if r.FormValue("like-post") != "" {
+			like := strings.Split(r.FormValue("like-post"), " ")[0] == "true"
+			idpost, _ := strconv.Atoi(strings.Split(r.FormValue("like-post"), " ")[1])
+			middle.Updatelikepost(app.DB, int64(idpost), currentuser, like)
+			Returncurentpost(app, w, r, currentuser)
+		}
+		if r.FormValue("delete-post") != "" {
+			idpost, _ := strconv.Atoi(r.FormValue("delete-post"))
+			middle.RemovePost(app.DB, int64(idpost))
+			http.Redirect(w, r, "/post", http.StatusFound)
+		}
+		if r.FormValue("comment-editor") != "" {
+			var comment models.Comment
+			comment.Content = r.FormValue("content-editor")
+			id, _ := strconv.Atoi(r.FormValue("comment-editor"))
+			comment.ID = int64(id)
+			middle.Updatecomment(app.DB, &comment)
+		}
+		if r.FormValue("post-editor") != "" {
+			var post models.Post
+			post.Content = r.FormValue("content-editor")
+			id, _ := strconv.Atoi(r.FormValue("post-editor"))
+			post.ID = int64(id)
+			post.Category = r.FormValue("categories-editor")
+			post.Title = r.FormValue("title-editor")
+			middle.UpdatePost(app.DB, &post)
+			Returncurentpost(app, w, r, currentuser)
+		}
+	}
+	Returncomment(app, currentuser)
+	renderpost_id(w, tmpl, app)
+}
 
+func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, currentuser int64) {
+	var post models.Post
 	if r.URL.Query().Has("id") {
 		id, err := strconv.Atoi(r.URL.Query().Get("id"))
 		if err != nil {
@@ -49,6 +131,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 		)
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
+		post.Ifcurrentuser = post.AuthorID == currentuser
 		app.Data.CurrentPost = post
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -59,36 +142,6 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	var currentuser int64
-	c, _ := r.Cookie("session_token")
-	if c != nil {
-		currentuser = s.GlobalSessions[c.Value].UserID
-	}
-	Returncomment(app, currentuser)
-	switch r.Method {
-	case "POST":
-		if r.FormValue("content") != "" {
-			var comment models.Comment
-			comment.AuthorID = currentuser
-			comment.Content = r.FormValue("content")
-			comment.Postid = post.ID
-			middle.Createcomment(app.DB, &comment)
-		}
-		if r.FormValue("like") != "" {
-			like := strings.Split(r.FormValue("like"), " ")[0] == "true"
-			idcomment, _ := strconv.Atoi(strings.Split(r.FormValue("like"), " ")[1])
-			c, _ := r.Cookie("session_token")
-			userid := s.GlobalSessions[c.Value].UserID
-			middle.Updatelike(app.DB, int64(idcomment), userid, like)
-		}
-		if r.FormValue("delete") != "" {
-			idcomment, _ := strconv.Atoi(r.FormValue("delete"))
-			middle.Removecomment(app.DB, int64(idcomment))
-		}
-	}
-	Returncomment(app, currentuser)
-	renderpost_id(w, tmpl, app)
 }
 
 func renderpost_id(w http.ResponseWriter, tmpl *template.Template, app *App_db) {

@@ -1,7 +1,8 @@
 package forum
 
 type Data struct {
-	Connected   bool
-	Posts       []Post
-	CurrentPost Post
+	Connected      bool
+	Posts          []Post
+	CurrentPost    Post
+	CurrentComment Comment
 }

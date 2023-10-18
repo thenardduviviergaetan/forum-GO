@@ -1,10 +1,45 @@
 package forum
 
 import (
+	"database/sql"
 	"fmt"
+	"html/template"
+	"net/http"
 
 	models "forum/pkg/models"
 )
+
+func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, idcomment int64) {
+	tmpl, err := template.ParseFiles(
+		"web/templates/edit-comment.html",
+		"web/templates/head.html",
+		"web/templates/navbar.html",
+		"web/templates/footer.html",
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var comment models.Comment
+	err = app.DB.QueryRow("Select id,content,postid From comment where id = ?", idcomment).Scan(
+		&comment.ID,
+		&comment.Content,
+		&comment.Postid,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "No such post", http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+	app.Data.CurrentComment = comment
+	if err := tmpl.Execute(w, app.Data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
 
 func Returncomment(app *App_db, currentuser int64) {
 	var tab_comment []models.Comment
