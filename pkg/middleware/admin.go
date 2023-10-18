@@ -70,7 +70,7 @@ func Delmod(db *sql.DB, r *http.Request) error {
 }
 
 func FetchUsers(db *sql.DB) []models.User {
-	rows, err := db.Query("SELECT id, userstypeid, username, email, validation, askedmod, time FROM users")
+	rows, err := db.Query("SELECT id, userstypeid, username, email, valide, askedmod, creation FROM users")
 	if err != nil {
 		log.Fatal(err)
 	}

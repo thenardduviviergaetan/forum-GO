@@ -60,11 +60,6 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// if err := tmpl.Execute(w, app.Data); err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
 	var currentuser int64
 	c, _ := r.Cookie("session_token")
 	if c != nil {
@@ -73,10 +68,10 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 	Returncomment(app, currentuser)
 	switch r.Method {
 	case "POST":
-		if r.FormValue("Content") != "" {
+		if r.FormValue("content") != "" {
 			var comment models.Comment
 			comment.AuthorID = currentuser
-			comment.Content = r.FormValue("Content")
+			comment.Content = r.FormValue("content")
 			comment.Postid = post.ID
 			middle.Createcomment(app.DB, &comment)
 		}
@@ -155,11 +150,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
-	// token := "test_token"
-	// if token, err := r.Cookie("session_token"); err == nil {
-	// 	http.Redirect(w, r, "http://localhost:8080/", http.StatusUnauthorized)
-	// 	return
-	// }
 
 	switch r.Method {
 	case "GET":
@@ -190,19 +180,14 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO check Category to be sure that it exist
-		// TODO retrieve user ID to store in the post
 		var post *models.Post
 
 		post = &models.Post{
-			// AuthorID: current.UserID,
-			// Author:   current.Username,
 			Category: r.FormValue("categories"),
 			Title:    r.FormValue("title"),
 			Content:  r.FormValue("content"),
 		}
 
-		// query := (`SELECT userid, username FROM users WHERE session_token = ?`)
 		err := app.DB.QueryRow("SELECT id, username FROM users where session_token = ?", c.Value).Scan(&post.AuthorID, &post.Author)
 		if err != nil {
 			log.Fatal(err)

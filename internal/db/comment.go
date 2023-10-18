@@ -34,7 +34,7 @@ func Returncomment(app *App_db, currentuser int64) {
 
 func linkcomment(app *App_db, id int64) (tablike map[int64]bool, tabdislike map[int64]bool) {
 	tablike, tabdislike = make(map[int64]bool), make(map[int64]bool)
-	rows, err := app.DB.Query("SELECT userid,like FROM linkcomment WHERE commentid = ?", id)
+	rows, err := app.DB.Query("SELECT userid,likes FROM linkcomment WHERE commentid = ?", id)
 	if err != nil {
 		fmt.Println(err)
 		return nil, nil

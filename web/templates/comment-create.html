@@ -1,8 +1,11 @@
 {{define "comment-create" }}
 
-<div class="comment-create">
+<div class="comment-create form">
     <form method="POST" action="/post/id?id={{ .CurrentPost.ID}}">
-        <textarea id="Content" name="Content" rows="5" cols="33"></textarea>
+        <div class="field">
+            <label for="content">Comment:</label>
+            <textarea id="content" name="content" rows="5" cols="33"></textarea>
+        </div>
         <input type="submit" class="btn btn-primary" value="submit">
     </form>
 </div>

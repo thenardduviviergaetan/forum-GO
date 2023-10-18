@@ -18,7 +18,7 @@ func (app *App_db) CreateUser(user *models.User) error {
 		return err
 	}
 	_, err = app.DB.Exec(
-		"INSERT INTO users(username, userstypeid, password, email, validation, time) VALUES (?,?,?,?,?,?)",
+		"INSERT INTO users(username, userstypeid, pwd, email, valide, creation) VALUES (?,?,?,?,?,?)",
 		user.Username,
 		user.UserType,
 		string(hashPass),

@@ -47,7 +47,7 @@ func Updatelike(db *sql.DB, idcomment, iduser int64, like bool) {
 	}
 	if exist {
 		var current bool
-		err := db.QueryRow("SELECT like FROM linkcomment WHERE userid = ? AND commentid = ?", iduser, idcomment).Scan(&current)
+		err := db.QueryRow("SELECT likes FROM linkcomment WHERE userid = ? AND commentid = ?", iduser, idcomment).Scan(&current)
 		if err != nil {
 			fmt.Println("Update like : ", err)
 			return
@@ -59,14 +59,14 @@ func Updatelike(db *sql.DB, idcomment, iduser int64, like bool) {
 				return
 			}
 		} else {
-			_, err := db.Exec("UPDATE linkcomment SET like = ? WHERE userid = ? AND commentid = ?", like, iduser, idcomment)
+			_, err := db.Exec("UPDATE linkcomment SET likes = ? WHERE userid = ? AND commentid = ?", like, iduser, idcomment)
 			if err != nil {
 				fmt.Println("Update like : ", err)
 				return
 			}
 		}
 	} else {
-		_, err := db.Exec("INSERT INTO linkcomment(userid,commentid,like) VALUES(?,?,?)", iduser, idcomment, like)
+		_, err := db.Exec("INSERT INTO linkcomment(userid,commentid,likes) VALUES(?,?,?)", iduser, idcomment, like)
 		if err != nil {
 			fmt.Println("Update like : ", err)
 			return

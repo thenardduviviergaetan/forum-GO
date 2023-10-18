@@ -2,7 +2,6 @@ package forum
 
 import (
 	"database/sql"
-	//"errors"
 	"strconv"
 	"net/http"
 	"log"
@@ -11,7 +10,7 @@ import (
 
 func FetchUser(db *sql.DB, cookie string) models.User {
 	var currentUser models.User
-	err := db.QueryRow("SELECT id, userstypeid, username, email, validation, askedmod, time FROM users WHERE session_token=?", cookie).Scan(
+	err := db.QueryRow("SELECT id, userstypeid, username, email, valide, askedmod, creation FROM users WHERE session_token=?", cookie).Scan(
 						&currentUser.ID, 
 						&currentUser.UserType, 
 						&currentUser.Username, 
