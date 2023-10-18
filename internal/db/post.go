@@ -44,8 +44,8 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			&post.Category,
 			&post.Title,
 			&post.Content,
-			&post.Like,
-			&post.Dislike,
+			// &post.Like,
+			// &post.Dislike,
 			&post.CreationDate,
 			&post.Flaged,
 		)
@@ -125,8 +125,8 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			&post.Category,
 			&post.Title,
 			&post.Content,
-			&post.Like,
-			&post.Dislike,
+			// &post.Like,
+			// &post.Dislike,
 			&post.CreationDate,
 			&post.Flaged,
 		)
@@ -150,7 +150,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 	case "GET":
 		tmpl, err := template.ParseFiles(

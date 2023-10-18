@@ -7,8 +7,10 @@ type Post struct {
 	Category     string `json:"category"`
 	Title        string `json:"title"`
 	Content      string `json:"content"`
-	Like         int    `json:"like"`
-	Dislike      int    `json:"dislike"`
+	Like         int
+	User_like    map[int64]bool
+	Dislike      int
+	User_dislike map[int64]bool
 	CreationDate string `json:"time"`
 	Flaged       int    `json:"flaged"`
 	Tab_comment  []Comment
