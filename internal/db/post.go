@@ -87,6 +87,10 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			idcomment, _ := strconv.Atoi(r.FormValue("delete"))
 			middle.Removecomment(app.DB, int64(idcomment))
 		}
+		if r.FormValue("report") != "" {
+			idcomment, _ := strconv.Atoi(r.FormValue("report"))
+			middle.Reportcomment(app.DB, idcomment)
+		}
 	}
 	Returncomment(app, currentuser)
 	renderpost_id(w, tmpl, app)

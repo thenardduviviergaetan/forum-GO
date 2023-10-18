@@ -63,6 +63,7 @@ func (app *App_db) Migrate() error {
 			postid INTEGER NOT NULL,
 			content TEXT NOT NULL,
 			creation CURRENT_TIMESTAMP,
+			flaged INTEGER DEFAULT 0,
 			FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE,
 			FOREIGN KEY(postid) REFERENCES post(id) ON DELETE CASCADE
 		);

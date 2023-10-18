@@ -34,11 +34,15 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	type Context struct {
 		User 		models.User
 		Connected	bool
+		Moderator	bool
+		Admin		bool
 	}
 	var context Context
 	if cookie, err := r.Cookie("session_token"); err == nil {
 		context.User = middle.FetchUser(app.DB, cookie.Value)
-		context.Connected = true
+		context.Connected = app.Data.Connected
+		context.Moderator = app.Data.Moderator
+		context.Admin = app.Data.Admin
 	} else {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}

@@ -1,0 +1,33 @@
+{{define "comment-flaged" }}
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="8">Flaged comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range $val := .Userlst}}
+                <tr>
+                    <td>{{$val.ID}}</td>
+                    <td>{{$val.UserType}}</td>
+                    <td>{{$val.Username}}</td>
+                    <td>{{$val.Email}}</td>
+                    <td>{{$val.Validation}}</td>
+                    <td>{{$val.CreationDate}}</td>
+                    <td>
+                        <form action="/admin" method="POST">
+                            <button type="submit" name="supflagcom" value="{{$val.ID}}">Remove it from the reported list</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/admin" method="POST">
+                            <button type="submit" name="delcom" value="{{$val.ID}}">Delete comment</button>
+                        </form>
+                    </td>
+                </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{end}}

@@ -5,9 +5,9 @@ import (
 	//"errors"
 	"strconv"
 	"net/http"
-	//"log"
+	"log"
 	"time"
-	//models "forum/pkg/models"
+	models "forum/pkg/models"
 )
 
 func AddCategory(db *sql.DB, r *http.Request) error {
@@ -46,4 +46,22 @@ func DelCategory(db *sql.DB, r *http.Request) error {
         return err
     }
 	return nil
+}
+
+func FetchCat(db *sql.DB) []models.Categories {
+	rows, err := db.Query("SELECT id, title, description FROM categories")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var categorylst []models.Categories
+	for rows.Next() {
+		var categories models.Categories
+        err = rows.Scan(&categories.ID, &categories.Title, &categories.Description)
+        if err != nil {
+            log.Fatal(err)
+        }
+		categorylst = append(categorylst, categories)
+	}
+	return categorylst
 }

@@ -24,6 +24,7 @@ func main() {
 
 	http.HandleFunc("/", app.ForumHandler)
 	http.HandleFunc("/admin", app.AdminHandler)
+	http.HandleFunc("/moderation", app.ModHandler)
 	http.HandleFunc("/profile", app.ProfileHandler)
 	http.HandleFunc("/login", app.LoginHandler)
 	http.HandleFunc("/register", app.RegisterHandler)
