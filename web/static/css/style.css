@@ -81,6 +81,17 @@ main {
   text-align: center;
 }
 
+/*****************Filter************/
+.filter {
+  margin-bottom: 50px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.categories-filter {
+  padding: 2px 5px;
+}
+
 /*****************BUTTON************/
 .back_btn {
   display: inline-block;
