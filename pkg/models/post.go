@@ -15,3 +15,9 @@ type Post struct {
 	Dislike      int       `json:"dislike"`
 	CreationDate time.Time `json:"time"`
 }
+
+type PostTemplates struct {
+	Post     Post
+	Err      string
+	IsSigned bool
+}

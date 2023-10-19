@@ -1,6 +1,7 @@
 package forum
 
 import (
+	"fmt"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	"net/http"
@@ -51,6 +52,7 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 				errMsg = "Passwords do not match!"
 			}
 			http.Redirect(w, r, "/register?error="+url.QueryEscape(errMsg), http.StatusFound)
+			fmt.Println("Error here ?")
 			return
 		}
 		if err := app.CreateUser(user); err != nil {

@@ -33,7 +33,7 @@ func (app *App_db) Migrate() error {
 			session_token TEXT,
 			FOREIGN KEY(userstypeid)REFERENCES userstype(id) ON DELETE CASCADE);
 		
-			CREATE TABLE IF NOT EXISTS post(
+		CREATE TABLE IF NOT EXISTS post(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			authorid INTEGER NOT NULL,
 			author TEXT NOT NULL,
@@ -41,7 +41,8 @@ func (app *App_db) Migrate() error {
 			title TEXT NOT NULL UNIQUE,
 			content TEXT NOT NULL,
 			like INTEGER NOT NULL,
-			dislikes INTEGER NOT NULL,
+			dislike INTEGER NOT NULL,
+			creationDate DATETIME NOT NULL,
 			FOREIGN KEY(authorid)REFERENCES users(id) ON DELETE CASCADE);
 	`
 	_, err := app.DB.Exec(query)
