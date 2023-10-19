@@ -189,14 +189,15 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		tmpl, err := template.ParseFiles(
+		tmpl, errParse := template.ParseFiles(
 			"web/templates/post-create.html",
 			"web/templates/head.html",
 			"web/templates/navbar.html",
 			"web/templates/footer.html",
 		)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		if errParse != nil {
+			http.Error(w, errParse.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -212,6 +213,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 		errParse := r.ParseForm()
 		if errParse != nil {
+			// postErrorHandler(w, r, )
 			http.Error(w, errParse.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -255,4 +257,37 @@ func linkpost(app *App_db, postid int64) (tablike map[int64]bool, tabdislike map
 		}
 	}
 	return
+}
+
+// postErrorHandler treats every error appenning in the "post creation" process and sends nescessary information to the
+// user to informe him about
+func postErrorHandler(w http.ResponseWriter, r *http.Request, d models.Data, origin string) {
+	var mainTmpl string
+
+	//switch templates depending on origin
+	switch origin {
+	case "create":
+		mainTmpl = "web/templates/post-create.html"
+	case "update":
+
+	case "delete":
+
+	}
+
+	//getting correct error
+
+	tmpl, errParse := template.ParseFiles(
+		origin,
+		"web/templates/head.html",
+		"web/templates/navbar.html",
+		"web/templates/footer.html",
+	)
+
+	if errParse != nil {
+		log.Fatal("error trying to parse templates in postErrorHandler", errParse)
+	}
+
+	if err := tmpl.Execute(w, d); err != nil {
+		log.Fatal("error trying to execute postErrorhandler", err)
+	}
 }

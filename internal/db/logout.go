@@ -31,5 +31,6 @@ func (app *App_db) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		Value:   "",
 		Expires: time.Now(),
 	})
+	//TODO change status to allow instant redirect
 	http.Redirect(w, r, "/", http.StatusFound)
 }
