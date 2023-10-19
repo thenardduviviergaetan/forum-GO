@@ -11,5 +11,6 @@ type Comment struct {
 	User_like     map[int64]bool
 	Dislike       int
 	User_dislike  map[int64]bool
+	Flaged		  int
 	CreationDate  string `json:"time"`
 }

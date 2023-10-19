@@ -10,6 +10,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td>ID</td>
+                        <td>Type of user</td>
+                        <td>Name</td>
+                        <td>Email</td>
+                        <td>Validation status</td>
+                        <td>Date of registering</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                     {{range $val := .Userlst}}
                         <tr>
                             <td>{{$val.ID}}</td>
@@ -17,7 +28,7 @@
                             <td>{{$val.Username}}</td>
                             <td>{{$val.Email}}</td>
                             <td>{{$val.Validation}}</td>
-                            <td>{{$val.CreationDate}}</td>
+                            <td>{{$val.FormatedTime}}</td>
                             {{if eq $val.UserType 1}}
                                 <td>
                                     <form action="/admin" method="POST">
@@ -63,6 +74,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td>ID</td>
+                        <td>Title</td>
+                        <td>Description</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                     {{range $val := .Categories}}
                         <tr>
                             <td>{{$val.ID}}</td>
@@ -85,6 +103,8 @@
         <div>
             <a href="/category">Create a category</a>
         </div>
+        {{ template "post-flaged" .}}
+        {{ template "comment-flaged" .}}
     </div>
 </main>
 {{ template "footer" .}}

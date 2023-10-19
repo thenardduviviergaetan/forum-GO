@@ -65,7 +65,7 @@ func (app *App_db) CategoryHandler(w http.ResponseWriter, r *http.Request) {
 		context.ID = id
 		title := ""
 		description := ""
-		err = app.DB.QueryRow("SELECT title, description FROM categories WHERE id=?", id).Scan(&title, &description)
+		err = app.DB.QueryRow("SELECT title, descriptions FROM categories WHERE id=?", id).Scan(&title, &description)
 		if err != nil {
 			http.Error(w, "invalid query", http.StatusBadRequest)
 			return

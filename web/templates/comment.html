@@ -1,6 +1,8 @@
 {{define "comment" }}
 <div class="tab-comment">
     {{ if .Connected }}
+    {{$adm := .Admin}}
+    {{$mod := .Moderator}}
     {{ range .CurrentPost.Tab_comment}}
     <div class="comment">
         <div class="comment-head">
@@ -11,9 +13,14 @@
             <p>{{.Content}}</p>
         </div>
         <form class="comment-rate" method="POST" action="/post/id?id={{ .Postid}}">
-            {{if .Ifcurrentuser }}
-            <button class="system_btn" type="delete" name="delete" value="{{ .ID}}">delete</button>
-            <button class="system_btn" type="submit" name="edit-comment" value="{{ .ID}}">edit</button>
+            {{if .Flaged}}
+                <div>This commentary is being evaluated by a moderator</div>
+            {{else}}
+                <button class="delete_btn" type="submit" name="report" value="{{ .ID}}">Report</button>
+            {{ end }}
+            {{if or (.Ifcurrentuser) ($adm) ($mod)}}
+                <button class="delete_btn" type="delete" name="delete" value="{{ .ID}}">delete</button>
+                <button class="system_btn" type="submit" name="edit-comment" value="{{ .ID}}">edit</button>
             {{ end }}
             <button class="like_btn" type="submit" name="like" value="true {{ .ID}}">like : {{.Like}}</button>
             <button class="dislike_btn" type="submit" name="like" value="false {{ .ID}}">dislike : {{.Dislike}}</button>

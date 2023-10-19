@@ -18,6 +18,8 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 		"web/templates/head.html",
 		"web/templates/navbar.html",
 		"web/templates/footer.html",
+		"web/templates/comment-flaged.html",
+		"web/templates/post-flaged.html",
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -50,19 +52,31 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 			if err := middle.DelCategory(app.DB, r); err != nil {
 				log.Fatal(err)
 			}
+		} else if len(r.FormValue("delpost")) > 0 {
+			if err := middle.DelPost(app.DB, r); err != nil {
+				log.Fatal(err)
+			}
+		} else if len(r.FormValue("delcom")) > 0 {
+			if err := middle.DelCom(app.DB, r); err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 
 	type Context struct {
-		Userlst    []models.User
-		Categories []models.Categories
-		Connected  bool
-		Moderator  bool
-		Admin      bool
+		Userlst		[]models.User
+		Categories	[]models.Categories
+		Comments	[]models.Comment
+		Posts		[]models.Post
+		Connected	bool
+		Moderator	bool
+		Admin		bool
 	}
 	var context Context
 	context.Userlst = middle.FetchUsers(app.DB)
-	context.Categories = middle.FetchCat(app.DB, 0)
+	context.Categories = middle.FetchCat(app.DB)
+	context.Comments = middle.FetchFlagedCom(app.DB)
+	context.Posts = middle.FetchFlagedPost(app.DB)
 	context.Connected = app.Data.Connected
 	context.Moderator = app.Data.Moderator
 	context.Admin = app.Data.Admin

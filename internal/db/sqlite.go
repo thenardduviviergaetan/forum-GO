@@ -27,8 +27,8 @@ func (app *App_db) Migrate() error {
 		CREATE TABLE IF NOT EXISTS categories(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
-			description TEXT NOT NULL,
-			time DATETIME NOT NULL   
+			descriptions TEXT NOT NULL,
+			creation DATETIME NOT NULL   
 		);
 
 		CREATE TABLE IF NOT EXISTS users(
@@ -71,6 +71,7 @@ func (app *App_db) Migrate() error {
 			postid INTEGER NOT NULL,
 			content TEXT NOT NULL,
 			creation CURRENT_TIMESTAMP,
+			flaged INTEGER DEFAULT 0,
 			FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE,
 			FOREIGN KEY(postid) REFERENCES post(id) ON DELETE CASCADE
 		);

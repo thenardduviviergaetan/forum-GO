@@ -5,17 +5,16 @@ import (
 	//"errors"
 	"strconv"
 	"net/http"
-	//"log"
-	"time"
-	//models "forum/pkg/models"
+	"log"
+	//"time"
+	models "forum/pkg/models"
 )
 
 func AddCategory(db *sql.DB, r *http.Request) error {
 
-	_, err := db.Exec("INSERT INTO categories(title, description, time) VALUES (?,?,?)",
+	_, err := db.Exec("INSERT INTO categories(title, descriptions, creation) VALUES (?,?,datetime())",
 						r.FormValue("catitle"), 
-						r.FormValue("catdescription"), 
-						time.Now())
+						r.FormValue("catdescription"))
 	if err != nil {
         return err
     }
@@ -28,7 +27,7 @@ func ModCategory(db *sql.DB, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("UPDATE categories SET title=?, description=? WHERE id=?", r.FormValue("catitle"), r.FormValue("catdescription"), id)
+	_, err = db.Exec("UPDATE categories SET title=?, descriptions=? WHERE id=?", r.FormValue("catitle"), r.FormValue("catdescription"), id)
 	if err != nil {
 		return err
 	}
@@ -46,4 +45,22 @@ func DelCategory(db *sql.DB, r *http.Request) error {
         return err
     }
 	return nil
+}
+
+func FetchCat(db *sql.DB) []models.Categories {
+	rows, err := db.Query("SELECT id, title, descriptions FROM categories")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var categorylst []models.Categories
+	for rows.Next() {
+		var categories models.Categories
+        err = rows.Scan(&categories.ID, &categories.Title, &categories.Description)
+        if err != nil {
+            log.Fatal(err)
+        }
+		categorylst = append(categorylst, categories)
+	}
+	return categorylst
 }
