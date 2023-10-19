@@ -6,16 +6,15 @@ import (
 	"strconv"
 	"net/http"
 	"log"
-	"time"
+	//"time"
 	models "forum/pkg/models"
 )
 
 func AddCategory(db *sql.DB, r *http.Request) error {
 
-	_, err := db.Exec("INSERT INTO categories(title, description, time) VALUES (?,?,?)",
+	_, err := db.Exec("INSERT INTO categories(title, description, time) VALUES (?,?,datetime())",
 						r.FormValue("catitle"), 
-						r.FormValue("catdescription"), 
-						time.Now())
+						r.FormValue("catdescription"))
 	if err != nil {
         return err
     }

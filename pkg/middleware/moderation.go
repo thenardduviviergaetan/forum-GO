@@ -3,8 +3,8 @@ package forum
 import (
 	"database/sql"
 	//"errors"
-	//"strconv"
-	//"net/http"
+	"strconv"
+	"net/http"
 	"log"
 	//"time"
 	models "forum/pkg/models"
@@ -12,7 +12,7 @@ import (
 
 func FetchFlagedCom(db *sql.DB) []models.Comment {
 
-	rows, err := db.Query("SELECT id, authorid, postid, content, creation, flaged FROM comment")
+	rows, err := db.Query("SELECT id, authorid, postid, content, creation, flaged FROM comment WHERE flaged=?", 1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,8 +30,8 @@ func FetchFlagedCom(db *sql.DB) []models.Comment {
 }
 
 func FetchFlagedPost(db *sql.DB) []models.Post {
-	//to finish
-	rows, err := db.Query("SELECT id, authorid, postid, content, creation, flaged FROM post")
+
+	rows, err := db.Query("SELECT id, authorid, categoryid, content, creation, flaged FROM post WHERE flaged=?", 1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,11 +39,50 @@ func FetchFlagedPost(db *sql.DB) []models.Post {
 	var posts []models.Post
 	for rows.Next() {
 		var post models.Post
-        err = rows.Scan(&post.ID, &post.AuthorID, &post.Postid, &post.Content, &post.CreationDate, &post.Flaged)
+        err = rows.Scan(&post.ID, &post.AuthorID, &post.Categoryid, &post.Content, &post.CreationDate, &post.Flaged)
         if err != nil {
             log.Fatal(err)
         }
 		posts = append(posts, post)
 	}
 	return posts
+}
+
+func DelPost(db *sql.DB, r *http.Request) error {
+
+	id, err := strconv.Atoi(r.FormValue("delpost"))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("DELETE FROM post WHERE id=?", id)
+	if err != nil {
+        return err
+    }
+	return nil
+}
+
+func DelComFlag(db *sql.DB, r *http.Request) error {
+
+	id, err := strconv.Atoi(r.FormValue("delcomflag"))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("UPDATE comment SET flaged=? WHERE id=?", 0, id)
+	if err != nil {
+        return err
+    }
+	return nil
+}
+
+func DelCom(db *sql.DB, r *http.Request) error {
+
+	id, err := strconv.Atoi(r.FormValue("delcom"))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("DELETE FROM comment WHERE id=?", id)
+	if err != nil {
+        return err
+    }
+	return nil
 }

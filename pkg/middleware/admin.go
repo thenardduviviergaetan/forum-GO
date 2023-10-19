@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"net/http"
 	"log"
+	//"fmt"
 	//"time"
 	models "forum/pkg/models"
 )
@@ -83,6 +84,7 @@ func FetchUsers(db *sql.DB) []models.User {
         if err != nil {
             log.Fatal(err)
         }
+		user.FormatedTime = user.CreationDate.Format("2006-01-02 15:04:05")
 		userlst = append(userlst, user)
 	}
 	return userlst

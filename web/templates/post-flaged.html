@@ -1,5 +1,42 @@
 {{define "post-flaged" }}
-
-
-
+<div style="height:10vh"></div>
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="7">Flaged posts</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>ID</td>
+                <td>Author</td>
+                <td>Category</td>
+                <td>Content</td>
+                <td>Creation date</td>
+                <td></td>
+                <td></td>
+            </tr>
+            {{range $val := .Posts}}
+                <tr>
+                    <td>{{$val.ID}}</td>
+                    <td>{{$val.AuthorID}}</td>
+                    <td>{{$val.Categoryid}}</td>
+                    <td>{{$val.Content}}</td>
+                    <td>{{$val.CreationDate}}</td>
+                    <td>
+                        <form action="/admin" method="POST">
+                            <button type="submit" name="supflagpost" value="{{$val.ID}}">Remove it from the reported list</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/admin" method="POST">
+                            <button type="submit" name="delpost" value="{{$val.ID}}">Delete post</button>
+                        </form>
+                    </td>
+                </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
 {{end}}

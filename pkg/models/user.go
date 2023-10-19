@@ -14,4 +14,5 @@ type User struct {
 	Validation   int64	   `json:"validation"` //0 false 1 true
 	AskedMod	 int	   `json:"askedmod"`
 	CreationDate time.Time `json:"creationtime"`
+	FormatedTime string	   `json:"formatedtime"`
 }
