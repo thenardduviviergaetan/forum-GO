@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users(
 CREATE TABLE IF NOT EXISTS categories(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    description TEXT NOT NULL,
+    descriptions TEXT NOT NULL,
     creation DATETIME NOT NULL
 );
 

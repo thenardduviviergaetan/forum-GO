@@ -12,7 +12,7 @@ import (
 
 func AddCategory(db *sql.DB, r *http.Request) error {
 
-	_, err := db.Exec("INSERT INTO categories(title, description, time) VALUES (?,?,datetime())",
+	_, err := db.Exec("INSERT INTO categories(title, descriptions, creation) VALUES (?,?,datetime())",
 						r.FormValue("catitle"), 
 						r.FormValue("catdescription"))
 	if err != nil {
@@ -27,7 +27,7 @@ func ModCategory(db *sql.DB, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("UPDATE categories SET title=?, description=? WHERE id=?", r.FormValue("catitle"), r.FormValue("catdescription"), id)
+	_, err = db.Exec("UPDATE categories SET title=?, descriptions=? WHERE id=?", r.FormValue("catitle"), r.FormValue("catdescription"), id)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func DelCategory(db *sql.DB, r *http.Request) error {
 }
 
 func FetchCat(db *sql.DB) []models.Categories {
-	rows, err := db.Query("SELECT id, title, description FROM categories")
+	rows, err := db.Query("SELECT id, title, descriptions FROM categories")
 	if err != nil {
 		log.Fatal(err)
 	}
