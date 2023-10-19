@@ -49,7 +49,7 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetRecentPosts(app *App_db) error {
 	var post models.Post
-	rows, err := app.DB.Query("SELECT * FROM post ORDER BY rowid LIMIT 5")
+	rows, err := app.DB.Query("SELECT * FROM post ORDER BY rowid DESC LIMIT 5")
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func GetRecentPosts(app *App_db) error {
 		if err != nil {
 			return err
 		}
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid ).Scan(&post.Category)
+		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
 
 		app.Data.Posts = append(app.Data.Posts, post)
 	}

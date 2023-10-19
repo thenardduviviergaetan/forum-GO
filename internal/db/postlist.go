@@ -29,7 +29,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 		r.URL.Query().Has("liked") ||
 		r.URL.Query().Has("categories") {
 		ApplyFilter(app, w, r)
-
 	} else {
 		rows, err := app.DB.Query("SELECT * FROM post")
 		if err != nil {
@@ -152,6 +151,10 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 func CatFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 	var post models.Post
 	cat_id := r.URL.Query().Get("categories")
+
+	if cat_id == "" {
+		return
+	}
 
 	rows, err := app.DB.Query("SELECT * FROM post WHERE categoryid = ? ;", cat_id)
 	if err != nil {
