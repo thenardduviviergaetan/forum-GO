@@ -28,15 +28,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Has("created") ||
 		r.URL.Query().Has("liked") ||
 		r.URL.Query().Has("categories") {
-		if r.URL.Query().Get("created") == "true" {
-			app.CreatedFilter(w, r)
-		}
-		if r.URL.Query().Get("liked") == "true" {
-			app.LikedFilter(w, r)
-		}
-		if r.URL.Query().Get("categories") != "" {
-			app.CatFilter(w, r)
-		}
+		ApplyFilter(app, w, r)
 
 	} else {
 		rows, err := app.DB.Query("SELECT * FROM post")
@@ -78,8 +70,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO check for categories and liked filter
-func (app *App_db) CreatedFilter(w http.ResponseWriter, r *http.Request) {
+func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 	var post models.Post
 
 	c, _ := r.Cookie("session_token")
@@ -112,7 +103,7 @@ func (app *App_db) CreatedFilter(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App_db) LikedFilter(w http.ResponseWriter, r *http.Request) {
+func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 	var post models.Post
 
 	c, _ := r.Cookie("session_token")
@@ -158,7 +149,7 @@ func (app *App_db) LikedFilter(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App_db) CatFilter(w http.ResponseWriter, r *http.Request) {
+func CatFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 	var post models.Post
 	cat_id := r.URL.Query().Get("categories")
 
@@ -187,5 +178,17 @@ func (app *App_db) CatFilter(w http.ResponseWriter, r *http.Request) {
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		app.Data.Posts = append(app.Data.Posts, post)
+	}
+}
+
+func ApplyFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("categories") != "" {
+		CatFilter(app, w, r)
+	}
+	if r.URL.Query().Get("created") == "true" {
+		CreatedFilter(app, w, r)
+	}
+	if r.URL.Query().Get("liked") == "true" {
+		LikedFilter(app, w, r)
 	}
 }
