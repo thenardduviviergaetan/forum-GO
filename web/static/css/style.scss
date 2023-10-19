@@ -93,6 +93,18 @@ main {
 
 }
 
+/*****************Filter************/
+
+.filter{
+    margin-bottom: 50px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.categories-filter{
+    padding: 2px 5px;
+}
+
 /*****************BUTTON************/
 .back_btn {
     display: inline-block;
@@ -162,7 +174,7 @@ a:hover {
     text-decoration: underline;
 }
 
-.delete_btn {
+.system_btn {
     display: inline-block;
     padding: 5px 10px;
     margin-right: 10px;
@@ -179,6 +191,7 @@ a:hover {
 
 
 /**************POST*****************/
+
 .post {
     width: 100%;
     display: flex;
