@@ -11,7 +11,11 @@
       <label for="categories-editor">Category</label>
       <select name="categories-editor" id="categories">
         {{range $val := .Categories}}
-        <option value={{$val.ID}}>{{$val.Title}}</option>
+          {{ if $val.Ifcurtentcat}}
+            <option value={{$val.ID}} selected="selected">{{$val.Title}}</option>
+          {{else}}
+            <option value={{$val.ID}}>{{$val.Title}}</option>
+          {{end}}
         {{end}}
       </select>
     </div>

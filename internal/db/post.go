@@ -25,7 +25,7 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	app.Data.Categories = middle.FetchCat(app.DB)
+	app.Data.Categories = middle.FetchCat(app.DB, int64(app.Data.CurrentPost.Categoryid))
 
 	Returncurentpost(app, w, r, currentuser)
 	// fmt.Println(app.Data.CurrentPost)
@@ -249,7 +249,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 		// context.Moderator = app.Data.Moderator
 		// context.Admin = app.Data.Admin
 		// context.Categories = middle.FetchCat(app.DB)
-		app.Data.Categories = middle.FetchCat(app.DB)
+		app.Data.Categories = middle.FetchCat(app.DB, 0)
 
 		if err := tmpl.Execute(w, app.Data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
