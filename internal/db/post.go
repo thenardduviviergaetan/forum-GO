@@ -28,7 +28,6 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 	app.Data.Categories = middle.FetchCat(app.DB)
 
 	Returncurentpost(app, w, r, currentuser)
-	// fmt.Println(app.Data.CurrentPost)
 	renderpost_id(w, tmpl, app)
 }
 
