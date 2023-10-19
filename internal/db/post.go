@@ -171,7 +171,22 @@ func renderpost_id(w http.ResponseWriter, tmpl *template.Template, app *App_db) 
 	}
 }
 
+// Handler that shows the post creation page and ensures that users are certified to create posts.
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
+	//Checking for rights to access this page
+	cookie, errCookie := r.Cookie("session_token")
+	if errCookie != nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	s.CheckActive()
+	_, ok := s.GlobalSessions[cookie.Value]
+	if !ok {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
 	switch r.Method {
 	case "GET":
 		tmpl, err := template.ParseFiles(
@@ -185,17 +200,6 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// type Context struct {
-		// 	Connected	bool
-		// 	Moderator	bool
-		// 	Admin		bool
-		// 	Categories	[]models.Categories
-		// }
-		// var context Context
-		// context.Connected = app.Data.Connected
-		// context.Moderator = app.Data.Moderator
-		// context.Admin = app.Data.Admin
-		// context.Categories = middle.FetchCat(app.DB)
 		app.Data.Categories = middle.FetchCat(app.DB)
 
 		if err := tmpl.Execute(w, app.Data); err != nil {
@@ -204,16 +208,13 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "POST":
-		c, _ := r.Cookie("session_token")
-		fmt.Println("A post has been submitted")
-		errParse := r.ParseForm()
+		var post *models.Post
 
+		errParse := r.ParseForm()
 		if errParse != nil {
 			http.Error(w, errParse.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		var post *models.Post
 
 		cat, _ := strconv.Atoi(r.FormValue("categories"))
 		post = &models.Post{
@@ -222,7 +223,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			Content:    r.FormValue("content"),
 		}
 
-		err := app.DB.QueryRow("SELECT id, username FROM users where session_token = ?", c.Value).Scan(&post.AuthorID, &post.Author)
+		err := app.DB.QueryRow("SELECT id, username FROM users where session_token = ?", cookie.Value).Scan(&post.AuthorID, &post.Author)
 		if err != nil {
 			log.Fatal(err)
 		}
