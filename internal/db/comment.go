@@ -9,7 +9,7 @@ import (
 	models "forum/pkg/models"
 )
 
-func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, idcomment int64) {
+func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, idcomment, currentuser int64) {
 	tmpl, err := template.ParseFiles(
 		"web/templates/edit-comment.html",
 		"web/templates/head.html",
@@ -21,11 +21,15 @@ func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, idcomm
 		return
 	}
 	var comment models.Comment
-	err = app.DB.QueryRow("Select id,content,postid From comment where id = ?", idcomment).Scan(
+	err = app.DB.QueryRow("Select id,authorid,content,postid From comment where id = ?", idcomment).Scan(
 		&comment.ID,
+		&comment.AuthorID,
 		&comment.Content,
 		&comment.Postid,
 	)
+	if currentuser != comment.AuthorID {
+		return
+	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "No such post", http.StatusNotFound)
