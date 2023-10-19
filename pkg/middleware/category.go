@@ -3,9 +3,10 @@ package forum
 import (
 	"database/sql"
 	//"errors"
-	"strconv"
-	"net/http"
 	"log"
+	"net/http"
+	"strconv"
+
 	//"time"
 	models "forum/pkg/models"
 )
@@ -13,11 +14,11 @@ import (
 func AddCategory(db *sql.DB, r *http.Request) error {
 
 	_, err := db.Exec("INSERT INTO categories(title, descriptions, creation) VALUES (?,?,datetime())",
-						r.FormValue("catitle"), 
-						r.FormValue("catdescription"))
+		r.FormValue("catitle"),
+		r.FormValue("catdescription"))
 	if err != nil {
-        return err
-    }
+		return err
+	}
 	return nil
 }
 
@@ -42,12 +43,12 @@ func DelCategory(db *sql.DB, r *http.Request) error {
 	}
 	_, err = db.Exec("DELETE FROM categories WHERE id=?", id)
 	if err != nil {
-        return err
-    }
+		return err
+	}
 	return nil
 }
 
-func FetchCat(db *sql.DB) []models.Categories {
+func FetchCat(db *sql.DB, current int64) []models.Categories {
 	rows, err := db.Query("SELECT id, title, descriptions FROM categories")
 	if err != nil {
 		log.Fatal(err)
@@ -56,10 +57,11 @@ func FetchCat(db *sql.DB) []models.Categories {
 	var categorylst []models.Categories
 	for rows.Next() {
 		var categories models.Categories
-        err = rows.Scan(&categories.ID, &categories.Title, &categories.Description)
-        if err != nil {
-            log.Fatal(err)
-        }
+		err = rows.Scan(&categories.ID, &categories.Title, &categories.Description)
+		if err != nil {
+			log.Fatal(err)
+		}
+		categories.Ifcurtentcat = current == categories.ID
 		categorylst = append(categorylst, categories)
 	}
 	return categorylst

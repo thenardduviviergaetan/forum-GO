@@ -64,17 +64,17 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Context struct {
-		Userlst		[]models.User
-		Categories	[]models.Categories
-		Comments	[]models.Comment
-		Posts		[]models.Post
-		Connected	bool
-		Moderator	bool
-		Admin		bool
+		Userlst    []models.User
+		Categories []models.Categories
+		Comments   []models.Comment
+		Posts      []models.Post
+		Connected  bool
+		Moderator  bool
+		Admin      bool
 	}
 	var context Context
 	context.Userlst = middle.FetchUsers(app.DB)
-	context.Categories = middle.FetchCat(app.DB)
+	context.Categories = middle.FetchCat(app.DB, 0)
 	context.Comments = middle.FetchFlagedCom(app.DB)
 	context.Posts = middle.FetchFlagedPost(app.DB)
 	context.Connected = app.Data.Connected

@@ -200,7 +200,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		app.Data.Categories = middle.FetchCat(app.DB)
+		app.Data.Categories = middle.FetchCat(app.DB, 0)
 
 		if err := tmpl.Execute(w, app.Data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

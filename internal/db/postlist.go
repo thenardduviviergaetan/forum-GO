@@ -24,7 +24,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	app.Data.Categories = middle.FetchCat(app.DB)
+	app.Data.Categories = middle.FetchCat(app.DB, 0)
 	if r.URL.Query().Has("created") ||
 		r.URL.Query().Has("liked") ||
 		r.URL.Query().Has("categories") {

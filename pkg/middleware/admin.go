@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"log"
+
 	//"fmt"
 	"strconv"
 
@@ -78,29 +78,29 @@ func FetchUsers(db *sql.DB) []models.User {
 	var userlst []models.User
 	for rows.Next() {
 		var user models.User
-        err = rows.Scan(&user.ID, &user.UserType, &user.Username, &user.Email, &user.Validation, &user.AskedMod, &user.CreationDate)
-        if err != nil {
-            log.Fatal(err)
-        }
+		err = rows.Scan(&user.ID, &user.UserType, &user.Username, &user.Email, &user.Validation, &user.AskedMod, &user.CreationDate)
+		if err != nil {
+			log.Fatal(err)
+		}
 		userlst = append(userlst, user)
 	}
 	return userlst
 }
 
-func FetchCat(db *sql.DB) []models.Categories {
-	rows, err := db.Query("SELECT id, title, description FROM categories")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	var categorylst []models.Categories
-	for rows.Next() {
-		var categories models.Categories
-        err = rows.Scan(&categories.ID, &categories.Title, &categories.Description)
-        if err != nil {
-            log.Fatal(err)
-        }
-		categorylst = append(categorylst, categories)
-	}
-	return categorylst
-}
+// func FetchCat(db *sql.DB) []models.Categories {
+// 	rows, err := db.Query("SELECT id, title, description FROM categories")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer rows.Close()
+// 	var categorylst []models.Categories
+// 	for rows.Next() {
+// 		var categories models.Categories
+//         err = rows.Scan(&categories.ID, &categories.Title, &categories.Description)
+//         if err != nil {
+//             log.Fatal(err)
+//         }
+// 		categorylst = append(categorylst, categories)
+// 	}
+// 	return categorylst
+// }
