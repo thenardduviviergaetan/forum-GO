@@ -6,6 +6,8 @@
             <div>Your current status is administrator</div>
         {{else if .Moderator}}
             <div>Your current status is moderator</div>
+        {{else if .Modlight}}
+            <div>Your current status is comment moderator</div>
         {{else}}
             <div>Your current status is regular user</div>
         {{end}}
@@ -14,8 +16,14 @@
                 <form action="/profile" method="post">
                     <button type="submit" name="askmod" value="{{.User.ID}}">Ask to become a moderator.</button>
                 </form>
+                <div>or</div>
+                <form action="/profile" method="post">
+                    <button type="submit" name="asklightmod" value="{{.User.ID}}">Ask to become a comment moderator.</button>
+                </form>
             {{else if eq .User.AskedMod 1}}
                 <div>Your demande to become a moderator is being examinated.</div>
+            {{else if eq .User.AskedMod 2}}
+                <div>Your demande to become a comment moderator is being examinated.</div>
             {{end}}
         </div>
         <!-- make other functionnality, user data available with .User -->

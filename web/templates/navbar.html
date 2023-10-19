@@ -6,8 +6,10 @@
     <a href="/post">Show Post</a>
     {{ if .Connected }}
       <a href="/profile">Profil</a>
-      {{ if .Moderator }}
-
+      {{if .Moderator}}
+      <a href="/moderation">Moderation</a>
+      {{else if .Modlight}}
+      <a href="/com_moderation">Comments Moderation</a>
       {{end}}
       {{if .Admin}}
         <a href="/admin">Administration</a>

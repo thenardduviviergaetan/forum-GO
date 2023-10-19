@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS userstype(
     label TEXT NOT NULL
 );
 
-INSERT INTO userstype (rank, label) VALUES(1, "user"),(2, "moderator"),(3, "administrator");
+INSERT INTO userstype (rank, label) VALUES(1, "user"),(2, "moderator"),(3, "administrator"),(4, "modlight");
 
 CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,

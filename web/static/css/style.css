@@ -264,3 +264,22 @@ a:hover {
 .dislike {
   background-color: #e11919;
 }/*# sourceMappingURL=style.css.map */
+
+/*garbage by valentin*/
+table {
+  border-collapse: collapse;
+}
+
+td {
+  padding: 2px 15px;
+  border: 1px solid white;
+}
+
+.admin_del {
+  margin-top: 0;
+}
+
+.no_border {
+  border: none;
+}
+/*garbage end*/

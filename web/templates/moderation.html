@@ -1,8 +1,9 @@
 {{ template "head" .}} 
 {{ template "navbar" .}}
 <main>
-    <div>
-        
-    </div>
+    {{if or (.Moderator) (.Admin)}}
+    {{ template "post-flaged" .}}
+    {{end}}
+    {{ template "comment-flaged" .}}
 </main>
 {{ template "footer" .}}

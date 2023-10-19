@@ -13,8 +13,13 @@
             <p>{{.CurrentPost.Content}}</p>
         </div>
     {{ if .Connected }}
-        <form class="comment-rate" method="POST" action="/post/id?id={{ .CurrentPost.ID}}">
-            {{if .CurrentPost.Ifcurrentuser }}
+        <form class="comment-rate" style="align-items: baseline;" method="POST" action="/post/id?id={{ .CurrentPost.ID}}">
+            {{if .CurrentPost.Flaged}}
+                <p style="color:red;">This post is being evaluated by a moderator</p>
+            {{else}}
+                <button class="system_btn" type="submit" name="report-post" value="{{ .CurrentPost.ID}}">Report</button>
+            {{end}}
+            {{if or (.CurrentPost.Ifcurrentuser) (.Admin) (.Moderator)}}
             <button class="system_btn" type="delete" name="delete-post" value="{{ .CurrentPost.ID}}">delete</button>
             <button class="system_btn" type="submit" name="edit-post" value="{{ .CurrentPost.ID}}">edit</button>
             {{ end }}
