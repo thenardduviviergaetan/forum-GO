@@ -1,18 +1,18 @@
 package forum
 
 import (
-	//"database/sql"
-	middle "forum/pkg/middleware"
-	models "forum/pkg/models"
 	"html/template"
 	"log"
 	"net/http"
+
+	//"database/sql"
+	middle "forum/pkg/middleware"
+	models "forum/pkg/models"
 	//"fmt"
 	//"time"
 )
 
 func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
-
 	tmpl, err := template.ParseFiles(
 		"web/templates/admin.html",
 		"web/templates/head.html",
@@ -24,7 +24,7 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//check if user is admin
+	// check if user is admin
 	if !app.Data.Admin {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
@@ -42,10 +42,10 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 			if err := middle.Addmod(app.DB, r); err != nil {
 				log.Fatal(err)
 			}
-		// } else if len(r.FormValue("catitle")) > 0 {
-		// 	if err := middle.AddCategory(app.DB, r); err != nil {
-		// 		log.Fatal(err)
-		// 	}
+			// } else if len(r.FormValue("catitle")) > 0 {
+			// 	if err := middle.AddCategory(app.DB, r); err != nil {
+			// 		log.Fatal(err)
+			// 	}
 		} else if len(r.FormValue("delcat")) > 0 {
 			if err := middle.DelCategory(app.DB, r); err != nil {
 				log.Fatal(err)
@@ -54,15 +54,15 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Context struct {
-		Userlst		[]models.User
-		Categories	[]models.Categories
-		Connected	bool
-		Moderator	bool
-		Admin		bool
+		Userlst    []models.User
+		Categories []models.Categories
+		Connected  bool
+		Moderator  bool
+		Admin      bool
 	}
 	var context Context
 	context.Userlst = middle.FetchUsers(app.DB)
-	context.Categories = middle.FetchCat(app.DB)
+	context.Categories = middle.FetchCat(app.DB, 0)
 	context.Connected = app.Data.Connected
 	context.Moderator = app.Data.Moderator
 	context.Admin = app.Data.Admin
