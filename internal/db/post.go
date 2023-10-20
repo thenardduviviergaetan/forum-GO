@@ -2,7 +2,6 @@ package forum
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -27,7 +26,9 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 	}
 	app.Data.Categories = middle.FetchCat(app.DB, int64(app.Data.CurrentPost.Categoryid))
 
-	Returncurentpost(app, w, r, currentuser)
+	if !Returncurentpost(app, w, r, currentuser) {
+		return
+	}
 	renderpost_id(w, tmpl, app)
 }
 
@@ -63,6 +64,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 				comment.Content = r.FormValue("content")
 				comment.Postid = app.Data.CurrentPost.ID
 				middle.Createcomment(app.DB, &comment)
+				mkdirCommentAsset(app, comment.Postid, &comment, r)
 			}
 			// like comment
 			if r.FormValue("like") != "" {
@@ -93,6 +95,12 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 				comment.Content = r.FormValue("content-editor")
 				id, _ := strconv.Atoi(r.FormValue("comment-editor"))
 				comment.ID = int64(id)
+				comment.Postid = app.Data.CurrentPost.ID
+				if r.FormValue("deleteimg") == "true" {
+					middle.UpdateImgComment(app.DB, comment.Postid, comment.ID, "")
+				} else {
+					mkdirCommentAsset(app, comment.Postid, &comment, r)
+				}
 				middle.Updatecomment(app.DB, &comment)
 			}
 			if app.Data.CurrentPost.AuthorID == currentuser {
@@ -117,6 +125,11 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 					cat, _ := strconv.Atoi(r.FormValue("categories-editor"))
 					post.Categoryid = cat
 					post.Title = r.FormValue("title-editor")
+					if r.FormValue("deleteimg") == "true" {
+						middle.UpdateImgPoste(app.DB, post.ID, "")
+					} else {
+						mkdirPostAsset(app, post.ID, &post, r)
+					}
 					middle.UpdatePost(app.DB, &post)
 					Returncurentpost(app, w, r, currentuser)
 				}
@@ -141,17 +154,12 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			&post.AuthorID,
 			&post.Author,
 			&post.Categoryid,
+			&post.Img,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
 			&post.Flaged,
 		)
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
-
-		post.User_like, post.User_dislike = linkpost(app, post.ID)
-		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
-		post.Ifcurrentuser = post.AuthorID == currentuser
-		app.Data.CurrentPost = post
 		if err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "No such post", http.StatusNotFound)
@@ -160,6 +168,22 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			}
 			return false
 		}
+		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "No such post", http.StatusNotFound)
+			} else {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			return false
+		}
+		post.User_like, post.User_dislike = linkpost(app, post.ID)
+		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
+		post.Ifcurrentuser = post.AuthorID == currentuser
+		post.Ifimg = post.Img != ""
+		app.Data.CurrentPost = post
+	} else {
+		return false
 	}
 	return true
 }
@@ -173,7 +197,7 @@ func renderpost_id(w http.ResponseWriter, tmpl *template.Template, app *App_db) 
 
 // Handler that shows the post creation page and ensures that users are certified to create posts.
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
-	//Checking for rights to access this page
+	// Checking for rights to access this page
 	cookie, errCookie := r.Cookie("session_token")
 	if errCookie != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -209,12 +233,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "POST":
 		var post *models.Post
-
-		errParse := r.ParseForm()
-		if errParse != nil {
-			http.Error(w, errParse.Error(), http.StatusInternalServerError)
-			return
-		}
+		// svg
 
 		cat, _ := strconv.Atoi(r.FormValue("categories"))
 		post = &models.Post{
@@ -222,37 +241,18 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			Title:      r.FormValue("title"),
 			Content:    r.FormValue("content"),
 		}
-
 		err := app.DB.QueryRow("SELECT id, username FROM users where session_token = ?", cookie.Value).Scan(&post.AuthorID, &post.Author)
 		if err != nil {
 			log.Fatal(err)
 		}
-
+		// mkdirPostAsset(app, int64(0), post, r)
+		// return
 		id, errCreaPost := middle.CreatePost(app.DB, post)
 		if errCreaPost != nil {
 			http.Error(w, errCreaPost.Error(), http.StatusInternalServerError)
 			return
 		}
+		mkdirPostAsset(app, int64(id), post, r)
 		http.Redirect(w, r, "/post/id?id="+strconv.Itoa(id), http.StatusFound)
 	}
-}
-
-func linkpost(app *App_db, postid int64) (tablike map[int64]bool, tabdislike map[int64]bool) {
-	tablike, tabdislike = make(map[int64]bool), make(map[int64]bool)
-	rows, err := app.DB.Query("SELECT userid,likes FROM linkpost WHERE postid = ?", postid)
-	if err != nil {
-		fmt.Println(err)
-		return nil, nil
-	}
-	var userid int64
-	var like bool
-	for rows.Next() {
-		rows.Scan(&userid, &like)
-		if like {
-			tablike[userid] = true
-		} else {
-			tabdislike[userid] = true
-		}
-	}
-	return
 }

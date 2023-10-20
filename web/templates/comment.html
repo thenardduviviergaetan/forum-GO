@@ -9,6 +9,11 @@
             <h5>{{.Author}}</h5>
             <p>{{.CreationDate}}</p>
         </div>
+        {{if .Ifimg}}
+            <div>
+                <img src="/img/post{{.Postid}}/comment/{{.Img}}"/>
+            </div>
+        {{end}}
         <div class="comment-content">
             <p>{{.Content}}</p>
         </div>
@@ -34,6 +39,11 @@
             <h5>{{.Author}}</h5>
             <p>{{.CreationDate}}</p>
         </div>
+        {{if .Ifimg}}
+            <div>
+                <img src="/img/post{{.Postid}}/comment/{{.Img}}"/>
+            </div>
+        {{end}}
         <div class="comment-content">
         <p>{{.Content}}</p>
         </div>

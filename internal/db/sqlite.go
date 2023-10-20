@@ -41,13 +41,15 @@ func (app *App_db) Migrate() error {
 			askedmod INTEGER DEFAULT 0,
 			creation DATETIME NOT NULL,
 			session_token TEXT,
-			FOREIGN KEY(userstypeid)REFERENCES userstype(id) ON DELETE CASCADE);
+			FOREIGN KEY(userstypeid)REFERENCES userstype(id) ON DELETE CASCADE
+		);
 		
 		CREATE TABLE IF NOT EXISTS post(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			authorid INTEGER NOT NULL,
 			author TEXT NOT NULL,
 			categoryid INTEGER NOT NULL,
+    		img VARCHAR(255) NOT NULL,
 			title TEXT NOT NULL UNIQUE,
 			content TEXT NOT NULL,
 			creation CURRENT_TIMESTAMP,
@@ -70,6 +72,7 @@ func (app *App_db) Migrate() error {
 			authorid INTEGER NOT NULL,
 			postid INTEGER NOT NULL,
 			content TEXT NOT NULL,
+			img VARCHAR(255) NOT NULL,
 			creation CURRENT_TIMESTAMP,
 			flaged INTEGER DEFAULT 0,
 			FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE,
@@ -80,10 +83,12 @@ func (app *App_db) Migrate() error {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			userid INTEGER NOT NULL,
 			commentid INTEGER NOT NULL,
-			like BOOLEAN NOT NULL,
+			likes BOOLEAN NOT NULL,
 			FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE,
 			FOREIGN KEY(commentid) REFERENCES comment(id) ON DELETE CASCADE
 		);
+
+		INSERT INTO categories(title,descriptions,creation) VALUES('Food',"c'est bon",date());
 	`
 	_, err := app.DB.Exec(query)
 

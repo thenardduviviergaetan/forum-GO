@@ -5,8 +5,10 @@ type Post struct {
 	AuthorID      int64  `json:"author_id"`
 	Author        string `json:"author"`
 	Ifcurrentuser bool
+	Img           string `json:"img"`
+	Ifimg         bool
 	Category      string `json:"category"`
-	Categoryid	 int	`json:"category_id"`
+	Categoryid    int    `json:"category_id"`
 	Title         string `json:"title"`
 	Content       string `json:"content"`
 	Like          int

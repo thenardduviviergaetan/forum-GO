@@ -29,7 +29,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 		r.URL.Query().Has("liked") ||
 		r.URL.Query().Has("categories") {
 		ApplyFilter(app, w, r)
-
 	} else {
 		rows, err := app.DB.Query("SELECT * FROM post")
 		if err != nil {
@@ -42,6 +41,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 				&post.AuthorID,
 				&post.Author,
 				&post.Categoryid,
+				&post.Img,
 				&post.Title,
 				&post.Content,
 				&post.CreationDate,
@@ -86,6 +86,7 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 			&post.AuthorID,
 			&post.Author,
 			&post.Categoryid,
+			&post.Img,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
@@ -131,6 +132,7 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 				&post.AuthorID,
 				&post.Author,
 				&post.Categoryid,
+				&post.Img,
 				&post.Title,
 				&post.Content,
 				&post.CreationDate,
@@ -164,6 +166,7 @@ func CatFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 			&post.AuthorID,
 			&post.Author,
 			&post.Categoryid,
+			&post.Img,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,

@@ -48,14 +48,14 @@ func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, idcomm
 func Returncomment(app *App_db, currentuser int64) {
 	var tab_comment []models.Comment
 	var comment models.Comment
-	rows, err := app.DB.Query("SELECT id, authorid, postid, content, creation, flaged FROM comment WHERE postid = ?", app.Data.CurrentPost.ID)
+	rows, err := app.DB.Query("SELECT id, authorid, postid, content,img, creation, flaged FROM comment WHERE postid = ?", app.Data.CurrentPost.ID)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	for rows.Next() {
-		rows.Scan(&comment.ID, &comment.AuthorID, &comment.Postid, &comment.Content, &comment.CreationDate, &comment.Flaged)
-		comment.Postid = app.Data.CurrentPost.ID
+		rows.Scan(&comment.ID, &comment.AuthorID, &comment.Postid, &comment.Content, &comment.Img, &comment.CreationDate, &comment.Flaged)
+		// comment.Postid = app.Data.CurrentPost.ID
 		err = app.DB.QueryRow("SELECT username FROM users where id = ?", comment.AuthorID).Scan(&comment.Author)
 		if err != nil {
 			fmt.Println(err)
@@ -65,6 +65,7 @@ func Returncomment(app *App_db, currentuser int64) {
 		comment.User_like, comment.User_dislike = linkcomment(app, comment.ID)
 		comment.Like = len(comment.User_like)
 		comment.Dislike = len(comment.User_dislike)
+		comment.Ifimg = comment.Img != ""
 		tab_comment = append(tab_comment, comment)
 		comment = models.Comment{}
 	}

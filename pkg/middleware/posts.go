@@ -3,13 +3,15 @@ package forum
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"strconv"
 
 	models "forum/pkg/models"
 )
 
 func CreatePost(db *sql.DB, post *models.Post) (int, error) {
-	_, err := db.Exec("INSERT INTO post(authorid, author, categoryid, title, content, creation) VALUES(?,?,?,?,?, date())",
-		post.AuthorID, post.Author, post.Categoryid, post.Title, post.Content)
+	_, err := db.Exec("INSERT INTO post(authorid, author, categoryid, img, title, content, creation) VALUES(?,?,?,?,?,?, date())",
+		post.AuthorID, post.Author, post.Categoryid, "", post.Title, post.Content)
 	if err != nil {
 		fmt.Println("ERROR CREATE POST", err)
 	}
@@ -25,6 +27,10 @@ func RemovePost(db *sql.DB, idpost int64) error {
 		fmt.Println("Remove post : ", err)
 		return err
 	}
+	err = os.RemoveAll("web/static/upload/img/post" + strconv.Itoa(int(idpost)))
+	if err != nil {
+		fmt.Println(err)
+	}
 	return nil
 }
 
@@ -33,6 +39,36 @@ func UpdatePost(db *sql.DB, post *models.Post) error {
 	if err != nil {
 		fmt.Println("Update comment : ", err)
 		return err
+	}
+	return nil
+}
+
+func UpdateImgPoste(db *sql.DB, idpost int64, newimg string) error {
+	var lastimg string
+	rows, err := db.Query("SELECT img FROM post WHERE id = ?", idpost)
+	for rows.Next() {
+		rows.Scan(&lastimg)
+	}
+	if err != nil {
+		fmt.Println("Update img post err1: ", err)
+		return err
+	}
+	if lastimg != "" {
+		err := os.Remove("web/static/upload/img/post" + strconv.Itoa(int(idpost)) + "/" + lastimg)
+		if err != nil {
+			fmt.Println(err)
+		}
+		_, err = db.Exec("UPDATE post SET img = ? WHERE id = ?", newimg, idpost)
+		if err != nil {
+			fmt.Println("Update img post err2: ", err)
+			return err
+		}
+	} else {
+		_, err := db.Exec("UPDATE post SET img = ? WHERE id = ?", newimg, idpost)
+		if err != nil {
+			fmt.Println("Update img post err3: ", err)
+			return err
+		}
 	}
 	return nil
 }

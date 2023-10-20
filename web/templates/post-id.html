@@ -9,6 +9,11 @@
             <p>Author: {{.CurrentPost.Author}}</p>
             <p>Date: {{.CurrentPost.CreationDate}}</p>
         </div>
+        {{if .CurrentPost.Ifimg}}
+            <div>
+                <img src="/img/post{{.CurrentPost.ID}}/{{.CurrentPost.Img}}"/>
+            </div>
+        {{end}}
         <div class="body-post">
             <p>{{.CurrentPost.Content}}</p>
         </div>
