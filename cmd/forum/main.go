@@ -35,8 +35,6 @@ func main() {
 	http.HandleFunc("/post/create", app.PostCreateHandler)
 	http.HandleFunc("/post", app.PostHandler)
 	http.HandleFunc("/post/id", app.PostIdHandler)
-	// http.HandleFunc("/post/update", handlers.PostUpdateHandler)
-	// http.HandleFunc("/post/delete", handlers.PostDeleteHandler)
 
 	fmt.Println("Listening on port 8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
