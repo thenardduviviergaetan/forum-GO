@@ -27,7 +27,7 @@ func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, idcomm
 		&comment.Content,
 		&comment.Postid,
 	)
-	if currentuser != comment.AuthorID {
+	if currentuser != comment.AuthorID && currentuser != -1 {
 		return
 	}
 	if err != nil {

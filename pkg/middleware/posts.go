@@ -3,6 +3,8 @@ package forum
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -106,5 +108,13 @@ func Updatelikepost(db *sql.DB, idpost, iduser int64, like bool) {
 			fmt.Println("Update like post: ", err)
 			return
 		}
+	}
+}
+
+func FlagPost(db *sql.DB, r *http.Request) {
+	id, _ := strconv.Atoi(r.FormValue("report-post"))
+	_, err := db.Exec("UPDATE post SET flaged = ? WHERE id = ?", 1, id)
+	if err != nil {
+		log.Fatal(err)
 	}
 }

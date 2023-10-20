@@ -27,6 +27,7 @@ func main() {
 	http.HandleFunc("/", app.ForumHandler)
 	http.HandleFunc("/admin", app.AdminHandler)
 	http.HandleFunc("/moderation", app.ModHandler)
+	http.HandleFunc("/com_moderation", app.ComModHandler)
 	http.HandleFunc("/profile", app.ProfileHandler)
 	http.HandleFunc("/login", app.LoginHandler)
 	http.HandleFunc("/register", app.RegisterHandler)
@@ -37,8 +38,6 @@ func main() {
 	http.HandleFunc("/post/create", app.PostCreateHandler)
 	http.HandleFunc("/post", app.PostHandler)
 	http.HandleFunc("/post/id", app.PostIdHandler)
-	// http.HandleFunc("/post/update", handlers.PostUpdateHandler)
-	// http.HandleFunc("/post/delete", handlers.PostDeleteHandler)
 
 	fmt.Println("Listening on port 8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {

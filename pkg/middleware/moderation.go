@@ -61,13 +61,13 @@ func DelPost(db *sql.DB, r *http.Request) error {
 	return nil
 }
 
-func DelComFlag(db *sql.DB, r *http.Request) error {
+func DelPostFlag(db *sql.DB, r *http.Request) error {
 
-	id, err := strconv.Atoi(r.FormValue("delcomflag"))
+	id, err := strconv.Atoi(r.FormValue("delpostflag"))
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("UPDATE comment SET flaged=? WHERE id=?", 0, id)
+	_, err = db.Exec("UPDATE post SET flaged=? WHERE id=?", 0, id)
 	if err != nil {
         return err
     }
@@ -76,11 +76,31 @@ func DelComFlag(db *sql.DB, r *http.Request) error {
 
 func DelCom(db *sql.DB, r *http.Request) error {
 
-	id, err := strconv.Atoi(r.FormValue("delcom"))
+	id := 0
+	var err error
+	if len(r.FormValue("delcom")) == 0 {
+		id, err = strconv.Atoi(r.FormValue("delete"))
+	} else {
+		id, err = strconv.Atoi(r.FormValue("delcom"))
+	}
+	
 	if err != nil {
 		return err
 	}
 	_, err = db.Exec("DELETE FROM comment WHERE id=?", id)
+	if err != nil {
+        return err
+    }
+	return nil
+}
+
+func DelComFlag(db *sql.DB, r *http.Request) error {
+
+	id, err := strconv.Atoi(r.FormValue("delcomflag"))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("UPDATE comment SET flaged=? WHERE id=?", 0, id)
 	if err != nil {
         return err
     }

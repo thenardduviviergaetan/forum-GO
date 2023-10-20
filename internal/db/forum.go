@@ -31,6 +31,8 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 				app.Data.Moderator = true
 			} else if userstypeid == 3 {
 				app.Data.Admin = true
+			} else if userstypeid == 4 {
+				app.Data.Modlight = true
 			}
 			return true
 		}
@@ -49,7 +51,7 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetRecentPosts(app *App_db) error {
 	var post models.Post
-	rows, err := app.DB.Query("SELECT * FROM post ORDER BY rowid LIMIT 5")
+	rows, err := app.DB.Query("SELECT * FROM post ORDER BY rowid DESC LIMIT 5")
 	if err != nil {
 		return err
 	}

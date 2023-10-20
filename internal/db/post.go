@@ -82,12 +82,20 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			// delete comment
 			if r.FormValue("delete") != "" {
 				idcomment, _ := strconv.Atoi(r.FormValue("delete"))
-				middle.Removecomment(app.DB, int64(idcomment), currentuser)
+				if app.Data.Moderator || app.Data.Admin || app.Data.Modlight {
+					middle.DelCom(app.DB, r)
+				} else {
+					middle.Removecomment(app.DB, int64(idcomment), currentuser)
+				}
 			}
 			// edit comment
 			if r.FormValue("edit-comment") != "" {
 				idcomment, _ := strconv.Atoi(r.FormValue("edit-comment"))
-				app.CommentHandler(w, r, int64(idcomment), currentuser)
+				if app.Data.Moderator || app.Data.Admin || app.Data.Modlight {
+					app.CommentHandler(w, r, int64(idcomment), -1)
+				} else {
+					app.CommentHandler(w, r, int64(idcomment), currentuser)
+				}
 				return
 			}
 			if r.FormValue("comment-editor") != "" {
@@ -103,7 +111,16 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				middle.Updatecomment(app.DB, &comment)
 			}
-			if app.Data.CurrentPost.AuthorID == currentuser {
+			// flag comment
+			if r.FormValue("report") != "" {
+				middle.FlagComment(app.DB, r)
+			}
+			// flag post
+			if r.FormValue("report-post") != "" {
+				middle.FlagPost(app.DB, r)
+				http.Redirect(w, r, "id?id=" + r.FormValue("report-post"), http.StatusFound)
+			}
+			if app.Data.CurrentPost.AuthorID == currentuser || app.Data.Moderator || app.Data.Admin {
 				// delete post
 				if r.FormValue("delete-post") != "" {
 					// idpost, _ := strconv.Atoi(r.FormValue("delete-post"))

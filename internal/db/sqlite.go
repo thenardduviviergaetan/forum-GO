@@ -107,6 +107,10 @@ func (app *App_db) Migrate() error {
 		if err != nil {
 			return err
 		}
+		_, err = app.DB.Exec("INSERT INTO userstype(rank, label) VALUES (?,?)", 4, "modlight")
+		if err != nil {
+			return err
+		}
 	}
 	return err
 }

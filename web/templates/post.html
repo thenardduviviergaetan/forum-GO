@@ -13,16 +13,16 @@
             </select>
         </div>
         {{ if .Connected }}
-        <div class="liked">
-            <input type="checkbox" id="liked" name="liked" value="true"/>
-            <label for="liked">Liked posts</label>
-        </div>
-        <div class="created">
-            <input type="checkbox" id="created" name="created" value="true"/>
-            <label for="created">Created posts</label>
-        </div>
+            <div class="liked">
+                <input type="checkbox" id="liked" name="liked" value="true"/>
+                <label for="liked">Liked posts</label>
+            </div>
+            <div class="created">
+                <input type="checkbox" id="created" name="created" value="true"/>
+                <label for="created">Created posts</label>
+            </div>
         {{end}}
-        <input type="submit" value="filter">
+        <input class="system_btn" type="submit" value="filter">
     </form>
 
 {{range .Posts}}

@@ -3,6 +3,8 @@ package forum
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -124,4 +126,12 @@ func UpdateImgComment(db *sql.DB, idpost, idcomment int64, newimg string) error 
 		}
 	}
 	return nil
+}
+
+func FlagComment(db *sql.DB, r *http.Request) {
+	id, _ := strconv.Atoi(r.FormValue("report"))
+	_, err := db.Exec("UPDATE comment SET flaged = ? WHERE id = ?", 1, id)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
