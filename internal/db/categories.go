@@ -47,6 +47,7 @@ func (app *App_db) CategoryHandler(w http.ResponseWriter, r *http.Request) {
 		Connected	bool
 		Moderator	bool
 		Admin		bool
+		Modlight	bool
 		ID			int
 		Title		string
 		Description string
@@ -54,6 +55,7 @@ func (app *App_db) CategoryHandler(w http.ResponseWriter, r *http.Request) {
 	var context Context
 	context.Connected = app.Data.Connected
 	context.Moderator = app.Data.Moderator
+	context.Modlight = app.Data.Modlight
 	context.Admin = app.Data.Admin
 
 	if r.URL.Query().Has("id") {
