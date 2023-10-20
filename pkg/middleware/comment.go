@@ -45,7 +45,9 @@ func Removecomment(db *sql.DB, idcomment, currentuser int64) error {
 	var idpost int64
 	var img string
 	err := db.QueryRow("Select postid,img From comment Where id = ?", idcomment).Scan(&idpost, &img)
-	fmt.Println(err)
+	if err != nil {
+		fmt.Println(err)
+	}
 	err = os.RemoveAll("web/static/upload/img/post" + strconv.Itoa(int(idpost)) + "/comment/" + img)
 	if err != nil {
 		fmt.Println(err)

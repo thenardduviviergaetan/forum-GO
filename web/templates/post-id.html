@@ -9,12 +9,10 @@
             <p>Author: {{.CurrentPost.Author}}</p>
             <p>Date: {{.CurrentPost.CreationDate}}</p>
         </div>
-        {{if .CurrentPost.Ifimg}}
-            <div>
-                <img src="/img/post{{.CurrentPost.ID}}/{{.CurrentPost.Img}}"/>
-            </div>
-        {{end}}
         <div class="body-post">
+            {{if .CurrentPost.Ifimg}}
+                <img src="/img/post{{.CurrentPost.ID}}/{{.CurrentPost.Img}}"/>
+            {{end}}
             <p>{{.CurrentPost.Content}}</p>
         </div>
     {{ if .Connected }}

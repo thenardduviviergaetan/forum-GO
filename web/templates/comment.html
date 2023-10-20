@@ -9,12 +9,10 @@
             <h5>{{.Author}}</h5>
             <p>{{.CreationDate}}</p>
         </div>
-        {{if .Ifimg}}
-            <div>
-                <img src="/img/post{{.Postid}}/comment/{{.Img}}"/>
-            </div>
-        {{end}}
         <div class="comment-content">
+            {{if .Ifimg}}
+                <img src="/img/post{{.Postid}}/comment/{{.Img}}"/>
+            {{end}}
             <p>{{.Content}}</p>
         </div>
         <form class="comment-rate" method="POST" action="/post/id?id={{ .Postid}}">

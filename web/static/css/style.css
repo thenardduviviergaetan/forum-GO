@@ -183,12 +183,12 @@ a:hover {
 
 /**************POST*****************/
 .post {
-  width: 100%;
+  width: 80%;
   display: flex;
   justify-content: space-between;
   border: 1px solid #fff;
   padding: 10px;
-  margin: 10px 0;
+  margin: 10px auto;
 }
 
 .post-details {
@@ -208,7 +208,13 @@ a:hover {
 }
 
 .body-post {
+  display: flex;
   padding: 20px 0;
+  align-items: center;
+}
+.body-post img {
+  width: 30%;
+  margin: 10px;
 }
 
 /**********COMMENT***********/
@@ -240,7 +246,13 @@ a:hover {
   font-size: 20px;
 }
 .comment .comment-content {
+  display: flex;
   padding: 10px 0;
+  align-items: center;
+}
+.comment .comment-content img {
+  width: 10%;
+  margin: 10px;
 }
 .comment .comment-rate {
   display: flex;

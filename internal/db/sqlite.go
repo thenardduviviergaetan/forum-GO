@@ -88,7 +88,6 @@ func (app *App_db) Migrate() error {
 			FOREIGN KEY(commentid) REFERENCES comment(id) ON DELETE CASCADE
 		);
 
-		INSERT INTO categories(title,descriptions,creation) VALUES('Food',"c'est bon",date());
 	`
 	_, err := app.DB.Exec(query)
 

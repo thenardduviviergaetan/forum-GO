@@ -197,12 +197,12 @@ a:hover {
 /**************POST*****************/
 
 .post {
-    width: 100%;
+    width: 80%;
     display: flex;
     justify-content: space-between;
     border: 1px solid #fff;
     padding: 10px;
-    margin: 10px 0;
+    margin: 10px auto;
 
 }
 
@@ -224,7 +224,13 @@ a:hover {
 }
 
 .body-post {
+    display: flex;
     padding: 20px 0;
+    align-items: center;
+    img{
+        width: 30%;
+        margin: 10px;
+    }
 }
 
 
@@ -259,7 +265,13 @@ a:hover {
     }
     
     .comment-content{
+        display: flex;
         padding: 10px 0;
+        align-items: center;
+        img{
+            width: 10%;
+            margin: 10px;
+        }
     }
 
     .comment-rate{
