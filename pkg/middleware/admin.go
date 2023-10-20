@@ -45,12 +45,9 @@ func RmUser(db *sql.DB, r *http.Request) error {
 	return nil
 }
 
-func Addmod(db *sql.DB, r *http.Request) error {
-	id, err := strconv.Atoi(r.FormValue("addmod"))
-	if err != nil {
-		return err
-	}
-	_, err = db.Exec("UPDATE users SET userstypeid=?, askedmod=? WHERE id=?", 2, 0, id)
+func Addmod(db *sql.DB, r *http.Request, toadd int, id int) error {
+	
+	_, err := db.Exec("UPDATE users SET userstypeid=?, askedmod=? WHERE id=?", toadd, 0, id)
 	if err != nil {
 		return err
 	}
@@ -78,29 +75,28 @@ func FetchUsers(db *sql.DB) []models.User {
 	var userlst []models.User
 	for rows.Next() {
 		var user models.User
-		err = rows.Scan(&user.ID, &user.UserType, &user.Username, &user.Email, &user.Validation, &user.AskedMod, &user.CreationDate)
+		err = rows.Scan(&user.ID, 
+						&user.UserType, 
+						&user.Username, 
+						&user.Email, 
+						&user.Validation, 
+						&user.AskedMod, 
+						&user.CreationDate)
 		if err != nil {
 			log.Fatal(err)
 		}
+		switch user.UserType {
+		case 1:
+			user.UserTypeTxt = "User"
+		case 2:
+			user.UserTypeTxt = "Moderator"
+		case 3:
+			user.UserTypeTxt = "Admin"
+		case 4:
+			user.UserTypeTxt = "Comment Moderator"
+		}
+		user.FormatedTime = user.CreationDate.Format("2006-01-02 15:04:05")
 		userlst = append(userlst, user)
 	}
 	return userlst
 }
-
-// func FetchCat(db *sql.DB) []models.Categories {
-// 	rows, err := db.Query("SELECT id, title, description FROM categories")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer rows.Close()
-// 	var categorylst []models.Categories
-// 	for rows.Next() {
-// 		var categories models.Categories
-//         err = rows.Scan(&categories.ID, &categories.Title, &categories.Description)
-//         if err != nil {
-//             log.Fatal(err)
-//         }
-// 		categorylst = append(categorylst, categories)
-// 	}
-// 	return categorylst
-// }

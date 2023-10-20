@@ -3,6 +3,9 @@ package forum
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
 
 	models "forum/pkg/models"
 )
@@ -82,5 +85,13 @@ func Updatelike(db *sql.DB, idcomment, iduser int64, like bool) {
 			fmt.Println("Update like : ", err)
 			return
 		}
+	}
+}
+
+func FlagComment(db *sql.DB, r *http.Request) {
+	id, _ := strconv.Atoi(r.FormValue("report"))
+	_, err := db.Exec("UPDATE comment SET flaged = ? WHERE id = ?", 1, id)
+	if err != nil {
+		log.Fatal(err)
 	}
 }

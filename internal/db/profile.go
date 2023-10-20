@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	//"time"
 )
 
@@ -25,16 +26,29 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		if len(r.FormValue("askmod")) > 0 {
-			if err := middle.AskModerator(app.DB, r); err != nil {
+			id, err := strconv.Atoi(r.FormValue("askmod"))
+			if err != nil {
 				log.Fatal(err)
 			}
-		}
+			if err := middle.AskModerator(app.DB, r, 1, id); err != nil {
+				log.Fatal(err)
+			}
+		} else if len(r.FormValue("asklightmod")) > 0 {
+			id, err := strconv.Atoi(r.FormValue("asklightmod"))
+			if err != nil {
+				log.Fatal(err)
+			}
+			if err := middle.AskModerator(app.DB, r, 2, id); err != nil {
+				log.Fatal(err)
+			}
+		} 
 	}
 
 	type Context struct {
 		User 		models.User
 		Connected	bool
 		Moderator	bool
+		Modlight	bool
 		Admin		bool
 	}
 	var context Context
@@ -42,6 +56,7 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		context.User = middle.FetchUser(app.DB, cookie.Value)
 		context.Connected = app.Data.Connected
 		context.Moderator = app.Data.Moderator
+		context.Modlight = app.Data.Modlight
 		context.Admin = app.Data.Admin
 	} else {
 		http.Redirect(w, r, "/", http.StatusFound)

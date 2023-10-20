@@ -2,7 +2,7 @@ package forum
 
 import (
 	"database/sql"
-	"strconv"
+	//"strconv"
 	"net/http"
 	"log"
 	models "forum/pkg/models"
@@ -24,13 +24,9 @@ func FetchUser(db *sql.DB, cookie string) models.User {
 	return currentUser
 }
 
-func AskModerator(db *sql.DB, r *http.Request) error {
+func AskModerator(db *sql.DB, r *http.Request, asked int, id int) error {
 
-	id, err := strconv.Atoi(r.FormValue("askmod"))
-	if err != nil {
-		return err
-	}
-	_, err = db.Exec("UPDATE users SET askedmod=? WHERE id=?", 1, id)
+	_, err := db.Exec("UPDATE users SET askedmod=? WHERE id=?", asked, id)
 	if err != nil {
         return err
     }
