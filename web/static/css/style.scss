@@ -282,3 +282,25 @@ a:hover {
 .dislike{
     background-color: #e11919;
 }
+
+
+/********Admin*******/
+.table {
+    border-collapse: collapse;
+
+    tbody{
+        tr{            
+            td {
+                padding: 2px 15px;
+                border: 1px solid white;
+            }
+            .no_border {
+                border: none;
+            }
+        }
+    }
+}
+
+.admin_del {
+    margin-top: 0;
+}

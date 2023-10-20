@@ -3,7 +3,7 @@
 <main>
     <div>
         <div>
-            <table>
+            <table class="table">
                 <thead>
                     <tr>
                         <th colspan="9">Users</th>
@@ -39,7 +39,7 @@
                                 </td>
                                 <td class="no_border">
                                     <form action="/admin" method="POST">
-                                        <button class="dislike_btn admin_del" name="deletion" value="{{$val.ID}}">Delete user</button>
+                                        <button class="system_btn dislike admin_del" name="deletion" value="{{$val.ID}}">Delete user</button>
                                     </form>
                                 </td>
                             {{else if or (eq $val.UserType 2) (eq $val.UserType 4)}}
@@ -50,7 +50,7 @@
                                 </td>
                                 <td class="no_border">
                                     <form action="/admin" method="POST">
-                                        <button class="dislike_btn admin_del" type="submit" name="deletion" value="{{$val.ID}}">Delete user</button>
+                                        <button class="system_btn dislike admin_del" type="submit" name="deletion" value="{{$val.ID}}">Delete user</button>
                                     </form>
                                 </td>
                             {{end}}
@@ -66,7 +66,7 @@
         </div>
         <div style="height:10vh"></div>
         <div>
-            <table>
+            <table class="table">
                 <thead>
                     <tr>
                         <th colspan="5">Categories</th>
@@ -88,7 +88,7 @@
                             </td>
                             <td class="no_border">
                                 <form action="/admin" method="POST">
-                                    <button class="dislike_btn admin_del" type="submit" name="delcat" value="{{$val.ID}}">Delete category</button>
+                                    <button class="system_btn dislike admin_del" type="submit" name="delcat" value="{{$val.ID}}">Delete category</button>
                                 </form>
                             </td>
                         </tr>
@@ -97,7 +97,7 @@
             </table>
         </div>
         <div>
-            <a href="/category">Create a category</a>
+            <a class="system_btn" href="/category">Create a category</a>
         </div>
         {{ template "post-flaged" .}}
         {{ template "comment-flaged" .}}

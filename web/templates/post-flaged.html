@@ -1,7 +1,7 @@
 {{define "post-flaged" }}
 <div style="height:10vh"></div>
 <div>
-    <table>
+    <table class="table">
         <thead>
             <tr>
                 <th colspan="7">Flaged posts</th>
@@ -29,7 +29,7 @@
                     </td>
                     <td class="no_border">
                         <form action="/admin" method="POST">
-                            <button class="dislike_btn admin_del" class="dislike_btn" type="submit" name="delpost" value="{{$val.ID}}">Delete post</button>
+                            <button class="system_btn dislike admin_del" type="submit" name="delpost" value="{{$val.ID}}">Delete post</button>
                         </form>
                     </td>
                 </tr>
