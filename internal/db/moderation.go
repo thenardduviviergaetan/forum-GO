@@ -50,7 +50,7 @@ func (app *App_db) ModHandler(w http.ResponseWriter, r *http.Request) {
 	context.Posts = middle.FetchFlagedPost(app.DB)
 	context.Connected = app.Data.Connected
 	context.Moderator = s.GlobalSessions[c.Value].Moderator
-	context.Moderator = s.GlobalSessions[c.Value].Modlight
+	context.Modlight = s.GlobalSessions[c.Value].Modlight
 	context.Admin = s.GlobalSessions[c.Value].Admin
 
 	if err := tmpl.Execute(w, context); err != nil {
