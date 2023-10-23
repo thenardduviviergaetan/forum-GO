@@ -14,11 +14,12 @@ import (
 func Auth(db *sql.DB, w http.ResponseWriter, r *http.Request, user *models.User) error {
 	email, password := r.FormValue("email"), r.FormValue("password")
 
-	err := db.QueryRow("SELECT id,username,email, pwd FROM users WHERE email=?", email).Scan(
+	err := db.QueryRow("SELECT id,username,email,pwd,userstypeid FROM users WHERE email=?", email).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
-		&user.Password)
+		&user.Password,
+		&user.UserType)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err

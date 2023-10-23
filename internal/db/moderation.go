@@ -4,7 +4,9 @@ import (
 	//"database/sql"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
+	s "forum/sessions"
 	"html/template"
+
 	//"log"
 	"net/http"
 	//"time"
@@ -25,26 +27,31 @@ func (app *App_db) ModHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	c, err := r.Cookie("session_token")
+	if err != nil {
+		return
+	}
+
 	//check if user has mod right
-	if !app.Data.Admin && !app.Data.Moderator && !app.Data.Modlight {
+	if !s.GlobalSessions[c.Value].Admin && !s.GlobalSessions[c.Value].Moderator && !s.GlobalSessions[c.Value].Modlight {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
 	type Context struct {
-		Comments   []models.Comment
-		Posts      []models.Post
-		Connected  bool
-		Moderator  bool
-		Modlight   bool
-		Admin      bool
+		Comments  []models.Comment
+		Posts     []models.Post
+		Connected bool
+		Moderator bool
+		Modlight  bool
+		Admin     bool
 	}
 	var context Context
 	context.Comments = middle.FetchFlagedCom(app.DB)
 	context.Posts = middle.FetchFlagedPost(app.DB)
 	context.Connected = app.Data.Connected
-	context.Moderator = app.Data.Moderator
-	context.Moderator = app.Data.Modlight
-	context.Admin = app.Data.Admin
+	context.Moderator = s.GlobalSessions[c.Value].Moderator
+	context.Moderator = s.GlobalSessions[c.Value].Modlight
+	context.Admin = s.GlobalSessions[c.Value].Admin
 
 	if err := tmpl.Execute(w, context); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -53,6 +60,10 @@ func (app *App_db) ModHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *App_db) ComModHandler(w http.ResponseWriter, r *http.Request) {
 
+	c, err := r.Cookie("session_token")
+	if err != nil {
+		return
+	}
 	tmpl, err := template.ParseFiles(
 		"web/templates/moderation.html",
 		"web/templates/head.html",
@@ -67,23 +78,23 @@ func (app *App_db) ComModHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//check if user has mod right
-	if !app.Data.Admin && !app.Data.Moderator && !app.Data.Modlight {
+	if !s.GlobalSessions[c.Value].Admin && !s.GlobalSessions[c.Value].Moderator && !s.GlobalSessions[c.Value].Modlight {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
 	type Context struct {
-		Comments   []models.Comment
-		Connected  bool
-		Moderator  bool
-		Modlight   bool
-		Admin      bool
+		Comments  []models.Comment
+		Connected bool
+		Moderator bool
+		Modlight  bool
+		Admin     bool
 	}
 	var context Context
 	context.Comments = middle.FetchFlagedCom(app.DB)
 	context.Connected = app.Data.Connected
-	context.Moderator = app.Data.Moderator
-	context.Modlight = app.Data.Modlight
-	context.Admin = app.Data.Admin
+	context.Moderator = s.GlobalSessions[c.Value].Moderator
+	context.Modlight = s.GlobalSessions[c.Value].Modlight
+	context.Admin = s.GlobalSessions[c.Value].Admin
 
 	if err := tmpl.Execute(w, context); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

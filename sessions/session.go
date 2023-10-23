@@ -9,9 +9,12 @@ import (
 var GlobalSessions = map[string]Session{}
 
 type Session struct {
-	Username string
-	UserID   int64
-	EndLife  time.Time
+	Username  string
+	UserID    int64
+	Admin     bool
+	Moderator bool
+	Modlight  bool
+	EndLife   time.Time
 }
 
 // Check if session token is the same as user token to avoid multiple instances of session conflict

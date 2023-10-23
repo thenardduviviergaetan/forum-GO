@@ -25,6 +25,7 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	app.Data.Categories = middle.FetchCat(app.DB, int64(app.Data.CurrentPost.Categoryid))
 
 	Returncurentpost(app, w, r, currentuser)
@@ -80,7 +81,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			// delete comment
 			if r.FormValue("delete") != "" {
 				idcomment, _ := strconv.Atoi(r.FormValue("delete"))
-				if app.Data.Moderator || app.Data.Admin || app.Data.Modlight {
+				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].Modlight {
 					middle.DelCom(app.DB, r)
 				} else {
 					middle.Removecomment(app.DB, int64(idcomment), currentuser)
@@ -89,7 +90,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			// edit comment
 			if r.FormValue("edit-comment") != "" {
 				idcomment, _ := strconv.Atoi(r.FormValue("edit-comment"))
-				if app.Data.Moderator || app.Data.Admin || app.Data.Modlight {
+				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].Modlight {
 					app.CommentHandler(w, r, int64(idcomment), -1)
 				} else {
 					app.CommentHandler(w, r, int64(idcomment), currentuser)
@@ -110,9 +111,9 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			// flag post
 			if r.FormValue("report-post") != "" {
 				middle.FlagPost(app.DB, r)
-				http.Redirect(w, r, "id?id=" + r.FormValue("report-post"), http.StatusFound)
+				http.Redirect(w, r, "id?id="+r.FormValue("report-post"), http.StatusFound)
 			}
-			if app.Data.CurrentPost.AuthorID == currentuser || app.Data.Moderator || app.Data.Admin {
+			if app.Data.CurrentPost.AuthorID == currentuser || s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin {
 				// delete post
 				if r.FormValue("delete-post") != "" {
 					// idpost, _ := strconv.Atoi(r.FormValue("delete-post"))
