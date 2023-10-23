@@ -38,7 +38,7 @@ func main() {
 	http.HandleFunc("/post/id", app.PostIdHandler)
 
 	fmt.Println("Listening on port 8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", nil); err != nil {
 		log.Fatal(err)
 	}
 }
