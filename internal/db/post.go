@@ -220,6 +220,27 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 		app.Data.Categories = middle.FetchCat(app.DB, 0)
 
+		app.Data.Connected = func() bool {
+			if c, err := r.Cookie("session_token"); err == nil {
+				s.CheckSession(app.DB, w, r)
+				// var userstypeid int
+				// app.DB.QueryRow("SELECT userstypeid FROM users WHERE session_token=?", cookie.Value).Scan(&userstypeid)
+				// if userstypeid == 2 {
+				app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
+				// } else if userstypeid == 3 {
+				app.Data.Admin = s.GlobalSessions[c.Value].Admin
+				// } else if userstypeid == 4 {
+				app.Data.Modlight = s.GlobalSessions[c.Value].Modlight
+				// }
+				return true
+			}
+			s.CheckActive()
+			app.Data.Moderator = false
+			app.Data.Modlight = false
+			app.Data.Admin = false
+			return false
+		}()
+
 		if err := tmpl.Execute(w, app.Data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

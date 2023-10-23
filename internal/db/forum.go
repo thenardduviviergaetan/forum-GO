@@ -37,8 +37,9 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 			return true
 		}
 		s.CheckActive()
-		// app.Data.Moderator = false
-		// app.Data.Admin = false
+		app.Data.Moderator = false
+		app.Data.Modlight = false
+		app.Data.Admin = false
 		return false
 	}()
 
