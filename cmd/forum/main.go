@@ -34,6 +34,10 @@ func main() {
 	http.HandleFunc("/github/auth", app.GithubAuthHandler)
 	http.HandleFunc("/github/callback", app.GithubCallbackHandler)
 
+	//Alternative Google Authentication
+	http.HandleFunc("/google/auth", app.GoogleAuthHandler)
+	http.HandleFunc("/google/callback", app.GoogleCallbackHandler)
+
 	//Post related handlers
 	http.HandleFunc("/category", app.CategoryHandler)
 	http.HandleFunc("/post/create", app.PostCreateHandler)

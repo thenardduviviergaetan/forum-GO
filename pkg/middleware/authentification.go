@@ -149,3 +149,33 @@ func GetGithubData(access_token string) ([]byte, error) {
 
 	return respBody, nil
 }
+
+func GetGoogleData(access_token, id_token string) ([]byte, error) {
+	request, reqErr := http.NewRequest(
+		"GET",
+		fmt.Sprintf("https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=%s", access_token),
+		nil,
+	)
+	if reqErr != nil {
+		fmt.Println("[Google Data] -> Error trying to create new request", reqErr)
+		return nil, fmt.Errorf("[Google Data] -> Error trying to create new request\n%v\n", reqErr)
+	}
+
+	return retrieveData(request)
+}
+
+func retrieveData(request *http.Request) ([]byte, error) {
+	response, respErr := http.DefaultClient.Do(request)
+	if respErr != nil {
+		fmt.Println("[Retrieve Data] -> Error sending request and waiting for response", respErr)
+		return nil, fmt.Errorf("[Retrieve Data] -> Error sending request and waiting for response\n%v\n", respErr)
+	}
+
+	respBody, readErr := io.ReadAll(response.Body)
+	if readErr != nil {
+		fmt.Println("[Retrieve Data] -> Error reading response body", readErr)
+		return nil, fmt.Errorf("[Retrieve Data] -> Error reading response body\n%v\n", readErr)
+	}
+
+	return respBody, nil
+}
