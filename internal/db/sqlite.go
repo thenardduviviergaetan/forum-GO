@@ -47,12 +47,16 @@ func (app *App_db) Migrate() error {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			authorid INTEGER NOT NULL,
 			author TEXT NOT NULL,
-			categoryid INTEGER NOT NULL,
+			categoryid1 INTEGER NOT NULL,
+			categoryid2 INTEGER NOT NULL,
+			categoryid3 INTEGER NOT NULL,
 			title TEXT NOT NULL UNIQUE,
 			content TEXT NOT NULL,
 			creation CURRENT_TIMESTAMP,
 			flaged INTEGER DEFAULT 0,
-			FOREIGN KEY(categoryid) REFERENCES categories(id) ON DELETE CASCADE,
+			FOREIGN KEY(categoryid1) REFERENCES categories(id) ON DELETE CASCADE,
+			FOREIGN KEY(categoryid2) REFERENCES categories(id) ON DELETE CASCADE,
+			FOREIGN KEY(categoryid3) REFERENCES categories(id) ON DELETE CASCADE,
 			FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE
 		);
 		
@@ -85,6 +89,7 @@ func (app *App_db) Migrate() error {
 			FOREIGN KEY(commentid) REFERENCES comment(id) ON DELETE CASCADE
 		);
 	`
+	// INSERT INTO categories(id,title,descriptions,creation) VALUES(0,'null','null',datetime());
 	_, err := app.DB.Exec(query)
 
 	// creation usertype

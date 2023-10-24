@@ -53,7 +53,9 @@ func GetRecentPosts(app *App_db) error {
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
+			&post.Categoryid1,
+			&post.Categoryid2,
+			&post.Categoryid3,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
@@ -62,7 +64,7 @@ func GetRecentPosts(app *App_db) error {
 		if err != nil {
 			return err
 		}
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid1).Scan(&post.Category1)
 
 		app.Data.Posts = append(app.Data.Posts, post)
 	}

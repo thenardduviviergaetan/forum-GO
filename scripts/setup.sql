@@ -31,12 +31,16 @@ CREATE TABLE IF NOT EXISTS post(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     authorid INTEGER NOT NULL,
     author TEXT NOT NULL,
-    categoryid INTEGER NOT NULL,
+    categoryid1 INTEGER NOT NULL,
+    categoryid2 INTEGER NOT NULL,
+    categoryid3 INTEGER NOT NULL,
     title TEXT NOT NULL UNIQUE,
     content TEXT NOT NULL,
 	creation CURRENT_TIMESTAMP,
     flaged INTEGER DEFAULT 0,
-    FOREIGN KEY(categoryid) REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY(categoryid1) REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY(categoryid2) REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY(categoryid3) REFERENCES categories(id) ON DELETE CASCADE,
     FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE
 );
 

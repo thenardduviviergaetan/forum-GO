@@ -1,11 +1,12 @@
 package forum
 
 import (
+	"html/template"
+	"net/http"
+
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	s "forum/sessions"
-	"html/template"
-	"net/http"
 )
 
 // PostHandler is a method for the App_db struct that handles HTTP requests related to posts.
@@ -38,7 +39,9 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 				&post.ID,
 				&post.AuthorID,
 				&post.Author,
-				&post.Categoryid,
+				&post.Categoryid1,
+				&post.Categoryid2,
+				&post.Categoryid3,
 				&post.Title,
 				&post.Content,
 				&post.CreationDate,
@@ -49,7 +52,13 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid1).Scan(&post.Category1)
+			if post.Categoryid2 != 0 {
+				err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid2).Scan(&post.Category2)
+			}
+			if post.Categoryid3 != 0 {
+				err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid3).Scan(&post.Category3)
+			}
 			post.User_like, post.User_dislike = linkpost(app, post.ID)
 			post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 			app.Data.Posts = append(app.Data.Posts, post)
@@ -99,7 +108,9 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
+			&post.Categoryid1,
+			&post.Categoryid2,
+			&post.Categoryid3,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
@@ -110,7 +121,13 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 			return
 		}
 
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid1).Scan(&post.Category1)
+		if post.Categoryid2 != 0 {
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid2).Scan(&post.Category2)
+		}
+		if post.Categoryid3 != 0 {
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid3).Scan(&post.Category3)
+		}
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		if t != nil {
@@ -154,7 +171,9 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 				&post.ID,
 				&post.AuthorID,
 				&post.Author,
-				&post.Categoryid,
+				&post.Categoryid1,
+				&post.Categoryid2,
+				&post.Categoryid3,
 				&post.Title,
 				&post.Content,
 				&post.CreationDate,
@@ -165,7 +184,13 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 				return
 			}
 
-			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid1).Scan(&post.Category1)
+			if post.Categoryid2 != 0 {
+				err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid2).Scan(&post.Category2)
+			}
+			if post.Categoryid3 != 0 {
+				err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid3).Scan(&post.Category3)
+			}
 			post.User_like, post.User_dislike = linkpost(app, post.ID)
 			post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 			if t != nil {
@@ -201,7 +226,9 @@ func CatFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
+			&post.Categoryid1,
+			&post.Categoryid2,
+			&post.Categoryid3,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
@@ -212,7 +239,13 @@ func CatFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid1).Scan(&post.Category1)
+		if post.Categoryid2 != 0 {
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid2).Scan(&post.Category2)
+		}
+		if post.Categoryid3 != 0 {
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid3).Scan(&post.Category3)
+		}
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		tmp = append(tmp, post)

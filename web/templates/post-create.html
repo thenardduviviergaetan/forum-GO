@@ -15,6 +15,20 @@
             <option value={{$val.ID}}>{{$val.Title}}</option>
           {{end}}
         </select>
+      <label for="categories2">Category</label>
+      <select class="categories2" name="categories2" id="categories2">
+          <option value="0">-----</option>
+          {{range $val := .Categories}}
+          <option value={{$val.ID}}>{{$val.Title}}</option>
+          {{end}}
+      </select>
+      <label for="categories3">Category</label>
+      <select class="categories3" name="categories3" id="categories3">
+        <option value="0">-----</option>
+        {{range $val := .Categories}}
+        <option value={{$val.ID}}>{{$val.Title}}</option>
+        {{end}}
+    </select>
     </div>
     <div class="field">
       <label for="content">Content</label>

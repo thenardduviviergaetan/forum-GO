@@ -3,22 +3,35 @@ package forum
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
-	"net/http"
 	"log"
+	"net/http"
+	"strconv"
 
 	models "forum/pkg/models"
 )
 
 func CreatePost(db *sql.DB, post *models.Post) (int, error) {
-	_, err := db.Exec("INSERT INTO post(authorid, author, categoryid, title, content, creation) VALUES(?,?,?,?,?, date())",
-		post.AuthorID, post.Author, post.Categoryid, post.Title, post.Content)
+	_, err := db.Exec("INSERT INTO post(authorid, author, categoryid1, categoryid2, categoryid3, title, content, creation) VALUES(?,?,?,?,?,?,?, datetime())",
+		post.AuthorID, post.Author, post.Categoryid1, post.Categoryid2, post.Categoryid3, post.Title, post.Content)
 	if err != nil {
 		fmt.Println("ERROR CREATE POST", err)
 	}
-
 	sql, _ := db.Exec("SELECT last_insert_rowid()")
 	id, _ := sql.LastInsertId()
+	// if post.Categoryid2 != 0 {
+	// 	_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid2 = ? WHERE id = ?", post.Content, post.Title, post.Categoryid2, post.ID)
+	// 	if err != nil {
+	// 		fmt.Println("Update comment : ", err)
+	// 		return 0, err
+	// 	}
+	// }
+	// if post.Categoryid3 != 0 {
+	// 	_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid3 = ? WHERE id = ?", post.Content, post.Title, post.Categoryid3, post.ID)
+	// 	if err != nil {
+	// 		fmt.Println("Update comment : ", err)
+	// 		return 0, err
+	// 	}
+	// }
 	return int(id), nil
 }
 
@@ -32,10 +45,24 @@ func RemovePost(db *sql.DB, idpost int64) error {
 }
 
 func UpdatePost(db *sql.DB, post *models.Post) error {
-	_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid = ? WHERE id = ?", post.Content, post.Title, post.Categoryid, post.ID)
+	_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid1 = ? WHERE id = ?", post.Content, post.Title, post.Categoryid1, post.ID)
 	if err != nil {
 		fmt.Println("Update comment : ", err)
 		return err
+	}
+	if post.Categoryid2 != 0 {
+		_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid2 = ? WHERE id = ?", post.Content, post.Title, post.Categoryid2, post.ID)
+		if err != nil {
+			fmt.Println("Update comment : ", err)
+			return err
+		}
+	}
+	if post.Categoryid3 != 0 {
+		_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid3 = ? WHERE id = ?", post.Content, post.Title, post.Categoryid3, post.ID)
+		if err != nil {
+			fmt.Println("Update comment : ", err)
+			return err
+		}
 	}
 	return nil
 }

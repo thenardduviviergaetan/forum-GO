@@ -5,8 +5,12 @@ type Post struct {
 	AuthorID      int64  `json:"author_id"`
 	Author        string `json:"author"`
 	Ifcurrentuser bool
-	Category      string `json:"category"`
-	Categoryid	  int	`json:"category_id"`
+	Category1     string `json:"category"`
+	Category2     string `json:"category"`
+	Category3     string `json:"category"`
+	Categoryid1   int    `json:"category_id1"`
+	Categoryid2   int    `json:"category_id2"`
+	Categoryid3   int    `json:"category_id3"`
 	Title         string `json:"title"`
 	Content       string `json:"content"`
 	Like          int

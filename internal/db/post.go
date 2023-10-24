@@ -26,7 +26,7 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 		return
 	}
 
-	app.Data.Categories = middle.FetchCat(app.DB, int64(app.Data.CurrentPost.Categoryid))
+	app.Data.Categories = middle.FetchCat(app.DB, int64(app.Data.CurrentPost.Categoryid1))
 
 	Returncurentpost(app, w, r, currentuser)
 	renderpost_id(w, tmpl, app)
@@ -133,7 +133,11 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 					// post.ID = int64(id)
 					post.ID = app.Data.CurrentPost.ID
 					cat, _ := strconv.Atoi(r.FormValue("categories-editor"))
-					post.Categoryid = cat
+					cat2, _ := strconv.Atoi(r.FormValue("categories-editor2"))
+					cat3, _ := strconv.Atoi(r.FormValue("categories-editor3"))
+					post.Categoryid1 = cat
+					post.Categoryid2 = cat2
+					post.Categoryid3 = cat3
 					post.Title = r.FormValue("title-editor")
 					middle.UpdatePost(app.DB, &post)
 					Returncurentpost(app, w, r, currentuser)
@@ -158,14 +162,21 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
+			&post.Categoryid1,
+			&post.Categoryid2,
+			&post.Categoryid3,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
 			&post.Flaged,
 		)
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
-
+		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid1).Scan(&post.Category1)
+		if post.Categoryid2 != 0 {
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid2).Scan(&post.Category2)
+		}
+		if post.Categoryid3 != 0 {
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid3).Scan(&post.Category3)
+		}
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		post.Ifcurrentuser = post.AuthorID == currentuser
@@ -191,7 +202,7 @@ func renderpost_id(w http.ResponseWriter, tmpl *template.Template, app *App_db) 
 
 // Handler that shows the post creation page and ensures that users are certified to create posts.
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
-	//Checking for rights to access this page
+	// Checking for rights to access this page
 	cookie, errCookie := r.Cookie("session_token")
 	if errCookie != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -247,10 +258,14 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		cat, _ := strconv.Atoi(r.FormValue("categories"))
+		cat2, _ := strconv.Atoi(r.FormValue("categories2"))
+		cat3, _ := strconv.Atoi(r.FormValue("categories3"))
 		post = &models.Post{
-			Categoryid: cat,
-			Title:      r.FormValue("title"),
-			Content:    r.FormValue("content"),
+			Categoryid1: cat,
+			Categoryid2: cat2,
+			Categoryid3: cat3,
+			Title:       r.FormValue("title"),
+			Content:     r.FormValue("content"),
 		}
 
 		err := app.DB.QueryRow("SELECT id, username FROM users where session_token = ?", cookie.Value).Scan(&post.AuthorID, &post.Author)

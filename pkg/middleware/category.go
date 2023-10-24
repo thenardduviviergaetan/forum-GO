@@ -12,7 +12,6 @@ import (
 )
 
 func AddCategory(db *sql.DB, r *http.Request) error {
-
 	_, err := db.Exec("INSERT INTO categories(title, descriptions, creation) VALUES (?,?,datetime())",
 		r.FormValue("catitle"),
 		r.FormValue("catdescription"))
@@ -23,7 +22,6 @@ func AddCategory(db *sql.DB, r *http.Request) error {
 }
 
 func ModCategory(db *sql.DB, r *http.Request) error {
-
 	id, err := strconv.Atoi(r.FormValue("creatcat"))
 	if err != nil {
 		return err
@@ -36,7 +34,6 @@ func ModCategory(db *sql.DB, r *http.Request) error {
 }
 
 func DelCategory(db *sql.DB, r *http.Request) error {
-
 	id, err := strconv.Atoi(r.FormValue("delcat"))
 	if err != nil {
 		return err
@@ -62,6 +59,9 @@ func FetchCat(db *sql.DB, current int64) []models.Categories {
 			log.Fatal(err)
 		}
 		categories.Ifcurtentcat = current == categories.ID
+		if categories.ID == 0 {
+			continue
+		}
 		categorylst = append(categorylst, categories)
 	}
 	return categorylst
