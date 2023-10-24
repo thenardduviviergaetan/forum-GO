@@ -5,6 +5,7 @@ import (
 	"errors"
 	models "forum/pkg/models"
 	"net/http"
+	"net/mail"
 	"regexp"
 )
 
@@ -23,7 +24,12 @@ func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
 		return errors.New("passwords do not match")
 	}
 
-	err := db.QueryRow(
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return errors.New("email not valid")
+	}
+
+	err = db.QueryRow(
 		"SELECT username,email FROM users WHERE username=? OR email=?",
 		username,
 		email).Scan(&user.Username, &user.Email)
