@@ -1,4 +1,3 @@
-
 {{ template "head" .}}
 
 <section class="form">
@@ -20,16 +19,26 @@
     </div>
     <div class="field">
       <label for="confirmation">Confirmation Password</label>
-      <input type="password" name="confirmation"/>
+      <input type="password" name="confirmation" />
     </div>
-      <button type="submit">Register</button>
+    <button type="submit">Register</button>
   </form>
 
-{{ if .ErrorMessage }}
-<div class="alert">*{{ .ErrorMessage }}</div>
-{{ end }}
 
-<p> Already have an account? <a href="/login"><span class="link">Login</span></a> </p>
+  {{ if .ErrorMessage }}
+  <div class="alert">*{{ .ErrorMessage }}</div>
+  {{ end }}
+
+  <p> Already have an account? <a href="/login"><span class="link">Login</span></a> </p>
+</section>
+<div style="border-left:1px solid #000;height:500px"></div>
+<section class="form">
+  <a href="/github/auth">
+    <img src="../static/assets/authentication/github_SignIn.png" alt="Github SignIn Button">
+  </a>
+  <a href="">
+    <img src="" alt="">
+  </a>
 </section>
 
 {{ template "footer" .}}

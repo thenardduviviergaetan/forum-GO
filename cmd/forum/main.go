@@ -30,6 +30,10 @@ func main() {
 	http.HandleFunc("/register", app.RegisterHandler)
 	http.HandleFunc("/logout", app.LogoutHandler)
 
+	//Alternative Github Authentication
+	http.HandleFunc("/github/auth", app.GithubAuthHandler)
+	http.HandleFunc("/github/callback", app.GithubCallbackHandler)
+
 	//Post related handlers
 	http.HandleFunc("/category", app.CategoryHandler)
 	http.HandleFunc("/post/create", app.PostCreateHandler)

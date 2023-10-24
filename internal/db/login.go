@@ -33,7 +33,7 @@ func (app *App_db) LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login?error="+url.QueryEscape(errMsg), http.StatusFound)
 			return
 		}
-		http.Redirect(w, r, "/", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 
 	if err := tmpl.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
