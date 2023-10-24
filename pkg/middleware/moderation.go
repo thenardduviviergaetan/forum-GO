@@ -24,6 +24,15 @@ func FetchFlagedCom(db *sql.DB) []models.Comment {
         if err != nil {
             log.Fatal(err)
         }
+		//get author name and category name
+		err = db.QueryRow("SELECT username FROM users WHERE id = ?", comment.AuthorID).Scan(&comment.Author)
+		if err != nil {
+            log.Fatal(err)
+        }
+		err = db.QueryRow("SELECT title FROM post WHERE id = ?", comment.Postid).Scan(&comment.Post)
+		if err != nil {
+            log.Fatal(err)
+        }
 		comments = append(comments, comment)
 	}
 	return comments
@@ -41,6 +50,15 @@ func FetchFlagedPost(db *sql.DB) []models.Post {
 		var post models.Post
         err = rows.Scan(&post.ID, &post.AuthorID, &post.Categoryid, &post.Content, &post.CreationDate, &post.Flaged)
         if err != nil {
+            log.Fatal(err)
+        }
+		//get author name and category name
+		err = db.QueryRow("SELECT username FROM users WHERE id = ?", post.AuthorID).Scan(&post.Author)
+		if err != nil {
+            log.Fatal(err)
+        }
+		err = db.QueryRow("SELECT title FROM categories WHERE id = ?", post.Categoryid).Scan(&post.Category)
+		if err != nil {
             log.Fatal(err)
         }
 		posts = append(posts, post)
