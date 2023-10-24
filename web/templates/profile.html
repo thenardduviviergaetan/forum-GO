@@ -27,6 +27,33 @@
             {{end}}
         </div>
         <!-- make other functionnality, user data available with .User -->
+        <!-- Show activity -->
+        <div style="height:10vh"></div>
+        <h1>Activity</h1>
+        <div style="height:5vh"></div>
+        <h2>Liked posts</h2>
+        <div style="height:2vh"></div>
+        {{range $val := .Liked.Posted}}
+            <div>{{$val}}</div>
+        {{end}}
+        <div style="height:5vh"></div>
+        <h2>Liked comments</h2>
+        <div style="height:2vh"></div>
+        {{range $val := .Liked.Commented}}
+            <div>{{$val}}</div>
+        {{end}}
+        <div style="height:5vh"></div>
+        <h2>Disliked posts</h2>
+        <div style="height:2vh"></div>
+        {{range $val := .Disliked.Posted}}
+            <div>{{$val}}</div>
+        {{end}}
+        <div style="height:5vh"></div>
+        <h2>Disliked comments</h2>
+        <div style="height:2vh"></div>
+        {{range $val := .Disliked.Commented}}
+            <div>{{$val}}</div>
+        {{end}}
     </div>
 </main>
 {{ template "footer" .}}

@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS linkpost(
     userid INTEGER NOT NULL,
     postid INTEGER NOT NULL,
     likes BOOLEAN NOT NULL,
+    lastupdate DATETIME NOT NULL,
     FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE
     FOREIGN KEY(postid) REFERENCES post(id) ON DELETE CASCADE
 );
@@ -66,6 +67,7 @@ CREATE TABLE IF NOT EXISTS linkcomment(
     userid INTEGER NOT NULL,
     commentid INTEGER NOT NULL,
     likes BOOLEAN NOT NULL,
+    lastupdate DATETIME NOT NULL,
     FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE
     FOREIGN KEY(commentid) REFERENCES comment(id) ON DELETE CASCADE
 );

@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	//"fmt"
 	//"time"
 )
 
@@ -56,6 +57,8 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		Moderator bool
 		Modlight  bool
 		Admin     bool
+		Liked	  models.Liked
+		Disliked  models.Disliked
 	}
 	var context Context
 	if cookie, err := r.Cookie("session_token"); err == nil {
@@ -64,9 +67,12 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		context.Moderator = s.GlobalSessions[c.Value].Moderator
 		context.Modlight = s.GlobalSessions[c.Value].Modlight
 		context.Admin = s.GlobalSessions[c.Value].Admin
+		context.Liked = middle.FetchLikes(app.DB, int(context.User.ID))
+		context.Disliked = middle.FetchDislikes(app.DB, int(context.User.ID))
 	} else {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
+	middle.FetchComments(app.DB, int(context.User.ID))
 
 	if err := tmpl.Execute(w, context); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

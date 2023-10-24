@@ -11,7 +11,8 @@ import (
 )
 
 func CreatePost(db *sql.DB, post *models.Post) (int, error) {
-	_, err := db.Exec("INSERT INTO post(authorid, author, categoryid, title, content, creation) VALUES(?,?,?,?,?, date())",
+	
+	_, err := db.Exec("INSERT INTO post(authorid, author, categoryid, title, content, creation) VALUES(?,?,?,?,?, datetime())",
 		post.AuthorID, post.Author, post.Categoryid, post.Title, post.Content)
 	if err != nil {
 		fmt.Println("ERROR CREATE POST", err)

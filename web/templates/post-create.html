@@ -10,7 +10,7 @@
         </div>
     <div class="field">
       <label for="categories">Category</label>
-        <select name="categories" id="categories">
+        <select name="categories" id="categories" multiple>
           {{range $val := .Categories}}
             <option value={{$val.ID}}>{{$val.Title}}</option>
           {{end}}
