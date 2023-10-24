@@ -8,6 +8,8 @@ import (
 	//"database/sql"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
+	s "forum/sessions"
+	"strconv"
 	//"fmt"
 	//"time"
 )
@@ -26,8 +28,13 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	c, err := r.Cookie("session_token")
+	if err != nil {
+		return
+	}
+
 	// check if user is admin
-	if !app.Data.Admin {
+	if !s.GlobalSessions[c.Value].Admin {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
@@ -41,13 +48,21 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 				log.Fatal(err)
 			}
 		} else if len(r.FormValue("addmod")) > 0 {
-			if err := middle.Addmod(app.DB, r); err != nil {
+			id, err := strconv.Atoi(r.FormValue("addmod"))
+			if err != nil {
 				log.Fatal(err)
 			}
-			// } else if len(r.FormValue("catitle")) > 0 {
-			// 	if err := middle.AddCategory(app.DB, r); err != nil {
-			// 		log.Fatal(err)
-			// 	}
+			if err := middle.Addmod(app.DB, r, 2, id); err != nil {
+				log.Fatal(err)
+			}
+		} else if len(r.FormValue("addmodlight")) > 0 {
+			id, err := strconv.Atoi(r.FormValue("addmodlight"))
+			if err != nil {
+				log.Fatal(err)
+			}
+			if err := middle.Addmod(app.DB, r, 4, id); err != nil {
+				log.Fatal(err)
+			}
 		} else if len(r.FormValue("delcat")) > 0 {
 			if err := middle.DelCategory(app.DB, r); err != nil {
 				log.Fatal(err)
@@ -60,6 +75,14 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 			if err := middle.DelCom(app.DB, r); err != nil {
 				log.Fatal(err)
 			}
+		} else if len(r.FormValue("delcomflag")) > 0 {
+			if err := middle.DelComFlag(app.DB, r); err != nil {
+				log.Fatal(err)
+			}
+		} else if len(r.FormValue("delpostflag")) > 0 {
+			if err := middle.DelPostFlag(app.DB, r); err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 
@@ -70,6 +93,7 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 		Posts      []models.Post
 		Connected  bool
 		Moderator  bool
+		Modlight   bool
 		Admin      bool
 	}
 	var context Context
@@ -78,8 +102,9 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	context.Comments = middle.FetchFlagedCom(app.DB)
 	context.Posts = middle.FetchFlagedPost(app.DB)
 	context.Connected = app.Data.Connected
-	context.Moderator = app.Data.Moderator
-	context.Admin = app.Data.Admin
+	context.Moderator = s.GlobalSessions[c.Value].Moderator
+	context.Modlight = s.GlobalSessions[c.Value].Modlight
+	context.Admin = s.GlobalSessions[c.Value].Admin
 
 	if err := tmpl.Execute(w, context); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

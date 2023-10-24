@@ -1,16 +1,14 @@
 package forum
 
 import (
-	"html/template"
-	"net/http"
-
-	// "fmt"
-
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	s "forum/sessions"
+	"html/template"
+	"net/http"
 )
 
+// PostHandler is a method for the App_db struct that handles HTTP requests related to posts.
 func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 	var post models.Post
 	app.Data.Posts = nil
@@ -27,7 +25,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 	app.Data.Categories = middle.FetchCat(app.DB, 0)
 	if r.URL.Query().Has("created") ||
 		r.URL.Query().Has("liked") ||
-		r.URL.Query().Has("categories") {
+		(r.URL.Query().Has("categories") && r.URL.Query().Get("categories") != "") {
 		ApplyFilter(app, w, r)
 	} else {
 		rows, err := app.DB.Query("SELECT * FROM post")
@@ -63,15 +61,32 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	app.Data.Connected = func() bool {
+		if c, err := r.Cookie("session_token"); err == nil {
+			s.CheckSession(app.DB, w, r)
+			app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
+			app.Data.Admin = s.GlobalSessions[c.Value].Admin
+			app.Data.Modlight = s.GlobalSessions[c.Value].Modlight
+			return true
+		}
+		s.CheckActive()
+		return false
+	}()
+
 	if err := tmpl.Execute(w, app.Data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
+// CreatedFilter retrieves posts from the database authored by the user with the session token,
+// scans the data into a Post model, checks if the post exists in a provided slice of posts (if provided),
+// and appends the post to the app's Posts data.
+func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models.Post) {
 	var post models.Post
-
+	if t != nil {
+		app.Data.Posts = nil
+	}
 	c, _ := r.Cookie("session_token")
 
 	rows, err := app.DB.Query("SELECT * FROM post WHERE authorid = ? ;", s.GlobalSessions[c.Value].UserID)
@@ -98,13 +113,24 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
-		app.Data.Posts = append(app.Data.Posts, post)
+		if t != nil {
+			if middle.HasPost(t, post) {
+				app.Data.Posts = append(app.Data.Posts, post)
+			}
+		} else {
+			app.Data.Posts = append(app.Data.Posts, post)
+		}
 	}
 }
 
-func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
+// LikedFilter retrieves posts liked by the user from the database, populates their details,
+// and appends them to the app's Posts data. If a slice of posts is provided,
+// only posts existing in that slice are appended.
+func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models.Post) {
 	var post models.Post
-
+	if t != nil {
+		app.Data.Posts = nil
+	}
 	c, _ := r.Cookie("session_token")
 
 	var tmp int
@@ -118,7 +144,6 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		// fmt.Println(tmp)
 		rows, err := app.DB.Query("SELECT * FROM post WHERE id = ? ;", tmp)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -143,13 +168,23 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
 			post.User_like, post.User_dislike = linkpost(app, post.ID)
 			post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
-			app.Data.Posts = append(app.Data.Posts, post)
+			if t != nil {
+				if middle.HasPost(t, post) {
+					app.Data.Posts = append(app.Data.Posts, post)
+				}
+			} else {
+				app.Data.Posts = append(app.Data.Posts, post)
+			}
 		}
 	}
 }
 
+// CatFilter retrieves posts from the database based on a given category ID,
+// processes each post's data including likes, dislikes, and category title,
+// then applies additional filters based on URL query parameters or adds the post to the app's data.
 func CatFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 	var post models.Post
+	var tmp []models.Post
 	cat_id := r.URL.Query().Get("categories")
 
 	if cat_id == "" {
@@ -180,18 +215,29 @@ func CatFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
 		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
-		app.Data.Posts = append(app.Data.Posts, post)
+		tmp = append(tmp, post)
+		switch {
+		case r.URL.Query().Get("created") == "true":
+			CreatedFilter(app, w, r, tmp)
+		case r.URL.Query().Get("liked") == "true":
+			LikedFilter(app, w, r, tmp)
+		default:
+			app.Data.Posts = append(app.Data.Posts, post)
+		}
 	}
 }
 
+// ApplyFilter checks the URL query parameters and applies the appropriate
+// filter (categories, created, or liked) to the app database.
 func ApplyFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
-	if r.URL.Query().Get("categories") != "" {
+	switch {
+	case r.URL.Query().Get("categories") != "":
 		CatFilter(app, w, r)
-	}
-	if r.URL.Query().Get("created") == "true" {
-		CreatedFilter(app, w, r)
-	}
-	if r.URL.Query().Get("liked") == "true" {
-		LikedFilter(app, w, r)
+
+	case r.URL.Query().Get("created") == "true":
+		CreatedFilter(app, w, r, nil)
+
+	case r.URL.Query().Get("liked") == "true":
+		LikedFilter(app, w, r, nil)
 	}
 }

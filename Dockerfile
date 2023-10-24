@@ -1,6 +1,6 @@
 #syntax=docker/dockerfile:1
 
-FROM golang:1.21.2
+FROM golang:1.21.3
 
 
 LABEL "description"="Docker image of Forum project with SQL database"
@@ -15,7 +15,8 @@ ADD . ./
 RUN go mod download
 
 
-RUN go build -o /forum cmd/main.go
+# RUN go build -o /admin cmd/usercreation/main.go
+RUN go build -o /forum cmd/forum/main.go
 
 CMD ["/forum"]
 

@@ -6,7 +6,7 @@ type Post struct {
 	Author        string `json:"author"`
 	Ifcurrentuser bool
 	Category      string `json:"category"`
-	Categoryid	 int	`json:"category_id"`
+	Categoryid	  int	`json:"category_id"`
 	Title         string `json:"title"`
 	Content       string `json:"content"`
 	Like          int

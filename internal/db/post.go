@@ -25,6 +25,7 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	app.Data.Categories = middle.FetchCat(app.DB, int64(app.Data.CurrentPost.Categoryid))
 
 	Returncurentpost(app, w, r, currentuser)
@@ -80,12 +81,20 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 			// delete comment
 			if r.FormValue("delete") != "" {
 				idcomment, _ := strconv.Atoi(r.FormValue("delete"))
-				middle.Removecomment(app.DB, int64(idcomment), currentuser)
+				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].Modlight {
+					middle.DelCom(app.DB, r)
+				} else {
+					middle.Removecomment(app.DB, int64(idcomment), currentuser)
+				}
 			}
 			// edit comment
 			if r.FormValue("edit-comment") != "" {
 				idcomment, _ := strconv.Atoi(r.FormValue("edit-comment"))
-				app.CommentHandler(w, r, int64(idcomment), currentuser)
+				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].Modlight {
+					app.CommentHandler(w, r, int64(idcomment), -1)
+				} else {
+					app.CommentHandler(w, r, int64(idcomment), currentuser)
+				}
 				return
 			}
 			if r.FormValue("comment-editor") != "" {
@@ -95,7 +104,16 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 				comment.ID = int64(id)
 				middle.Updatecomment(app.DB, &comment)
 			}
-			if app.Data.CurrentPost.AuthorID == currentuser {
+			// flag comment
+			if r.FormValue("report") != "" {
+				middle.FlagComment(app.DB, r)
+			}
+			// flag post
+			if r.FormValue("report-post") != "" {
+				middle.FlagPost(app.DB, r)
+				http.Redirect(w, r, "id?id="+r.FormValue("report-post"), http.StatusFound)
+			}
+			if app.Data.CurrentPost.AuthorID == currentuser || s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin {
 				// delete post
 				if r.FormValue("delete-post") != "" {
 					// idpost, _ := strconv.Atoi(r.FormValue("delete-post"))
@@ -201,6 +219,18 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		app.Data.Categories = middle.FetchCat(app.DB, 0)
+
+		app.Data.Connected = func() bool {
+			if c, err := r.Cookie("session_token"); err == nil {
+				s.CheckSession(app.DB, w, r)
+				app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
+				app.Data.Admin = s.GlobalSessions[c.Value].Admin
+				app.Data.Modlight = s.GlobalSessions[c.Value].Modlight
+				return true
+			}
+			s.CheckActive()
+			return false
+		}()
 
 		if err := tmpl.Execute(w, app.Data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

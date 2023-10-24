@@ -3,10 +3,13 @@ package forum
 import (
 	//"database/sql"
 	middle "forum/pkg/middleware"
+	s "forum/sessions"
+
 	//models "forum/pkg/models"
 	"html/template"
 	"log"
 	"net/http"
+
 	//"fmt"
 	"strconv"
 	//"time"
@@ -25,8 +28,13 @@ func (app *App_db) CategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	c, err := r.Cookie("session_token")
+	if err != nil {
+		return
+	}
+
 	//check if user is admin
-	if !app.Data.Admin {
+	if !s.GlobalSessions[c.Value].Admin {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
@@ -44,17 +52,19 @@ func (app *App_db) CategoryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Context struct {
-		Connected	bool
-		Moderator	bool
-		Admin		bool
-		ID			int
-		Title		string
+		Connected   bool
+		Moderator   bool
+		Admin       bool
+		Modlight    bool
+		ID          int
+		Title       string
 		Description string
 	}
 	var context Context
 	context.Connected = app.Data.Connected
-	context.Moderator = app.Data.Moderator
-	context.Admin = app.Data.Admin
+	context.Moderator = s.GlobalSessions[c.Value].Moderator
+	context.Modlight = s.GlobalSessions[c.Value].Modlight
+	context.Admin = s.GlobalSessions[c.Value].Admin
 
 	if r.URL.Query().Has("id") {
 		id, err := strconv.Atoi(r.URL.Query().Get("id"))

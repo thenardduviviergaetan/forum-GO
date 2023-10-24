@@ -80,7 +80,7 @@ func (app *App_db) Migrate() error {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			userid INTEGER NOT NULL,
 			commentid INTEGER NOT NULL,
-			like BOOLEAN NOT NULL,
+			likes BOOLEAN NOT NULL,
 			FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE,
 			FOREIGN KEY(commentid) REFERENCES comment(id) ON DELETE CASCADE
 		);
@@ -100,6 +100,10 @@ func (app *App_db) Migrate() error {
 			return err
 		}
 		_, err = app.DB.Exec("INSERT INTO userstype(rank, label) VALUES (?,?)", 3, "admin")
+		if err != nil {
+			return err
+		}
+		_, err = app.DB.Exec("INSERT INTO userstype(rank, label) VALUES (?,?)", 4, "modlight")
 		if err != nil {
 			return err
 		}

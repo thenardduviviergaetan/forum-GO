@@ -1,7 +1,7 @@
 {{define "post-flaged" }}
 <div style="height:10vh"></div>
 <div>
-    <table>
+    <table class="table">
         <thead>
             <tr>
                 <th colspan="7">Flaged posts</th>
@@ -14,24 +14,22 @@
                 <td>Category</td>
                 <td>Content</td>
                 <td>Creation date</td>
-                <td></td>
-                <td></td>
             </tr>
             {{range $val := .Posts}}
                 <tr>
                     <td>{{$val.ID}}</td>
-                    <td>{{$val.AuthorID}}</td>
-                    <td>{{$val.Categoryid}}</td>
+                    <td>{{$val.Author}}</td>
+                    <td>{{$val.Category}}</td>
                     <td>{{$val.Content}}</td>
                     <td>{{$val.CreationDate}}</td>
-                    <td>
+                    <td class="no_border">
                         <form action="/admin" method="POST">
-                            <button type="submit" name="supflagpost" value="{{$val.ID}}">Remove it from the reported list</button>
+                            <button class="system_btn admin_del" type="submit" name="delpostflag" value="{{$val.ID}}">Remove it from the reported list</button>
                         </form>
                     </td>
-                    <td>
+                    <td class="no_border">
                         <form action="/admin" method="POST">
-                            <button type="submit" name="delpost" value="{{$val.ID}}">Delete post</button>
+                            <button class="system_btn dislike admin_del" type="submit" name="delpost" value="{{$val.ID}}">Delete post</button>
                         </form>
                     </td>
                 </tr>

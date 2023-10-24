@@ -334,4 +334,20 @@ a:hover {
   background-color: #e11919;
 }
 
+/********Admin*******/
+.table {
+  border-collapse: collapse;
+}
+.table tbody tr td {
+  padding: 2px 15px;
+  border: 1px solid white;
+}
+.table tbody tr .no_border {
+  border: none;
+}
+
+.admin_del {
+  margin-top: 0;
+}
+
 /*# sourceMappingURL=style.css.map */
