@@ -1,6 +1,7 @@
 {{ template "head" .}} 
 {{ template "navbar" .}}
 <main>
+    <h1>Moderation panel</h1>
     {{if or (.Moderator) (.Admin)}}
     {{ template "post-flaged" .}}
     {{end}}
