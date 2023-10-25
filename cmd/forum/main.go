@@ -7,6 +7,7 @@ import (
 	. "forum/internal/db"
 	"log"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -38,26 +39,37 @@ func main() {
 	http.HandleFunc("/post", app.PostHandler)
 	http.HandleFunc("/post/id", app.PostIdHandler)
 
-	cfg := &tls.Config{
-		MinVersion:               tls.VersionTLS12,
-		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
-		PreferServerCipherSuites: true,
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-		},
+	cert := "cert.pem"
+	key := "cert-key.pem"
+
+	serverTLSCert, err := tls.LoadX509KeyPair(cert, key)
+	if err != nil {
+		log.Fatalf("Error loading certificate and key: %v", err)
 	}
 
 	srv := &http.Server{
-		Addr:         ":8080", // Replace ":8080" with ":443" for production
-		Handler:      nil,
-		TLSConfig:    cfg,
+		Addr:    ":443", // Replace ":8080" with ":443" for production
+		Handler: nil,
+		TLSConfig: &tls.Config{
+			MinVersion:               tls.VersionTLS12,
+			InsecureSkipVerify:       true,
+			Certificates:             []tls.Certificate{serverTLSCert},
+			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+			PreferServerCipherSuites: true,
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+				tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+			},
+		},
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  15 * time.Second,
 	}
 
+	defer srv.Close()
 	fmt.Println("Listening on port 8080 for development(should be 443 for prod)...")
-
-	log.Fatal(srv.ListenAndServeTLS("server.crt", "server.key"))
+	srv.ListenAndServeTLS("", "")
 }
