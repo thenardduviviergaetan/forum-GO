@@ -4,12 +4,12 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 
 	//"database/sql"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	s "forum/sessions"
-	"strconv"
 	//"fmt"
 	//"time"
 )
@@ -30,6 +30,7 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 
 	c, err := r.Cookie("session_token")
 	if err != nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
