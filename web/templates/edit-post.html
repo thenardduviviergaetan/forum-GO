@@ -9,7 +9,7 @@
     </div>
     <div class="field">
       <label for="categories-editor">Category</label>
-      <select name="categories-editor" id="categories">
+      <select name="categories-editor" id="categories" multiple>
         {{range $val := .Categories}}
           {{ if $val.Ifcurtentcat}}
             <option value={{$val.ID}} selected="selected">{{$val.Title}}</option>

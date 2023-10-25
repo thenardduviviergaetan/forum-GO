@@ -6,6 +6,7 @@ import (
 
 	models "forum/pkg/models"
 	s "forum/sessions"
+	//"fmt"
 )
 
 // Display the home page handler
@@ -47,13 +48,11 @@ func GetRecentPosts(app *App_db) error {
 	if err != nil {
 		return err
 	}
-
 	for rows.Next() {
 		err := rows.Scan(
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
@@ -62,8 +61,25 @@ func GetRecentPosts(app *App_db) error {
 		if err != nil {
 			return err
 		}
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
-
+		//get catids from mid table
+		catrows, erro := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid=?", post.ID)
+		if erro != nil {
+			return erro
+		}
+		for catrows.Next() {		
+			var catid int
+			err = catrows.Scan(&catid)
+			if err != nil {
+				return err
+			}
+			post.Categories = append(post.Categories, catid)
+			var catitle string
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catid).Scan(&catitle)
+			if err != nil {
+				return err
+			}
+			post.CategoriesName = append(post.CategoriesName, catitle)
+		}
 		app.Data.Posts = append(app.Data.Posts, post)
 	}
 

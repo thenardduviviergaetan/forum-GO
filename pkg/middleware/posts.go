@@ -11,14 +11,19 @@ import (
 )
 
 func CreatePost(db *sql.DB, post *models.Post) (int, error) {
-	_, err := db.Exec("INSERT INTO post(authorid, author, categoryid, title, content, creation) VALUES(?,?,?,?,?, date())",
-		post.AuthorID, post.Author, post.Categoryid, post.Title, post.Content)
+	_, err := db.Exec("INSERT INTO post(authorid, author, title, content, creation) VALUES(?,?,?,?, datetime())",
+		post.AuthorID, post.Author, post.Title, post.Content)
 	if err != nil {
 		fmt.Println("ERROR CREATE POST", err)
 	}
-
 	sql, _ := db.Exec("SELECT last_insert_rowid()")
 	id, _ := sql.LastInsertId()
+	for _, v := range post.Categories {
+		_, err = db.Exec("INSERT INTO linkcatpost(categoryid, postid) VALUES(?,?)", v, id)
+		if err != nil {
+			fmt.Println("ERROR CREATE POST", err)
+		}
+	}
 	return int(id), nil
 }
 
@@ -32,12 +37,72 @@ func RemovePost(db *sql.DB, idpost int64) error {
 }
 
 func UpdatePost(db *sql.DB, post *models.Post) error {
-	_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid = ? WHERE id = ?", post.Content, post.Title, post.Categoryid, post.ID)
+	_, err := db.Exec("UPDATE post SET content = ? , title = ? WHERE id = ?", post.Content, post.Title, post.ID)
 	if err != nil {
 		fmt.Println("Update comment : ", err)
 		return err
 	}
 	return nil
+}
+
+func UpdateCategory(db *sql.DB, post *models.Post) error {
+
+	//delete everything and reinsert everything method
+	_, err := db.Exec("DELETE FROM linkcatpost WHERE postid = ?", post.ID)
+	if err != nil {
+		return err
+	}
+	for _, v := range post.Categories {
+		_, err := db.Exec("INSERT INTO linkcatpost(categoryid, postid) VALUES(?,?)", v, post.ID)
+		if err != nil {
+			return err
+		}
+	}
+	return err
+
+	//more complicated method and not tested, update the many to many table without deleting everything
+	// rows, err := db.Query("SELECT id, categoryid FROM linkcatpost WHERE postid = ?)", post.ID)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer rows.Close()
+	// todel := []int{}
+	// idfound := []int{}
+	// for rows.Next() {
+	// 	var tempid		int
+	// 	var tempcat		int
+	// 	found := false
+	// 	rows.Scan(&tempid, &tempcat)
+	// 	for _, v := range post.Categories {
+	// 		if tempcat == v {
+	// 			idfound = append(idfound, v)
+	// 			found = true
+	// 			break
+	// 		}
+	// 	}
+	// 	if !found {
+	// 		todel = append(todel, tempid)
+	// 	}
+	// }
+	// for _, v := range post.Categories {
+	// 	for i, subv := range idfound {
+	// 		if v != subv && i == len(idfound)-1 {
+	// 			//add category
+	// 			_, err := db.Exec("INSERT INTO linkcatpost(categoryid, postid) VALUES(?,?)",
+	// 				v, post.ID)
+	// 			if err != nil {
+	// 				return err
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// for _, v := range todel {
+	// 	_, err := db.Exec("DELETE FROM linkcatpost WHERE id = ?", v)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+	// return err
 }
 
 func Updatelikepost(db *sql.DB, idpost, iduser int64, like bool) {

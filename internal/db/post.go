@@ -26,7 +26,8 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 		return
 	}
 
-	app.Data.Categories = middle.FetchCat(app.DB, int64(app.Data.CurrentPost.Categoryid))
+	//potential more work TODO
+	app.Data.Categories = middle.FetchCat(app.DB, app.Data.CurrentPost.Categories)
 
 	Returncurentpost(app, w, r, currentuser)
 	renderpost_id(w, tmpl, app)
@@ -132,8 +133,15 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 					// id, _ := strconv.Atoi(r.FormValue("post-editor"))
 					// post.ID = int64(id)
 					post.ID = app.Data.CurrentPost.ID
-					cat, _ := strconv.Atoi(r.FormValue("categories-editor"))
-					post.Categoryid = cat
+					//to change category
+					var cat []int
+					for _, v := range r.Form["categories-editor"] {
+						temp, _ := strconv.Atoi(v)
+						cat = append(cat, temp)
+					}
+					post.Categories = cat
+					middle.UpdateCategory(app.DB, &post)
+					//update category
 					post.Title = r.FormValue("title-editor")
 					middle.UpdatePost(app.DB, &post)
 					Returncurentpost(app, w, r, currentuser)
@@ -158,14 +166,32 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
 			&post.Flaged,
 		)
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
-
+		if err != nil {
+			http.Error(w, "invalid query", http.StatusBadRequest)
+			return false
+		}
+		//get middle table
+		rows, err := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid = ?", post.ID)
+		for rows.Next() {
+			var catid int
+			err = rows.Scan(&catid)
+			if err != nil {
+				log.Fatal(err)
+			}
+			post.Categories = append(post.Categories, catid)
+			var catname string
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catid).Scan(&catname)
+			if err != nil {
+				log.Fatal(err)
+			}
+			post.CategoriesName = append(post.CategoriesName, catname)
+		}
+		
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		post.Ifcurrentuser = post.AuthorID == currentuser
@@ -218,7 +244,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		app.Data.Categories = middle.FetchCat(app.DB, 0)
+		app.Data.Categories = middle.FetchCat(app.DB, []int{0})
 
 		app.Data.Connected = func() bool {
 			if c, err := r.Cookie("session_token"); err == nil {
@@ -246,11 +272,16 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		cat, _ := strconv.Atoi(r.FormValue("categories"))
+		var cat []int
+		for _, v := range r.Form["categories"] {
+			temp, _ := strconv.Atoi(v)
+			cat = append(cat, temp)
+		}
+		
 		post = &models.Post{
-			Categoryid: cat,
 			Title:      r.FormValue("title"),
 			Content:    r.FormValue("content"),
+			Categories: cat,
 		}
 
 		err := app.DB.QueryRow("SELECT id, username FROM users where session_token = ?", cookie.Value).Scan(&post.AuthorID, &post.Author)
