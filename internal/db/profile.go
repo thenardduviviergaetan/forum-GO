@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	//"fmt"
 	//"time"
 )
 
@@ -27,6 +28,7 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	c, err := r.Cookie("session_token")
 	if err != nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
@@ -65,7 +67,8 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		context.Modlight = s.GlobalSessions[c.Value].Modlight
 		context.Admin = s.GlobalSessions[c.Value].Admin
 	} else {
-		http.Redirect(w, r, "/", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 
 	if err := tmpl.Execute(w, context); err != nil {

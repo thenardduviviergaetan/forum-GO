@@ -204,6 +204,8 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			}
 			return false
 		}
+		post.CategoriesName = []string{}
+		post.Categories = []int{}
 	}
 	return true
 }

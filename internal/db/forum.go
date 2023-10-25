@@ -81,6 +81,8 @@ func GetRecentPosts(app *App_db) error {
 			post.CategoriesName = append(post.CategoriesName, catitle)
 		}
 		app.Data.Posts = append(app.Data.Posts, post)
+		post.Categories = []int{}
+		post.CategoriesName = []string{}
 	}
 
 	if err := rows.Err(); err != nil {

@@ -6,7 +6,7 @@ import (
 	s "forum/sessions"
 	"html/template"
 	"net/http"
-	"fmt"
+	//"fmt"
 )
 
 // PostHandler is a method for the App_db struct that handles HTTP requests related to posts.
@@ -20,7 +20,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 		"web/templates/footer.html",
 	)
 	if err != nil {
-		fmt.Println("1")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -32,7 +31,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		rows, err := app.DB.Query("SELECT * FROM post")
 		if err != nil {
-			fmt.Println("2")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -48,7 +46,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 				&post.Flaged,
 			)
 			if err != nil {
-				fmt.Println("3")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -56,7 +53,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			//get catids from mid table
 			catrows, erro := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid=?", post.ID)
 			if erro != nil {
-				fmt.Println("4")
 				http.Error(w, erro.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -64,7 +60,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 				var catid int
 				err = catrows.Scan(&catid)
 				if err != nil {
-					fmt.Println("5")
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
@@ -79,6 +74,8 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			post.User_like, post.User_dislike = linkpost(app, post.ID)
 			post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 			app.Data.Posts = append(app.Data.Posts, post)
+			post.Categories = []int{}
+			post.CategoriesName = []string{}
 		}
 
 		if err := rows.Err(); err != nil {
@@ -142,7 +139,7 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 		}
 		for catrows.Next() {
 			var catid int
-			err = rows.Scan(&catid)
+			err = catrows.Scan(&catid)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
@@ -154,8 +151,6 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 			}
 			post.CategoriesName = append(post.CategoriesName, catitle)
 		}
-		app.Data.Posts = append(app.Data.Posts, post)
-
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		if t != nil {
@@ -165,6 +160,8 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 		} else {
 			app.Data.Posts = append(app.Data.Posts, post)
 		}
+		post.Categories = []int{}
+		post.CategoriesName = []string{}
 	}
 }
 
@@ -189,13 +186,13 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		rows, err := app.DB.Query("SELECT * FROM post WHERE id = ? ;", tmp)
+		postrows, err := app.DB.Query("SELECT * FROM post WHERE id = ? ;", tmp)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		for rows.Next() {
-			err := rows.Scan(
+		for postrows.Next() {
+			err := postrows.Scan(
 				&post.ID,
 				&post.AuthorID,
 				&post.Author,
@@ -216,7 +213,7 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 			}
 			for catrows.Next() {
 				var catid int
-				err = rows.Scan(&catid)
+				err = catrows.Scan(&catid)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 				}
@@ -228,8 +225,7 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 				}
 				post.CategoriesName = append(post.CategoriesName, catitle)
 			}
-			app.Data.Posts = append(app.Data.Posts, post)
-
+			
 			post.User_like, post.User_dislike = linkpost(app, post.ID)
 			post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 			if t != nil {
@@ -239,6 +235,8 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 			} else {
 				app.Data.Posts = append(app.Data.Posts, post)
 			}
+			post.Categories = []int{}
+			post.CategoriesName = []string{}
 		}
 	}
 }

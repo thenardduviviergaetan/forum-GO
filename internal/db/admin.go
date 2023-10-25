@@ -36,6 +36,7 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	// check if user is admin
 	if !s.GlobalSessions[c.Value].Admin {
 		http.Redirect(w, r, "/", http.StatusFound)
+		return
 	}
 
 	if r.Method == "POST" {
