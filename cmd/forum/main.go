@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	. "forum/internal/db"
+	s "forum/sessions"
 	"log"
 	"net/http"
 	"time"
@@ -24,20 +25,22 @@ func main() {
 	}
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
 
-	http.HandleFunc("/", app.ForumHandler)
-	http.HandleFunc("/admin", app.AdminHandler)
-	http.HandleFunc("/moderation", app.ModHandler)
-	http.HandleFunc("/com_moderation", app.ComModHandler)
-	http.HandleFunc("/profile", app.ProfileHandler)
-	http.HandleFunc("/login", app.LoginHandler)
-	http.HandleFunc("/register", app.RegisterHandler)
-	http.HandleFunc("/logout", app.LogoutHandler)
+	limiter := s.NewBucket(5, time.Second)
+
+	s.HandleWithLimiter("/", app.ForumHandler, limiter)
+	s.HandleWithLimiter("/admin", app.AdminHandler, limiter)
+	s.HandleWithLimiter("/moderation", app.ModHandler, limiter)
+	s.HandleWithLimiter("/com_moderation", app.ComModHandler, limiter)
+	s.HandleWithLimiter("/profile", app.ProfileHandler, limiter)
+	s.HandleWithLimiter("/login", app.LoginHandler, limiter)
+	s.HandleWithLimiter("/register", app.RegisterHandler, limiter)
+	s.HandleWithLimiter("/logout", app.LogoutHandler, limiter)
 
 	//Post related handlers
-	http.HandleFunc("/category", app.CategoryHandler)
-	http.HandleFunc("/post/create", app.PostCreateHandler)
-	http.HandleFunc("/post", app.PostHandler)
-	http.HandleFunc("/post/id", app.PostIdHandler)
+	s.HandleWithLimiter("/category", app.CategoryHandler, limiter)
+	s.HandleWithLimiter("/post/create", app.PostCreateHandler, limiter)
+	s.HandleWithLimiter("/post", app.PostHandler, limiter)
+	s.HandleWithLimiter("/post/id", app.PostIdHandler, limiter)
 
 	cert := "cert.pem"
 	key := "cert-key.pem"
@@ -48,7 +51,7 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:    ":443", // Replace ":8080" with ":443" for production
+		Addr:    ":8080", // Replace ":8080" with ":443" for production
 		Handler: nil,
 		TLSConfig: &tls.Config{
 			MinVersion:               tls.VersionTLS12,
@@ -71,5 +74,5 @@ func main() {
 
 	defer srv.Close()
 	fmt.Println("Listening on port 8080 for development(should be 443 for prod)...")
-	srv.ListenAndServeTLS("", "")
+	log.Fatal(srv.ListenAndServeTLS("", ""))
 }
