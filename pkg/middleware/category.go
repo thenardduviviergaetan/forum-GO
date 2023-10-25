@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
+	//"fmt"
 	//"time"
 	models "forum/pkg/models"
 )
@@ -45,10 +45,32 @@ func DelCategory(db *sql.DB, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	rows, err := db.Query("SELECT id FROM post")
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		var temp int
+		err = rows.Scan(&temp)
+		if err != nil {
+			return err
+		}
+		var exist bool
+		err := db.QueryRow("SELECT EXISTS( SELECT * FROM linkcatpost WHERE postid = ?) AS exist", temp).Scan(&exist)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			_, err = db.Exec("DELETE FROM post WHERE id=?", temp)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
-func FetchCat(db *sql.DB, current int64) []models.Categories {
+func FetchCat(db *sql.DB, current []int) []models.Categories {
 	rows, err := db.Query("SELECT id, title, descriptions FROM categories")
 	if err != nil {
 		log.Fatal(err)
@@ -61,8 +83,13 @@ func FetchCat(db *sql.DB, current int64) []models.Categories {
 		if err != nil {
 			log.Fatal(err)
 		}
-		categories.Ifcurtentcat = current == categories.ID
+		for _, v := range current {
+			if v == int(categories.ID) {
+				categories.Ifcurtentcat = true
+			}
+		}
 		categorylst = append(categorylst, categories)
+		//categories.Ifcurtentcat = current == categories.ID
 	}
 	return categorylst
 }

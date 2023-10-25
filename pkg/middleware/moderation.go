@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"log"
 	//"time"
+	"fmt"
 	models "forum/pkg/models"
 )
 
@@ -40,7 +41,7 @@ func FetchFlagedCom(db *sql.DB) []models.Comment {
 
 func FetchFlagedPost(db *sql.DB) []models.Post {
 
-	rows, err := db.Query("SELECT id, authorid, categoryid, content, creation, flaged FROM post WHERE flaged=?", 1)
+	rows, err := db.Query("SELECT id, authorid, content, creation, flaged FROM post WHERE flaged=?", 1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +49,7 @@ func FetchFlagedPost(db *sql.DB) []models.Post {
 	var posts []models.Post
 	for rows.Next() {
 		var post models.Post
-        err = rows.Scan(&post.ID, &post.AuthorID, &post.Categoryid, &post.Content, &post.CreationDate, &post.Flaged)
+        err = rows.Scan(&post.ID, &post.AuthorID, &post.Content, &post.CreationDate, &post.Flaged)
         if err != nil {
             log.Fatal(err)
         }
@@ -57,10 +58,29 @@ func FetchFlagedPost(db *sql.DB) []models.Post {
 		if err != nil {
             log.Fatal(err)
         }
-		err = db.QueryRow("SELECT title FROM categories WHERE id = ?", post.Categoryid).Scan(&post.Category)
-		if err != nil {
-            log.Fatal(err)
-        }
+
+		//get the categories
+		catrows, erro := db.Query("SELECT categoryid FROM linkcatpost WHERE postid=?", post.ID)
+		if erro != nil {
+			log.Fatal(err)
+		}
+		defer catrows.Close()
+		for catrows.Next() {
+			fmt.Println("nice")
+			var catid int
+			err = catrows.Scan(&catid)
+			if err != nil {
+				log.Fatal(err)
+			}
+			//get the categories names
+			temp := ""
+			err = db.QueryRow("SELECT title FROM categories WHERE id = ?", catid).Scan(&temp)
+			if err != nil {
+				log.Fatal(err)
+			}
+			post.CategoriesName = append(post.CategoriesName, temp)
+			post.Categories = append(post.Categories, catid)
+		}
 		posts = append(posts, post)
 	}
 	return posts

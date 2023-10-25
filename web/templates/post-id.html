@@ -5,7 +5,7 @@
     <div class="post-details">
         <h1>{{ .CurrentPost.Title }}</h1>
         <div class="head-post">
-            <p>Category: {{.CurrentPost.Category}}</p>
+            <p>Category: {{range $val := .CurrentPost.CategoriesName}}{{$val}}, {{end}}</p>
             <p>Author: {{.CurrentPost.Author}}</p>
             <p>Date: {{.CurrentPost.CreationDate}}</p>
         </div>

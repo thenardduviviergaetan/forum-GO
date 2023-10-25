@@ -99,7 +99,7 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var context Context
 	context.Userlst = middle.FetchUsers(app.DB)
-	context.Categories = middle.FetchCat(app.DB, 0)
+	context.Categories = middle.FetchCat(app.DB, []int{0})
 	context.Comments = middle.FetchFlagedCom(app.DB)
 	context.Posts = middle.FetchFlagedPost(app.DB)
 	context.Connected = app.Data.Connected
