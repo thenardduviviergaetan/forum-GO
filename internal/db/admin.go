@@ -86,9 +86,19 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *App_db) addModPrivileges(modType int) func(db *sql.DB, r *http.Request) error {
 	return func(db *sql.DB, r *http.Request) error {
-		id, err := strconv.Atoi(r.FormValue("add_mod"))
-		if err != nil {
-			return err
+		var id int
+		var err error
+		if modType == 2 {
+			id, err = strconv.Atoi(r.FormValue("add_mod"))
+			if err != nil {
+				return err
+			}
+		} else if modType == 4 {
+			id, err = strconv.Atoi(r.FormValue("add_mod_light"))
+			if err != nil {
+				return err
+			}
+
 		}
 		return middle.AddMod(db, r, modType, id)
 	}
