@@ -2,16 +2,19 @@ package forum
 
 import (
 	"database/sql"
-	middle "forum/pkg/middleware"
-	models "forum/pkg/models"
-	s "forum/sessions"
 	"html/template"
 	"net/http"
 	"strconv"
+
+	//"database/sql"
+	middle "forum/pkg/middleware"
+	models "forum/pkg/models"
+	s "forum/sessions"
+	//"fmt"
+	//"time"
 )
 
 func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
-
 	template, err := template.ParseFiles(
 		"web/templates/admin.html",
 		"web/templates/head.html",
@@ -27,7 +30,7 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 
 	c, err := r.Cookie("session_token")
 	if err != nil {
-		http.Redirect(w, r, "/", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 	// check if user is admin

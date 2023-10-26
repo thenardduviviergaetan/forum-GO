@@ -26,7 +26,7 @@ func (app *App_db) PostedIdHandler(w http.ResponseWriter, r *http.Request, curre
 		return
 	}
 
-	//potential more work TODO
+	// potential more work TODO
 	app.Data.Categories = middle.FetchCat(app.DB, app.Data.CurrentPost.Categories)
 
 	ReturnCurrentPost(app, w, r, current_user)
@@ -152,7 +152,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 					var post models.Post
 					post.Content = r.FormValue("content-editor")
 					post.ID = app.Data.CurrentPost.ID
-					//to change category
+					// to change category
 					var cat []int
 					for _, v := range r.Form["categories-editor"] {
 						temp, err := strconv.Atoi(v)
@@ -164,7 +164,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 					}
 					post.Categories = cat
 					middle.UpdateCategory(app.DB, &post)
-					//update category
+					// update category
 					post.Title = r.FormValue("title-editor")
 					middle.UpdatePost(app.DB, &post)
 					ReturnCurrentPost(app, w, r, current_user)
@@ -201,7 +201,7 @@ func ReturnCurrentPost(app *App_db, w http.ResponseWriter, r *http.Request, curr
 			ErrorHandler(w, r, http.StatusNotFound)
 			return false
 		}
-		//get middle table
+		// get middle table
 		rows, err := app.DB.Query("SELECT category_id FROM link_cat_post WHERE post_id = ?", post.ID)
 		for rows.Next() {
 			var cat_id int
@@ -238,7 +238,7 @@ func ReturnCurrentPost(app *App_db, w http.ResponseWriter, r *http.Request, curr
 
 // Handler that shows the post creation page and ensures that users are certified to create posts.
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
-	//Checking for rights to access this page
+	// Checking for rights to access this page
 	cookie, errCookie := r.Cookie("session_token")
 	if errCookie != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)

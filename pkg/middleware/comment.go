@@ -2,6 +2,7 @@ package forum
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -29,7 +30,6 @@ func UpdateComment(db *sql.DB, comment *models.Comment) error {
 }
 
 func ReportComment(db *sql.DB, comment int) error {
-
 	_, err := db.Exec("UPDATE comment SET flagged = ? WHERE id = ?", 1, comment)
 	if err != nil {
 		return err
@@ -37,10 +37,24 @@ func ReportComment(db *sql.DB, comment int) error {
 	return nil
 }
 
-func RemoveComment(db *sql.DB, id_comment, current_user int64) error {
-
-	_, err := db.Exec("DELETE FROM comment WHERE id = ? AND author_id = ? ", id_comment, current_user)
+func RemoveComment(db *sql.DB, id_comment, current_user int64, isdeletpost bool) error {
+	var err error
+	if isdeletpost {
+		_, err = db.Exec("DELETE FROM comment WHERE id = ? ", id_comment)
+		if err != nil {
+			fmt.Println("Remove comment : ", err)
+			return err
+		}
+	} else {
+		_, err = db.Exec("DELETE FROM comment WHERE id = ? AND author_id = ? ", id_comment, current_user)
+		if err != nil {
+			fmt.Println("Remove comment : ", err)
+			return err
+		}
+	}
+	_, err = db.Exec("DELETE FROM linkcomment WHERE commentid = ?", id_comment)
 	if err != nil {
+		fmt.Println("Remove post : ", err)
 		return err
 	}
 	return nil
