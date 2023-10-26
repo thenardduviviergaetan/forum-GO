@@ -14,7 +14,7 @@
         </div>
     {{ if .Connected }}
         <form class="comment-rate" style="align-items: baseline;" method="POST" action="/post/id?id={{ .CurrentPost.ID}}">
-            {{if .CurrentPost.Flaged}}
+            {{if .CurrentPost.Flagged}}
                 <p style="color:red;">This post is being evaluated by a moderator</p>
             {{else}}
                 <button class="system_btn" type="submit" name="report-post" value="{{ .CurrentPost.ID}}">Report</button>

@@ -7,6 +7,7 @@ import (
 
 // Set error message for given status code
 func ErrorHandler(w http.ResponseWriter, r *http.Request, status int) {
+	w.WriteHeader(status)
 	var message string
 	template, err := template.ParseFiles(
 		"web/templates/error.html",
@@ -26,7 +27,6 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, status int) {
 	case http.StatusNotFound:
 		message = http.StatusText(status)
 	}
-	w.WriteHeader(status)
 	if err := template.Execute(w, map[string]string{"ErrorMessage": message}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
