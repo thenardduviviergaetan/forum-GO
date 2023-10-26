@@ -73,6 +73,11 @@ main {
 .form form .field input {
   padding: 5px;
 }
+.form form .checkbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
 .form form button {
   width: 100px;
   padding: 5px 3px;
