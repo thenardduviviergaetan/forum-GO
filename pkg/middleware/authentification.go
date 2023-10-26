@@ -3,9 +3,10 @@ package forum
 import (
 	"database/sql"
 	"errors"
+	"net/http"
+
 	models "forum/pkg/models"
 	s "forum/sessions"
-	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
