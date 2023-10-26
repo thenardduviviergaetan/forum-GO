@@ -16,6 +16,7 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	app.Data.Posts = nil
+
 	tmpl, err := template.ParseFiles(
 		"web/templates/index.html",
 		"web/templates/head.html",
@@ -43,6 +44,7 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := tmpl.Execute(w, app.Data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -70,7 +72,7 @@ func GetRecentPosts(app *App_db) error {
 		if erro != nil {
 			return erro
 		}
-		for catrows.Next() {		
+		for catrows.Next() {
 			var catid int
 			err = catrows.Scan(&catid)
 			if err != nil {
