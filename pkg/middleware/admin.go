@@ -42,7 +42,6 @@ func RmUser(db *sql.DB, r *http.Request) error {
 }
 
 func AddMod(db *sql.DB, r *http.Request, to_add int, id int) error {
-
 	_, err := db.Exec("UPDATE users SET user_type_id=?, asked_mod=? WHERE id=?", to_add, 0, id)
 	if err != nil {
 		return err
