@@ -33,8 +33,8 @@ func AskModerator(db *sql.DB, r *http.Request, asked int, id int) error {
 	return nil
 }
 
-func Likedpost(db *sql.DB, userid int64) []models.Post {
-	rows, err := db.Query(" SELECT post.id,post.title,post.creation FROM post INNER JOIN linkpost ON post.id = linkpost.postid WHERE userid = ? AND likes = 1;", userid)
+func Likedpost(db *sql.DB, user_id int64) []models.Post {
+	rows, err := db.Query(" SELECT post.id,post.title,post.creation FROM post INNER JOIN link_post ON post.id = link_post.post_id WHERE user_id = ? AND likes = 1;", user_id)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -53,8 +53,8 @@ func Likedpost(db *sql.DB, userid int64) []models.Post {
 	return tabpost
 }
 
-func Dislikedpost(db *sql.DB, userid int64) []models.Post {
-	rows, err := db.Query(" SELECT post.id,post.title,post.creation FROM post INNER JOIN linkpost ON post.id = linkpost.postid WHERE userid = ? AND likes = 0;", userid)
+func Dislikedpost(db *sql.DB, user_id int64) []models.Post {
+	rows, err := db.Query(" SELECT post.id,post.title,post.creation FROM post INNER JOIN link_post ON post.id = link_post.post_id WHERE user_id = ? AND likes = 0;", user_id)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -73,11 +73,11 @@ func Dislikedpost(db *sql.DB, userid int64) []models.Post {
 	return tabpost
 }
 
-func Likedcomment(db *sql.DB, userid int64) []models.Commentpost {
+func Likedcomment(db *sql.DB, user_id int64) []models.Commentpost {
 	rows, err := db.Query(` SELECT post.id,post.title,comment.id,comment.content,comment.creation FROM comment 
-							INNER JOIN linkcomment ON comment.id = linkcomment.commentid
-							INNER JOIN post ON comment.postid = post.id
-							WHERE linkcomment.userid = ? AND linkcomment.likes = 1;`, userid)
+							INNER JOIN link_comment ON comment.id = link_comment.comment_id
+							INNER JOIN post ON comment.post_id = post.id
+							WHERE link_comment.user_id = ? AND link_comment.likes = 1;`, user_id)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -98,11 +98,11 @@ func Likedcomment(db *sql.DB, userid int64) []models.Commentpost {
 	return tab
 }
 
-func Dislikedcomment(db *sql.DB, userid int64) []models.Commentpost {
+func Dislikedcomment(db *sql.DB, user_id int64) []models.Commentpost {
 	rows, err := db.Query(` SELECT post.id,post.title,comment.id,comment.content,comment.creation FROM comment 
-							INNER JOIN linkcomment ON comment.id = linkcomment.commentid
-							INNER JOIN post ON comment.postid = post.id
-							WHERE linkcomment.userid = ? AND linkcomment.likes = 0;`, userid)
+							INNER JOIN link_comment ON comment.id = link_comment.comment_id
+							INNER JOIN post ON comment.post_id = post.id
+							WHERE link_comment.user_id = ? AND link_comment.likes = 0;`, user_id)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -123,8 +123,8 @@ func Dislikedcomment(db *sql.DB, userid int64) []models.Commentpost {
 	return tab
 }
 
-func ProfilNotified(db *sql.DB, userid int64) []models.Notified {
-	rows, err := db.Query("Select post.id,post.title From post Where authorid = ? ORDER BY id DESC LIMIT 5", userid)
+func ProfilNotified(db *sql.DB, user_id int64) []models.Notified {
+	rows, err := db.Query("Select post.id,post.title From post Where author_id = ? ORDER BY id DESC LIMIT 5", user_id)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -141,9 +141,9 @@ func ProfilNotified(db *sql.DB, userid int64) []models.Notified {
 	for index := range tab {
 		var tabcomment []models.Comment
 		var tabliked []models.Like
-		rows, err := db.Query(`	Select comment.content,comment.authorid,users.username From comment
-								INNER JOIN	users ON users.id = comment.authorid
-		 						Where postid = ? ORDER BY comment.id DESC LIMIT 5`, tab[index].Post.ID)
+		rows, err := db.Query(`	Select comment.content,comment.author_id,users.username From comment
+								INNER JOIN	users ON users.id = comment.author_id
+		 						Where post_id = ? ORDER BY comment.id DESC LIMIT 5`, tab[index].Post.ID)
 		if err != nil {
 			fmt.Println(err)
 			return nil
@@ -157,9 +157,9 @@ func ProfilNotified(db *sql.DB, userid int64) []models.Notified {
 			tabcomment = append(tabcomment, comment)
 		}
 		rows.Close()
-		rows, err = db.Query(`	Select linkpost.likes,users.username From linkpost
-								INNER JOIN	users ON users.id = linkpost.userid
-		 						Where postid = ? ORDER BY linkpost.id DESC LIMIT 5`, tab[index].Post.ID)
+		rows, err = db.Query(`	Select link_post.likes,users.username From link_post
+								INNER JOIN	users ON users.id = link_post.user_id
+		 						Where post_id = ? ORDER BY link_post.id DESC LIMIT 5`, tab[index].Post.ID)
 		if err != nil {
 			fmt.Println(err)
 			return nil

@@ -100,7 +100,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].ModLight {
 					middle.DelCom(app.DB, r)
 				} else {
-					middle.RemoveComment(app.DB, int64(id_comment), current_user)
+					middle.RemoveComment(app.DB, int64(id_comment), current_user, false)
 				}
 			}
 			// edit comment

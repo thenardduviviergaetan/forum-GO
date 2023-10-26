@@ -1,11 +1,12 @@
 package forum
 
 import (
+	"html/template"
+	"net/http"
+
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	s "forum/sessions"
-	"html/template"
-	"net/http"
 )
 
 // PostHandler is a method for the App_db struct that handles HTTP requests related to posts.
@@ -49,7 +50,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			//get cat ids from mid table
+			// get cat ids from mid table
 			cat_rows, err_row := app.DB.Query("SELECT category_id FROM link_cat_post WHERE post_id=?", post.ID)
 			if err_row != nil {
 				ErrorHandler(w, r, http.StatusInternalServerError)
@@ -131,7 +132,7 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 			return
 		}
 
-		//get cat ids from mid table
+		// get cat ids from mid table
 		cat_rows, err_row := app.DB.Query("SELECT category_id FROM link_cat_post WHERE post_id=?", post.ID)
 		if err_row != nil {
 			ErrorHandler(w, r, http.StatusInternalServerError)
@@ -178,7 +179,7 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 	c, _ := r.Cookie("session_token")
 
 	var tmp int
-	rows, err := app.DB.Query("SELECT post_id FROM link_post WHERE user_id = ? ;", s.GlobalSessions[c.Value].UserID)
+	rows, err := app.DB.Query("SELECT post_id FROM link_post WHERE user_id = ? AND likes = 1;", s.GlobalSessions[c.Value].UserID)
 	if err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
@@ -210,7 +211,7 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 				return
 			}
 
-			//get cat ids from mid table
+			// get cat ids from mid table
 			cat_rows, err_row := app.DB.Query("SELECT category_id FROM link_cat_post WHERE post_id=?", post.ID)
 			if err_row != nil {
 				ErrorHandler(w, r, http.StatusInternalServerError)
