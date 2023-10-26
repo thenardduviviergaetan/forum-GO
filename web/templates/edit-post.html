@@ -12,7 +12,7 @@
         <div class="checkbox">
 
           {{range $val := .Categories}}
-          {{ if $val.Ifcurtentcat}}
+          {{ if $val.IfCurrentCat}}
           <div>
             <input type="checkbox" id="categories" name="categories-editor" value="{{$val.ID}}" checked>
                 <label for="category{{$val.ID}}">{{$val.Title}}</label><br>

@@ -19,23 +19,23 @@
                         <td>Validation status</td>
                         <td>Date of registering</td>
                     </tr>
-                    {{range $val := .Userlst}}
+                    {{range $val := .UsersList}}
                         <tr>
                             <td>{{$val.ID}}</td>
                             <td>{{$val.UserTypeTxt}}</td>
                             <td>{{$val.Username}}</td>
                             <td>{{$val.Email}}</td>
                             <td>{{$val.Validation}}</td>
-                            <td>{{$val.FormatedTime}}</td>
+                            <td>{{$val.FormattedTime}}</td>
                             {{if eq $val.UserType 1}}
                                 <td class="no_border">
                                     <form action="/admin" method="POST">
-                                        <button class="system_btn admin_del" type="submit" name="addmod" value="{{$val.ID}}">Add moderation right</button>
+                                        <button class="system_btn admin_del" type="submit" name="add_mod" value="{{$val.ID}}">Add moderation right</button>
                                     </form>
                                 </td>
                                 <td class="no_border">
                                     <form action="/admin" method="POST">
-                                        <button class="system_btn admin_del" type="submit" name="addmodlight" value="{{$val.ID}}">Add comment moderation right</button>
+                                        <button class="system_btn admin_del" type="submit" name="add_mod_light" value="{{$val.ID}}">Add comment moderation right</button>
                                     </form>
                                 </td>
                                 <td class="no_border">
@@ -46,7 +46,7 @@
                             {{else if or (eq $val.UserType 2) (eq $val.UserType 4)}}
                                 <td class="no_border">
                                     <form action="/admin" method="POST">
-                                        <button class="system_btn admin_del" type="submit" name="delmod" value="{{$val.ID}}">Remove rights</button>
+                                        <button class="system_btn admin_del" type="submit" name="del_mod" value="{{$val.ID}}">Remove rights</button>
                                     </form>
                                 </td>
                                 <td class="no_border">
@@ -89,7 +89,7 @@
                             </td>
                             <td class="no_border">
                                 <form action="/admin" method="POST">
-                                    <button class="system_btn dislike admin_del" type="submit" name="delcat" value="{{$val.ID}}">Delete category</button>
+                                    <button class="system_btn dislike admin_del" type="submit" name="del_cat" value="{{$val.ID}}">Delete category</button>
                                 </form>
                             </td>
                         </tr>
@@ -100,8 +100,8 @@
         <div>
             <a class="system_btn" href="/category">Create a category</a>
         </div>
-        {{ template "post-flaged" .}}
-        {{ template "comment-flaged" .}}
+        {{ template "post-flagged" .}}
+        {{ template "comment-flagged" .}}
     </div>
 </main>
 {{ template "footer" .}}

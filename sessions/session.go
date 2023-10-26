@@ -13,22 +13,22 @@ type Session struct {
 	UserID    int64
 	Admin     bool
 	Moderator bool
-	Modlight  bool
+	ModLight  bool
 	EndLife   time.Time
 }
 
 // Check if session token is the same as user token to avoid multiple instances of session conflict
-func CheckSession(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+func CheckSession(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
 	var userToken string
 	c, err := r.Cookie("session_token")
 	if err != nil {
-		return
+		return err
 	}
 	session_token := c.Value
 	session := GlobalSessions[session_token]
 	err = db.QueryRow("SELECT session_token FROM users where id = ?", session.UserID).Scan(&userToken)
 	if err != nil {
-		return
+		return err
 	}
 	if userToken != session_token {
 		http.SetCookie(w, &http.Cookie{
@@ -38,6 +38,7 @@ func CheckSession(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		})
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
+	return nil
 }
 
 // Clear the session token to prevent memory leaks

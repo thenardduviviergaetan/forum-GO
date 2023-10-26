@@ -18,7 +18,7 @@ func (app *App_db) CreateUser(user *models.User) error {
 		return err
 	}
 	_, err = app.DB.Exec(
-		"INSERT INTO users(username, userstypeid, pwd, email, valide, creation) VALUES (?,?,?,?,?,?)",
+		"INSERT INTO users(username, user_type_id, pwd, email, valid, creation) VALUES (?,?,?,?,?,?)",
 		user.Username,
 		user.UserType,
 		string(hashPass),
@@ -31,13 +31,13 @@ func (app *App_db) CreateUser(user *models.User) error {
 
 // Register new user in application
 func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles(
+	template, err := template.ParseFiles(
 		"web/templates/register.html",
 		"web/templates/head.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 	errMsg := r.URL.Query().Get("error")
@@ -51,7 +51,7 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 				errMsg = "Passwords do not match!"
 			}
 			if err.Error() == "passwords parsing error" {
-				errMsg = "password lengh must be at least 8 characters long and can only contain alphanumerical characters!"
+				errMsg = "password length must be at least 8 characters long and can only contain alphanumerical characters!"
 			}
 			if err.Error() == "email not valid" {
 				errMsg = "Email is not valid!"
@@ -60,12 +60,13 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err := app.CreateUser(user); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			ErrorHandler(w, r, http.StatusInternalServerError)
 			return
 		}
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
-	if err := tmpl.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := template.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
+		return
 	}
 }

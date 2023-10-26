@@ -9,5 +9,5 @@ type Categories struct {
 	Title        string    `json:"title"`
 	Description  string    `json:"category"`
 	CreationDate time.Time `json:"time"`
-	Ifcurtentcat bool
+	IfCurrentCat bool
 }

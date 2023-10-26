@@ -3,14 +3,10 @@ package forum
 import (
 	"database/sql"
 	"errors"
+	models "forum/pkg/models"
 	"log"
 	"net/http"
-
-	//"fmt"
 	"strconv"
-
-	//"time"
-	models "forum/pkg/models"
 )
 
 // Prevent duplicate credentials in database during register procedure
@@ -45,21 +41,21 @@ func RmUser(db *sql.DB, r *http.Request) error {
 	return nil
 }
 
-func Addmod(db *sql.DB, r *http.Request, toadd int, id int) error {
-	
-	_, err := db.Exec("UPDATE users SET userstypeid=?, askedmod=? WHERE id=?", toadd, 0, id)
+func AddMod(db *sql.DB, r *http.Request, to_add int, id int) error {
+
+	_, err := db.Exec("UPDATE users SET user_type_id=?, asked_mod=? WHERE id=?", to_add, 0, id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func Delmod(db *sql.DB, r *http.Request) error {
-	id, err := strconv.Atoi(r.FormValue("delmod"))
+func DelMod(db *sql.DB, r *http.Request) error {
+	id, err := strconv.Atoi(r.FormValue("del_mod"))
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("UPDATE users SET userstypeid=? WHERE id=?", 1, id)
+	_, err = db.Exec("UPDATE users SET user_type_id=? WHERE id=?", 1, id)
 	if err != nil {
 		return err
 	}
@@ -67,21 +63,21 @@ func Delmod(db *sql.DB, r *http.Request) error {
 }
 
 func FetchUsers(db *sql.DB) []models.User {
-	rows, err := db.Query("SELECT id, userstypeid, username, email, valide, askedmod, creation FROM users")
+	rows, err := db.Query("SELECT id, user_type_id, username, email, valid, asked_mod, creation FROM users")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	var userlst []models.User
+	var users_list []models.User
 	for rows.Next() {
 		var user models.User
-		err = rows.Scan(&user.ID, 
-						&user.UserType, 
-						&user.Username, 
-						&user.Email, 
-						&user.Validation, 
-						&user.AskedMod, 
-						&user.CreationDate)
+		err = rows.Scan(&user.ID,
+			&user.UserType,
+			&user.Username,
+			&user.Email,
+			&user.Validation,
+			&user.AskedMod,
+			&user.CreationDate)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -95,8 +91,8 @@ func FetchUsers(db *sql.DB) []models.User {
 		case 4:
 			user.UserTypeTxt = "Comment Moderator"
 		}
-		user.FormatedTime = user.CreationDate.Format("2006-01-02 15:04:05")
-		userlst = append(userlst, user)
+		user.FormattedTime = user.CreationDate.Format("2006-01-02 15:04:05")
+		users_list = append(users_list, user)
 	}
-	return userlst
+	return users_list
 }

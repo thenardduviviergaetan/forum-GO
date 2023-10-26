@@ -19,7 +19,7 @@
             {{else}}
                 <button class="system_btn" type="submit" name="report-post" value="{{ .CurrentPost.ID}}">Report</button>
             {{end}}
-            {{if or (.CurrentPost.Ifcurrentuser) (.Admin) (.Moderator)}}
+            {{if or (.CurrentPost.IfCurrentUser) (.Admin) (.Moderator)}}
             <button class="system_btn" type="delete" name="delete-post" value="{{ .CurrentPost.ID}}">delete</button>
             <button class="system_btn" type="submit" name="edit-post" value="{{ .CurrentPost.ID}}">edit</button>
             {{ end }}

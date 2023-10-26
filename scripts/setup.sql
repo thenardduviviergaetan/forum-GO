@@ -1,23 +1,23 @@
 --setup.sql
-CREATE TABLE IF NOT EXISTS userstype(
+CREATE TABLE IF NOT EXISTS users_type(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     rank INTEGER NOT NULL,
     label TEXT NOT NULL
 );
 
-INSERT INTO userstype (rank, label) VALUES(1, "user"),(2, "moderator"),(3, "administrator"),(4, "modlight");
+INSERT INTO users_type (rank, label) VALUES(1, "user"),(2, "moderator"),(3, "administrator"),(4, "mod_light");
 
 CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    userstypeid INTEGER NOT NULL,
+    user_type_id INTEGER NOT NULL,
     username TEXT NOT NULL,
     pwd TEXT NOT NULL,
     email TEXT NOT NULL,
-    valide INTEGER NOT NULL,
-    askedmod INTEGER DEFAULT 0,
+    valid INTEGER NOT NULL,
+    asked_mod INTEGER DEFAULT 0,
     creation DATETIME NOT NULL,
     session_token TEXT,
-    FOREIGN KEY(userstypeid) REFERENCES userstype(id) ON DELETE CASCADE
+    FOREIGN KEY(user_type_id) REFERENCES users_type(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS categories(
@@ -29,48 +29,48 @@ CREATE TABLE IF NOT EXISTS categories(
 
 CREATE TABLE IF NOT EXISTS post(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    authorid INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
     author TEXT NOT NULL,
     title TEXT NOT NULL UNIQUE,
     content TEXT NOT NULL,
 	creation CURRENT_TIMESTAMP,
-    flaged INTEGER DEFAULT 0,
-    FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE
+    flagged INTEGER DEFAULT 0,
+    FOREIGN KEY(author_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS linkcatpost(
+CREATE TABLE IF NOT EXISTS link_cat_post(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    categoryid INTEGER NOT NULL,
-    postid INTEGER NOT NULL,
-    FOREIGN KEY(categoryid) REFERENCES categories(id) ON DELETE CASCADE
-    FOREIGN KEY(postid) REFERENCES post(id) ON DELETE CASCADE
+    category_id INTEGER NOT NULL,
+    post_id INTEGER NOT NULL,
+    FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
+    FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS linkpost(
+CREATE TABLE IF NOT EXISTS link_post(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    userid INTEGER NOT NULL,
-    postid INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    post_id INTEGER NOT NULL,
     likes BOOLEAN NOT NULL,
-    FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE
-    FOREIGN KEY(postid) REFERENCES post(id) ON DELETE CASCADE
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS comment(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    authorid INTEGER NOT NULL,
-    postid INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
+    post_id INTEGER NOT NULL,
     content TEXT NOT NULL,
 	creation CURRENT_TIMESTAMP,
-    flaged INTEGER DEFAULT 0,
-    FOREIGN KEY(authorid) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY(postid) REFERENCES post(id) ON DELETE CASCADE
+    flagged INTEGER DEFAULT 0,
+    FOREIGN KEY(author_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS linkcomment(
+CREATE TABLE IF NOT EXISTS link_comment(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    userid INTEGER NOT NULL,
-    commentid INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    comment_id INTEGER NOT NULL,
     likes BOOLEAN NOT NULL,
-    FOREIGN KEY(userid) REFERENCES users(id) ON DELETE CASCADE
-    FOREIGN KEY(commentid) REFERENCES comment(id) ON DELETE CASCADE
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY(comment_id) REFERENCES comment(id) ON DELETE CASCADE
 );

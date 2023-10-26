@@ -10,13 +10,13 @@ import (
 
 // Connect existing user to forum by comparing their credentials with database
 func (app *App_db) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles(
+	template, err := template.ParseFiles(
 		"web/templates/login.html",
 		"web/templates/head.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 
@@ -36,7 +36,7 @@ func (app *App_db) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
-	if err := tmpl.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := template.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
 	}
 }

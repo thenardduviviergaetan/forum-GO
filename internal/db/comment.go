@@ -2,67 +2,66 @@ package forum
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 	"net/http"
 
 	models "forum/pkg/models"
 )
 
-func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, idcomment, currentuser int64) {
-	tmpl, err := template.ParseFiles(
+func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, id_comment, current_user int64) {
+	template, err := template.ParseFiles(
 		"web/templates/edit-comment.html",
 		"web/templates/head.html",
 		"web/templates/navbar.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 	var comment models.Comment
-	err = app.DB.QueryRow("Select id,authorid,content,postid From comment where id = ?", idcomment).Scan(
+	err = app.DB.QueryRow("Select id,author_id,content,post_id From comment where id = ?", id_comment).Scan(
 		&comment.ID,
 		&comment.AuthorID,
 		&comment.Content,
-		&comment.Postid,
+		&comment.PostID,
 	)
-	if currentuser != comment.AuthorID && currentuser != -1 {
+	if current_user != comment.AuthorID && current_user != -1 {
 		return
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "No such post", http.StatusNotFound)
+			ErrorHandler(w, r, http.StatusNotFound)
 		} else {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			ErrorHandler(w, r, http.StatusInternalServerError)
 		}
 		return
 	}
 	app.Data.CurrentComment = comment
-	if err := tmpl.Execute(w, app.Data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := template.Execute(w, app.Data); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 }
 
-func Returncomment(app *App_db, currentuser int64) {
+func ReturnComment(app *App_db, w http.ResponseWriter, r *http.Request, current_user int64) {
 	var tab_comment []models.Comment
 	var comment models.Comment
-	rows, err := app.DB.Query("SELECT id, authorid, postid, content, creation, flaged FROM comment WHERE postid = ?", app.Data.CurrentPost.ID)
+	rows, err := app.DB.Query("SELECT id, author_id, post_id, content, creation, flagged FROM comment WHERE post_id = ?", app.Data.CurrentPost.ID)
 	if err != nil {
-		fmt.Println(err)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 	for rows.Next() {
-		rows.Scan(&comment.ID, &comment.AuthorID, &comment.Postid, &comment.Content, &comment.CreationDate, &comment.Flaged)
-		comment.Postid = app.Data.CurrentPost.ID
+		rows.Scan(&comment.ID, &comment.AuthorID, &comment.PostID, &comment.Content, &comment.CreationDate, &comment.Flagged)
+		comment.PostID = app.Data.CurrentPost.ID
 		err = app.DB.QueryRow("SELECT username FROM users where id = ?", comment.AuthorID).Scan(&comment.Author)
 		if err != nil {
-			fmt.Println(err)
+			ErrorHandler(w, r, http.StatusInternalServerError)
 			return
 		}
-		comment.Ifcurrentuser = comment.AuthorID == currentuser
-		comment.User_like, comment.User_dislike = linkcomment(app, comment.ID)
+		comment.IfCurrentUser = comment.AuthorID == current_user
+		comment.User_like, comment.User_dislike = linkComment(app, w, r, comment.ID)
 		comment.Like = len(comment.User_like)
 		comment.Dislike = len(comment.User_dislike)
 		tab_comment = append(tab_comment, comment)
@@ -71,21 +70,21 @@ func Returncomment(app *App_db, currentuser int64) {
 	app.Data.CurrentPost.Tab_comment = tab_comment
 }
 
-func linkcomment(app *App_db, id int64) (tablike map[int64]bool, tabdislike map[int64]bool) {
-	tablike, tabdislike = make(map[int64]bool), make(map[int64]bool)
-	rows, err := app.DB.Query("SELECT userid,likes FROM linkcomment WHERE commentid = ?", id)
+func linkComment(app *App_db, w http.ResponseWriter, r *http.Request, id int64) (tab_like map[int64]bool, tab_dislike map[int64]bool) {
+	tab_like, tab_dislike = make(map[int64]bool), make(map[int64]bool)
+	rows, err := app.DB.Query("SELECT user_id,likes FROM link_comment WHERE comment_id = ?", id)
 	if err != nil {
-		fmt.Println(err)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return nil, nil
 	}
-	var userid int64
+	var user_id int64
 	var like bool
 	for rows.Next() {
-		rows.Scan(&userid, &like)
+		rows.Scan(&user_id, &like)
 		if like {
-			tablike[userid] = true
+			tab_like[user_id] = true
 		} else {
-			tabdislike[userid] = true
+			tab_dislike[user_id] = true
 		}
 	}
 	return

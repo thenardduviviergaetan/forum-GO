@@ -4,7 +4,7 @@ type Data struct {
 	Connected      bool
 	Admin          bool
 	Moderator      bool
-	Modlight       bool
+	ModLight       bool
 	Posts          []Post
 	CurrentPost    Post
 	CurrentComment Comment

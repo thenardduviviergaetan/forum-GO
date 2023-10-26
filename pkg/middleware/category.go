@@ -2,20 +2,17 @@ package forum
 
 import (
 	"database/sql"
-	//"errors"
+	models "forum/pkg/models"
 	"log"
 	"net/http"
 	"strconv"
-	//"fmt"
-	//"time"
-	models "forum/pkg/models"
 )
 
 func AddCategory(db *sql.DB, r *http.Request) error {
 
 	_, err := db.Exec("INSERT INTO categories(title, descriptions, creation) VALUES (?,?,datetime())",
-		r.FormValue("catitle"),
-		r.FormValue("catdescription"))
+		r.FormValue("cat_title"),
+		r.FormValue("cat_description"))
 	if err != nil {
 		return err
 	}
@@ -24,11 +21,11 @@ func AddCategory(db *sql.DB, r *http.Request) error {
 
 func ModCategory(db *sql.DB, r *http.Request) error {
 
-	id, err := strconv.Atoi(r.FormValue("creatcat"))
+	id, err := strconv.Atoi(r.FormValue("create_cat"))
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("UPDATE categories SET title=?, descriptions=? WHERE id=?", r.FormValue("catitle"), r.FormValue("catdescription"), id)
+	_, err = db.Exec("UPDATE categories SET title=?, descriptions=? WHERE id=?", r.FormValue("cat_title"), r.FormValue("cat_description"), id)
 	if err != nil {
 		return err
 	}
@@ -37,7 +34,7 @@ func ModCategory(db *sql.DB, r *http.Request) error {
 
 func DelCategory(db *sql.DB, r *http.Request) error {
 
-	id, err := strconv.Atoi(r.FormValue("delcat"))
+	id, err := strconv.Atoi(r.FormValue("del_cat"))
 	if err != nil {
 		return err
 	}
@@ -56,7 +53,7 @@ func DelCategory(db *sql.DB, r *http.Request) error {
 			return err
 		}
 		var exist bool
-		err := db.QueryRow("SELECT EXISTS( SELECT * FROM linkcatpost WHERE postid = ?) AS exist", temp).Scan(&exist)
+		err := db.QueryRow("SELECT EXISTS( SELECT * FROM link_cat_post WHERE post_id = ?) AS exist", temp).Scan(&exist)
 		if err != nil {
 			return err
 		}
@@ -76,7 +73,7 @@ func FetchCat(db *sql.DB, current []int) []models.Categories {
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	var categorylst []models.Categories
+	var categories_list []models.Categories
 	for rows.Next() {
 		var categories models.Categories
 		err = rows.Scan(&categories.ID, &categories.Title, &categories.Description)
@@ -85,11 +82,10 @@ func FetchCat(db *sql.DB, current []int) []models.Categories {
 		}
 		for _, v := range current {
 			if v == int(categories.ID) {
-				categories.Ifcurtentcat = true
+				categories.IfCurrentCat = true
 			}
 		}
-		categorylst = append(categorylst, categories)
-		//categories.Ifcurtentcat = current == categories.ID
+		categories_list = append(categories_list, categories)
 	}
-	return categorylst
+	return categories_list
 }

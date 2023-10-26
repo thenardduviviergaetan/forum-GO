@@ -14,27 +14,30 @@ import (
 	s "forum/sessions"
 )
 
-func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, currentuser int64) {
-	tmpl, err := template.ParseFiles(
+func (app *App_db) PostedIdHandler(w http.ResponseWriter, r *http.Request, current_user int64) {
+	template, err := template.ParseFiles(
 		"web/templates/edit-post.html",
 		"web/templates/head.html",
 		"web/templates/navbar.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 
 	//potential more work TODO
 	app.Data.Categories = middle.FetchCat(app.DB, app.Data.CurrentPost.Categories)
 
-	Returncurentpost(app, w, r, currentuser)
-	renderpost_id(w, tmpl, app)
+	ReturnCurrentPost(app, w, r, current_user)
+	if err := template.Execute(w, app.Data); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
 }
 
 func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles(
+	template, err := template.ParseFiles(
 		"web/templates/post-id.html",
 		"web/templates/head.html",
 		"web/templates/navbar.html",
@@ -43,67 +46,87 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 		"web/templates/footer.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
-	var currentuser int64
+	var current_user int64
 	c, _ := r.Cookie("session_token")
 	if c != nil {
-		currentuser = s.GlobalSessions[c.Value].UserID
+		current_user = s.GlobalSessions[c.Value].UserID
 	}
-	if !Returncurentpost(app, w, r, currentuser) {
+	if !ReturnCurrentPost(app, w, r, current_user) {
 		return
 	}
-	Returncomment(app, currentuser)
+	ReturnComment(app, w, r, current_user)
 	switch r.Method {
 	case "POST":
 		if app.Data.Connected {
 			// create comment
 			if r.FormValue("content") != "" {
 				var comment models.Comment
-				comment.AuthorID = currentuser
+				comment.AuthorID = current_user
 				comment.Content = r.FormValue("content")
-				comment.Postid = app.Data.CurrentPost.ID
-				middle.Createcomment(app.DB, &comment)
+				comment.PostID = app.Data.CurrentPost.ID
+				middle.CreateComment(app.DB, &comment)
 			}
 			// like comment
 			if r.FormValue("like") != "" {
 				like := strings.Split(r.FormValue("like"), " ")[0] == "true"
-				idcomment, _ := strconv.Atoi(strings.Split(r.FormValue("like"), " ")[1])
-				middle.Updatelike(app.DB, int64(idcomment), currentuser, like)
+				id_comment, err := strconv.Atoi(strings.Split(r.FormValue("like"), " ")[1])
+				if err != nil {
+					ErrorHandler(w, r, http.StatusInternalServerError)
+					return
+				}
+				middle.UpdateLike(app.DB, int64(id_comment), current_user, like)
 			}
 			// like post
 			if r.FormValue("like-post") != "" {
 				like := strings.Split(r.FormValue("like-post"), " ")[0] == "true"
-				idpost, _ := strconv.Atoi(strings.Split(r.FormValue("like-post"), " ")[1])
-				middle.Updatelikepost(app.DB, int64(idpost), currentuser, like)
-				Returncurentpost(app, w, r, currentuser)
+				id_post, err := strconv.Atoi(strings.Split(r.FormValue("like-post"), " ")[1])
+				if err != nil {
+					ErrorHandler(w, r, http.StatusInternalServerError)
+					return
+				}
+				middle.UpdateLikePost(app.DB, int64(id_post), current_user, like)
+				ReturnCurrentPost(app, w, r, current_user)
 			}
 			// delete comment
 			if r.FormValue("delete") != "" {
-				idcomment, _ := strconv.Atoi(r.FormValue("delete"))
-				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].Modlight {
+				id_comment, err := strconv.Atoi(r.FormValue("delete"))
+				if err != nil {
+					ErrorHandler(w, r, http.StatusInternalServerError)
+					return
+				}
+				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].ModLight {
 					middle.DelCom(app.DB, r)
 				} else {
-					middle.Removecomment(app.DB, int64(idcomment), currentuser)
+					middle.RemoveComment(app.DB, int64(id_comment), current_user)
 				}
 			}
 			// edit comment
 			if r.FormValue("edit-comment") != "" {
-				idcomment, _ := strconv.Atoi(r.FormValue("edit-comment"))
-				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].Modlight {
-					app.CommentHandler(w, r, int64(idcomment), -1)
+				id_comment, err := strconv.Atoi(r.FormValue("edit-comment"))
+				if err != nil {
+					ErrorHandler(w, r, http.StatusInternalServerError)
+					return
+				}
+				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].ModLight {
+					app.CommentHandler(w, r, int64(id_comment), -1)
 				} else {
-					app.CommentHandler(w, r, int64(idcomment), currentuser)
+					app.CommentHandler(w, r, int64(id_comment), current_user)
 				}
 				return
 			}
 			if r.FormValue("comment-editor") != "" {
 				var comment models.Comment
 				comment.Content = r.FormValue("content-editor")
-				id, _ := strconv.Atoi(r.FormValue("comment-editor"))
+				id, err := strconv.Atoi(r.FormValue("comment-editor"))
+				if err != nil {
+					ErrorHandler(w, r, http.StatusInternalServerError)
+					return
+				}
 				comment.ID = int64(id)
-				middle.Updatecomment(app.DB, &comment)
+				middle.UpdateComment(app.DB, &comment)
 			}
 			// flag comment
 			if r.FormValue("report") != "" {
@@ -114,29 +137,29 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 				middle.FlagPost(app.DB, r)
 				http.Redirect(w, r, "id?id="+r.FormValue("report-post"), http.StatusFound)
 			}
-			if app.Data.CurrentPost.AuthorID == currentuser || s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin {
+			if app.Data.CurrentPost.AuthorID == current_user || s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin {
 				// delete post
 				if r.FormValue("delete-post") != "" {
-					// idpost, _ := strconv.Atoi(r.FormValue("delete-post"))
-					// middle.RemovePost(app.DB, int64(idpost))
 					middle.RemovePost(app.DB, app.Data.CurrentPost.ID)
 					http.Redirect(w, r, "/post", http.StatusFound)
 				}
 				// edit post
 				if r.FormValue("edit-post") != "" {
-					app.PosteditHandler(w, r, currentuser)
+					app.PostedIdHandler(w, r, current_user)
 					return
 				}
 				if r.FormValue("post-editor") != "" {
 					var post models.Post
 					post.Content = r.FormValue("content-editor")
-					// id, _ := strconv.Atoi(r.FormValue("post-editor"))
-					// post.ID = int64(id)
 					post.ID = app.Data.CurrentPost.ID
 					//to change category
 					var cat []int
 					for _, v := range r.Form["categories-editor"] {
-						temp, _ := strconv.Atoi(v)
+						temp, err := strconv.Atoi(v)
+						if err != nil {
+							ErrorHandler(w, r, http.StatusInternalServerError)
+							return
+						}
 						cat = append(cat, temp)
 					}
 					post.Categories = cat
@@ -144,21 +167,24 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 					//update category
 					post.Title = r.FormValue("title-editor")
 					middle.UpdatePost(app.DB, &post)
-					Returncurentpost(app, w, r, currentuser)
+					ReturnCurrentPost(app, w, r, current_user)
 				}
 			}
 		}
 	}
-	Returncomment(app, currentuser)
-	renderpost_id(w, tmpl, app)
+	ReturnComment(app, w, r, current_user)
+	if err := template.Execute(w, app.Data); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
 }
 
-func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, currentuser int64) bool {
+func ReturnCurrentPost(app *App_db, w http.ResponseWriter, r *http.Request, current_user int64) bool {
 	var post models.Post
 	if r.URL.Query().Has("id") {
 		id, err := strconv.Atoi(r.URL.Query().Get("id"))
 		if err != nil {
-			http.Error(w, "invalid query", http.StatusBadRequest)
+			ErrorHandler(w, r, http.StatusNotFound)
 			return false
 		}
 
@@ -169,38 +195,38 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
-			&post.Flaged,
+			&post.Flagged,
 		)
 		if err != nil {
-			http.Error(w, "invalid query", http.StatusBadRequest)
+			ErrorHandler(w, r, http.StatusNotFound)
 			return false
 		}
 		//get middle table
-		rows, err := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid = ?", post.ID)
+		rows, err := app.DB.Query("SELECT category_id FROM link_cat_post WHERE post_id = ?", post.ID)
 		for rows.Next() {
-			var catid int
-			err = rows.Scan(&catid)
+			var cat_id int
+			err = rows.Scan(&cat_id)
 			if err != nil {
-				log.Fatal(err)
+				ErrorHandler(w, r, http.StatusInternalServerError)
 			}
-			post.Categories = append(post.Categories, catid)
-			var catname string
-			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catid).Scan(&catname)
+			post.Categories = append(post.Categories, cat_id)
+			var cat_name string
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", cat_id).Scan(&cat_name)
 			if err != nil {
-				log.Fatal(err)
+				ErrorHandler(w, r, http.StatusInternalServerError)
 			}
-			post.CategoriesName = append(post.CategoriesName, catname)
+			post.CategoriesName = append(post.CategoriesName, cat_name)
 		}
-		
-		post.User_like, post.User_dislike = linkpost(app, post.ID)
+
+		post.User_like, post.User_dislike = linkPost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
-		post.Ifcurrentuser = post.AuthorID == currentuser
+		post.IfCurrentUser = post.AuthorID == current_user
 		app.Data.CurrentPost = post
 		if err != nil {
 			if err == sql.ErrNoRows {
-				http.Error(w, "No such post", http.StatusNotFound)
+				ErrorHandler(w, r, http.StatusNotFound)
 			} else {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				ErrorHandler(w, r, http.StatusInternalServerError)
 			}
 			return false
 		}
@@ -208,13 +234,6 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 		post.Categories = []int{}
 	}
 	return true
-}
-
-func renderpost_id(w http.ResponseWriter, tmpl *template.Template, app *App_db) {
-	if err := tmpl.Execute(w, app.Data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 }
 
 // Handler that shows the post creation page and ensures that users are certified to create posts.
@@ -235,14 +254,14 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		tmpl, err := template.ParseFiles(
+		template, err := template.ParseFiles(
 			"web/templates/post-create.html",
 			"web/templates/head.html",
 			"web/templates/navbar.html",
 			"web/templates/footer.html",
 		)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			ErrorHandler(w, r, http.StatusInternalServerError)
 			return
 		}
 
@@ -253,15 +272,15 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 				s.CheckSession(app.DB, w, r)
 				app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
 				app.Data.Admin = s.GlobalSessions[c.Value].Admin
-				app.Data.Modlight = s.GlobalSessions[c.Value].Modlight
+				app.Data.ModLight = s.GlobalSessions[c.Value].ModLight
 				return true
 			}
 			s.CheckActive()
 			return false
 		}()
 
-		if err := tmpl.Execute(w, app.Data); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+		if err := template.Execute(w, app.Data); err != nil {
+			ErrorHandler(w, r, http.StatusInternalServerError)
 			return
 		}
 
@@ -270,7 +289,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 		errParse := r.ParseForm()
 		if errParse != nil {
-			http.Error(w, errParse.Error(), http.StatusInternalServerError)
+			ErrorHandler(w, r, http.StatusInternalServerError)
 			return
 		}
 
@@ -279,7 +298,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			temp, _ := strconv.Atoi(v)
 			cat = append(cat, temp)
 		}
-		
+
 		post = &models.Post{
 			Title:      r.FormValue("title"),
 			Content:    r.FormValue("content"),
@@ -291,30 +310,30 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 
-		id, errCreaPost := middle.CreatePost(app.DB, post)
-		if errCreaPost != nil {
-			http.Error(w, errCreaPost.Error(), http.StatusInternalServerError)
+		id, err_create_post := middle.CreatePost(app.DB, post)
+		if err_create_post != nil {
+			ErrorHandler(w, r, http.StatusBadRequest)
 			return
 		}
 		http.Redirect(w, r, "/post/id?id="+strconv.Itoa(id), http.StatusFound)
 	}
 }
 
-func linkpost(app *App_db, postid int64) (tablike map[int64]bool, tabdislike map[int64]bool) {
-	tablike, tabdislike = make(map[int64]bool), make(map[int64]bool)
-	rows, err := app.DB.Query("SELECT userid,likes FROM linkpost WHERE postid = ?", postid)
+func linkPost(app *App_db, post_id int64) (tab_like map[int64]bool, tab_dislike map[int64]bool) {
+	tab_like, tab_dislike = make(map[int64]bool), make(map[int64]bool)
+	rows, err := app.DB.Query("SELECT user_id,likes FROM link_post WHERE post_id = ?", post_id)
 	if err != nil {
 		fmt.Println(err)
 		return nil, nil
 	}
-	var userid int64
+	var user_id int64
 	var like bool
 	for rows.Next() {
-		rows.Scan(&userid, &like)
+		rows.Scan(&user_id, &like)
 		if like {
-			tablike[userid] = true
+			tab_like[user_id] = true
 		} else {
-			tabdislike[userid] = true
+			tab_dislike[user_id] = true
 		}
 	}
 	return

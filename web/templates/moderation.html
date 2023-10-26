@@ -3,8 +3,8 @@
 <main>
     <h1>Moderation panel</h1>
     {{if or (.Moderator) (.Admin)}}
-    {{ template "post-flaged" .}}
+    {{ template "post-flagged" .}}
     {{end}}
-    {{ template "comment-flaged" .}}
+    {{ template "comment-flagged" .}}
 </main>
 {{ template "footer" .}}

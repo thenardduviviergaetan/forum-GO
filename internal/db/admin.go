@@ -1,31 +1,27 @@
 package forum
 
 import (
-	"html/template"
-	"log"
-	"net/http"
-
-	//"database/sql"
+	"database/sql"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	s "forum/sessions"
+	"html/template"
+	"net/http"
 	"strconv"
-	//"fmt"
-	//"time"
 )
 
 func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
-	
-	tmpl, err := template.ParseFiles(
+
+	template, err := template.ParseFiles(
 		"web/templates/admin.html",
 		"web/templates/head.html",
 		"web/templates/navbar.html",
 		"web/templates/footer.html",
-		"web/templates/comment-flaged.html",
-		"web/templates/post-flaged.html",
+		"web/templates/comment-flagged.html",
+		"web/templates/post-flagged.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 
@@ -39,76 +35,61 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-
 	if r.Method == "POST" {
-		if len(r.FormValue("deletion")) > 0 {
-			if err := middle.RmUser(app.DB, r); err != nil {
-				log.Fatal(err)
-			}
-		} else if len(r.FormValue("delmod")) > 0 {
-			if err := middle.Delmod(app.DB, r); err != nil {
-				log.Fatal(err)
-			}
-		} else if len(r.FormValue("addmod")) > 0 {
-			id, err := strconv.Atoi(r.FormValue("addmod"))
-			if err != nil {
-				log.Fatal(err)
-			}
-			if err := middle.Addmod(app.DB, r, 2, id); err != nil {
-				log.Fatal(err)
-			}
-		} else if len(r.FormValue("addmodlight")) > 0 {
-			id, err := strconv.Atoi(r.FormValue("addmodlight"))
-			if err != nil {
-				log.Fatal(err)
-			}
-			if err := middle.Addmod(app.DB, r, 4, id); err != nil {
-				log.Fatal(err)
-			}
-		} else if len(r.FormValue("delcat")) > 0 {
-			if err := middle.DelCategory(app.DB, r); err != nil {
-				log.Fatal(err)
-			}
-		} else if len(r.FormValue("delpost")) > 0 {
-			if err := middle.DelPost(app.DB, r); err != nil {
-				log.Fatal(err)
-			}
-		} else if len(r.FormValue("delcom")) > 0 {
-			if err := middle.DelCom(app.DB, r); err != nil {
-				log.Fatal(err)
-			}
-		} else if len(r.FormValue("delcomflag")) > 0 {
-			if err := middle.DelComFlag(app.DB, r); err != nil {
-				log.Fatal(err)
-			}
-		} else if len(r.FormValue("delpostflag")) > 0 {
-			if err := middle.DelPostFlag(app.DB, r); err != nil {
-				log.Fatal(err)
+		actions := map[string]func(db *sql.DB, r *http.Request) error{
+			"deletion":      middle.RmUser,
+			"del_mod":       middle.DelMod,
+			"add_mod":       app.addModPrivileges(2),
+			"add_mod_light": app.addModPrivileges(4),
+			"del_cat":       middle.DelCategory,
+			"del_post":      middle.DelPost,
+			"del_com":       middle.DelCom,
+			"del_com_flag":  middle.DelComFlag,
+			"del_post_flag": middle.DelPostFlag,
+		}
+
+		for formValue, action := range actions {
+			if len(r.FormValue(formValue)) > 0 {
+				if err := action(app.DB, r); err != nil {
+					ErrorHandler(w, r, http.StatusInternalServerError)
+					return
+				}
 			}
 		}
 	}
 
 	type Context struct {
-		Userlst    []models.User
+		UsersList  []models.User
 		Categories []models.Categories
 		Comments   []models.Comment
 		Posts      []models.Post
 		Connected  bool
 		Moderator  bool
-		Modlight   bool
+		ModLight   bool
 		Admin      bool
 	}
 	var context Context
-	context.Userlst = middle.FetchUsers(app.DB)
+	context.UsersList = middle.FetchUsers(app.DB)
 	context.Categories = middle.FetchCat(app.DB, []int{0})
-	context.Comments = middle.FetchFlagedCom(app.DB)
-	context.Posts = middle.FetchFlagedPost(app.DB)
+	context.Comments = middle.FetchFlaggedCom(app.DB)
+	context.Posts = middle.FetchFlaggedPost(app.DB)
 	context.Connected = app.Data.Connected
 	context.Moderator = s.GlobalSessions[c.Value].Moderator
-	context.Modlight = s.GlobalSessions[c.Value].Modlight
+	context.ModLight = s.GlobalSessions[c.Value].ModLight
 	context.Admin = s.GlobalSessions[c.Value].Admin
 
-	if err := tmpl.Execute(w, context); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := template.Execute(w, context); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
+		return
+	}
+}
+
+func (app *App_db) addModPrivileges(modType int) func(db *sql.DB, r *http.Request) error {
+	return func(db *sql.DB, r *http.Request) error {
+		id, err := strconv.Atoi(r.FormValue("add_mod"))
+		if err != nil {
+			return err
+		}
+		return middle.AddMod(db, r, modType, id)
 	}
 }

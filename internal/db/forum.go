@@ -12,19 +12,19 @@ import (
 func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path != "/" {
-		UserError(w, r, "404: Unknown")
+		ErrorHandler(w, r, http.StatusNotFound)
 		return
 	}
 	app.Data.Posts = nil
 
-	tmpl, err := template.ParseFiles(
+	template, err := template.ParseFiles(
 		"web/templates/index.html",
 		"web/templates/head.html",
 		"web/templates/navbar.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 
@@ -33,22 +33,22 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 			s.CheckSession(app.DB, w, r)
 			app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
 			app.Data.Admin = s.GlobalSessions[c.Value].Admin
-			app.Data.Modlight = s.GlobalSessions[c.Value].Modlight
+			app.Data.ModLight = s.GlobalSessions[c.Value].ModLight
 			return true
 		}
 		s.CheckActive()
 		return false
 	}()
 
-	GetRecentPosts(app)
+	GetRecentPosts(app, w, r)
 
-	if err := tmpl.Execute(w, app.Data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := template.Execute(w, app.Data); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 }
 
-func GetRecentPosts(app *App_db) error {
+func GetRecentPosts(app *App_db, w http.ResponseWriter, r *http.Request) error {
 	var post models.Post
 	rows, err := app.DB.Query("SELECT * FROM post ORDER BY rowid DESC LIMIT 5")
 	if err != nil {
@@ -62,29 +62,29 @@ func GetRecentPosts(app *App_db) error {
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
-			&post.Flaged,
+			&post.Flagged,
 		)
 		if err != nil {
-			return err
+			ErrorHandler(w, r, http.StatusInternalServerError)
 		}
-		//get catids from mid table
-		catrows, erro := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid=?", post.ID)
-		if erro != nil {
-			return erro
+		//get cat ids from mid table
+		cat_rows, err_row := app.DB.Query("SELECT category_id FROM link_cat_post WHERE post_id=?", post.ID)
+		if err_row != nil {
+			ErrorHandler(w, r, http.StatusInternalServerError)
 		}
-		for catrows.Next() {
-			var catid int
-			err = catrows.Scan(&catid)
+		for cat_rows.Next() {
+			var cat_id int
+			err = cat_rows.Scan(&cat_id)
 			if err != nil {
-				return err
+				ErrorHandler(w, r, http.StatusInternalServerError)
 			}
-			post.Categories = append(post.Categories, catid)
-			var catitle string
-			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catid).Scan(&catitle)
+			post.Categories = append(post.Categories, cat_id)
+			var cat_title string
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", cat_id).Scan(&cat_title)
 			if err != nil {
-				return err
+				ErrorHandler(w, r, http.StatusInternalServerError)
 			}
-			post.CategoriesName = append(post.CategoriesName, catitle)
+			post.CategoriesName = append(post.CategoriesName, cat_title)
 		}
 		app.Data.Posts = append(app.Data.Posts, post)
 		post.Categories = []int{}
@@ -92,7 +92,7 @@ func GetRecentPosts(app *App_db) error {
 	}
 
 	if err := rows.Err(); err != nil {
-		return err
+		ErrorHandler(w, r, http.StatusInternalServerError)
 	}
 	return nil
 }

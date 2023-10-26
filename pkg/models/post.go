@@ -4,8 +4,8 @@ type Post struct {
 	ID             int64  `json:"id"`
 	AuthorID       int64  `json:"author_id"`
 	Author         string `json:"author"`
-	Ifcurrentuser  bool
-	Categories	   []int
+	IfCurrentUser  bool
+	Categories     []int
 	CategoriesName []string
 	Title          string `json:"title"`
 	Content        string `json:"content"`
@@ -14,6 +14,6 @@ type Post struct {
 	Dislike        int
 	User_dislike   map[int64]bool
 	CreationDate   string `json:"time"`
-	Flaged         int    `json:"flaged"`
+	Flagged        int    `json:"flagged"`
 	Tab_comment    []Comment
 }

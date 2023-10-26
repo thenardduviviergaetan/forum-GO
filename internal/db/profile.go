@@ -1,28 +1,24 @@
 package forum
 
 import (
-	//"database/sql"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	s "forum/sessions"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
-	//"fmt"
-	//"time"
 )
 
 func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
-	tmpl, err := template.ParseFiles(
+	template, err := template.ParseFiles(
 		"web/templates/profile.html",
 		"web/templates/head.html",
 		"web/templates/navbar.html",
 		"web/templates/footer.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 
@@ -33,21 +29,25 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		if len(r.FormValue("askmod")) > 0 {
-			id, err := strconv.Atoi(r.FormValue("askmod"))
+		if len(r.FormValue("ask_mod")) > 0 {
+			id, err := strconv.Atoi(r.FormValue("ask_mod"))
 			if err != nil {
-				log.Fatal(err)
+				ErrorHandler(w, r, http.StatusInternalServerError)
+				return
 			}
 			if err := middle.AskModerator(app.DB, r, 1, id); err != nil {
-				log.Fatal(err)
+				ErrorHandler(w, r, http.StatusBadRequest)
+				return
 			}
-		} else if len(r.FormValue("asklightmod")) > 0 {
-			id, err := strconv.Atoi(r.FormValue("asklightmod"))
+		} else if len(r.FormValue("ask_light_mod")) > 0 {
+			id, err := strconv.Atoi(r.FormValue("ask_light_mod"))
 			if err != nil {
-				log.Fatal(err)
+				ErrorHandler(w, r, http.StatusInternalServerError)
+				return
 			}
 			if err := middle.AskModerator(app.DB, r, 2, id); err != nil {
-				log.Fatal(err)
+				ErrorHandler(w, r, http.StatusBadRequest)
+				return
 			}
 		}
 	}
@@ -56,7 +56,7 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		User      models.User
 		Connected bool
 		Moderator bool
-		Modlight  bool
+		ModLight  bool
 		Admin     bool
 	}
 	var context Context
@@ -64,14 +64,15 @@ func (app *App_db) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		context.User = middle.FetchUser(app.DB, cookie.Value)
 		context.Connected = app.Data.Connected
 		context.Moderator = s.GlobalSessions[c.Value].Moderator
-		context.Modlight = s.GlobalSessions[c.Value].Modlight
+		context.ModLight = s.GlobalSessions[c.Value].ModLight
 		context.Admin = s.GlobalSessions[c.Value].Admin
 	} else {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	if err := tmpl.Execute(w, context); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := template.Execute(w, context); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
+		return
 	}
 }

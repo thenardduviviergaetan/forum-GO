@@ -2,7 +2,6 @@ package forum
 
 import (
 	s "forum/sessions"
-	"log"
 	"net/http"
 	"time"
 )
@@ -19,11 +18,11 @@ func (app *App_db) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	stmt, err := app.DB.Prepare("UPDATE users SET session_token = NULL WHERE session_token = ?")
 	if err != nil {
-		log.Fatal(err)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 	}
 	_, err = stmt.Exec(sessionToken)
 	if err != nil {
-		log.Fatal(err)
+		ErrorHandler(w, r, http.StatusInternalServerError)
 	}
 
 	http.SetCookie(w, &http.Cookie{
