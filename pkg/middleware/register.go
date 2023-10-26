@@ -11,7 +11,7 @@ import (
 func isAlphanumeric(str string) bool {
 	var alphanumeric = regexp.MustCompile("^[a-zA-Z0-9]*$")
 	return alphanumeric.MatchString(str)
- }
+}
 
 // Prevent duplicate credentials in database during register procedure
 func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
@@ -39,7 +39,7 @@ func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
 }
 
 // Prevent duplicate credentials in database during register procedure
-func CheckGithubRegister(db *sql.DB, user *models.User) error {
+func CheckThirdPartyRegister(db *sql.DB, user *models.User) error {
 	var tmpuser models.User
 
 	err := db.QueryRow(
