@@ -11,15 +11,19 @@
             <tr>
                 <td>ID</td>
                 <td>Author</td>
-                <td>Category</td>
+                <td>Categories</td>
                 <td>Content</td>
                 <td>Creation date</td>
             </tr>
             {{range $val := .Posts}}
                 <tr>
                     <td>{{$val.ID}}</td>
-                    <td>{{$val.AuthorID}}</td>
-                    <td>{{$val.Categoryid}}</td>
+                    <td>{{$val.Author}}</td>
+                    <td>
+                        {{range $cats := $val.CategoriesName}}
+                            {{$cats}}
+                        {{end}}
+                    </td>
                     <td>{{$val.Content}}</td>
                     <td>{{$val.CreationDate}}</td>
                     <td class="no_border">

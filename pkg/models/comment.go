@@ -8,6 +8,7 @@ type Comment struct {
 	Img           string `json:"img"`
 	Ifimg         bool
 	Postid        int64  `json:"postid"`
+	Post		  string
 	Content       string `json:"content"`
 	Like          int
 	User_like     map[int64]bool

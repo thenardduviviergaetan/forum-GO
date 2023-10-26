@@ -1,11 +1,13 @@
 package forum
 
 import (
+	"html/template"
+	"net/http"
+
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	s "forum/sessions"
-	"html/template"
-	"net/http"
+	//"fmt"
 )
 
 // PostHandler is a method for the App_db struct that handles HTTP requests related to posts.
@@ -22,7 +24,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	app.Data.Categories = middle.FetchCat(app.DB, 0)
+	app.Data.Categories = middle.FetchCat(app.DB, []int{0})
 	if r.URL.Query().Has("created") ||
 		r.URL.Query().Has("liked") ||
 		(r.URL.Query().Has("categories") && r.URL.Query().Get("categories") != "") {
@@ -31,6 +33,7 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 		rows, err := app.DB.Query("SELECT * FROM post")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		for rows.Next() {
@@ -38,7 +41,6 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 				&post.ID,
 				&post.AuthorID,
 				&post.Author,
-				&post.Categoryid,
 				&post.Img,
 				&post.Title,
 				&post.Content,
@@ -50,10 +52,32 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+			// get catids from mid table
+			catrows, erro := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid=?", post.ID)
+			if erro != nil {
+				http.Error(w, erro.Error(), http.StatusInternalServerError)
+				return
+			}
+			for catrows.Next() {
+				var catid int
+				err = catrows.Scan(&catid)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				post.Categories = append(post.Categories, catid)
+				var catitle string
+				err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catid).Scan(&catitle)
+				if err == rows.Err() && err != nil {
+					http.Redirect(w, r, "/", http.StatusFound)
+				}
+				post.CategoriesName = append(post.CategoriesName, catitle)
+			}
 			post.User_like, post.User_dislike = linkpost(app, post.ID)
 			post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 			app.Data.Posts = append(app.Data.Posts, post)
+			post.Categories = []int{}
+			post.CategoriesName = []string{}
 		}
 
 		if err := rows.Err(); err != nil {
@@ -61,6 +85,18 @@ func (app *App_db) PostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	app.Data.Connected = func() bool {
+		if c, err := r.Cookie("session_token"); err == nil {
+			s.CheckSession(app.DB, w, r)
+			app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
+			app.Data.Admin = s.GlobalSessions[c.Value].Admin
+			app.Data.Modlight = s.GlobalSessions[c.Value].Modlight
+			return true
+		}
+		s.CheckActive()
+		return false
+	}()
 
 	if err := tmpl.Execute(w, app.Data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -88,7 +124,6 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
 			&post.Img,
 			&post.Title,
 			&post.Content,
@@ -100,7 +135,25 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 			return
 		}
 
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+		// get catids from mid table
+		catrows, erro := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid=?", post.ID)
+		if erro != nil {
+			http.Error(w, erro.Error(), http.StatusInternalServerError)
+		}
+		for catrows.Next() {
+			var catid int
+			err = catrows.Scan(&catid)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			post.Categories = append(post.Categories, catid)
+			var catitle string
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catid).Scan(&catitle)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			post.CategoriesName = append(post.CategoriesName, catitle)
+		}
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		if t != nil {
@@ -110,6 +163,8 @@ func CreatedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []mode
 		} else {
 			app.Data.Posts = append(app.Data.Posts, post)
 		}
+		post.Categories = []int{}
+		post.CategoriesName = []string{}
 	}
 }
 
@@ -134,17 +189,16 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		rows, err := app.DB.Query("SELECT * FROM post WHERE id = ? ;", tmp)
+		postrows, err := app.DB.Query("SELECT * FROM post WHERE id = ? ;", tmp)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		for rows.Next() {
-			err := rows.Scan(
+		for postrows.Next() {
+			err := postrows.Scan(
 				&post.ID,
 				&post.AuthorID,
 				&post.Author,
-				&post.Categoryid,
 				&post.Img,
 				&post.Title,
 				&post.Content,
@@ -156,7 +210,26 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 				return
 			}
 
-			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
+			// get catids from mid table
+			catrows, erro := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid=?", post.ID)
+			if erro != nil {
+				http.Error(w, erro.Error(), http.StatusInternalServerError)
+			}
+			for catrows.Next() {
+				var catid int
+				err = catrows.Scan(&catid)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+				post.Categories = append(post.Categories, catid)
+				var catitle string
+				err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catid).Scan(&catitle)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+				post.CategoriesName = append(post.CategoriesName, catitle)
+			}
+
 			post.User_like, post.User_dislike = linkpost(app, post.ID)
 			post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 			if t != nil {
@@ -166,6 +239,8 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 			} else {
 				app.Data.Posts = append(app.Data.Posts, post)
 			}
+			post.Categories = []int{}
+			post.CategoriesName = []string{}
 		}
 	}
 }
@@ -174,37 +249,64 @@ func LikedFilter(app *App_db, w http.ResponseWriter, r *http.Request, t []models
 // processes each post's data including likes, dislikes, and category title,
 // then applies additional filters based on URL query parameters or adds the post to the app's data.
 func CatFilter(app *App_db, w http.ResponseWriter, r *http.Request) {
-	var post models.Post
+	type PostCatLink struct {
+		ID         int
+		CategoryId int
+		PostId     int
+	}
+	var catmp []PostCatLink
 	var tmp []models.Post
 	cat_id := r.URL.Query().Get("categories")
 
 	if cat_id == "" {
 		return
 	}
-
-	rows, err := app.DB.Query("SELECT * FROM post WHERE categoryid = ? ;", cat_id)
+	rows, err := app.DB.Query("SELECT * FROM linkcatpost WHERE categoryid = ?", cat_id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	for rows.Next() {
-		err := rows.Scan(
+		var postCatLink PostCatLink
+		err := rows.Scan(&postCatLink.ID, &postCatLink.CategoryId, &postCatLink.PostId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		catmp = append(catmp, postCatLink)
+	}
+	if len(catmp) == 0 {
+		http.Redirect(w, r, "/post", http.StatusFound)
+		return
+	}
+
+	var catitle string
+	err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catmp[0].CategoryId).Scan(&catitle)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	for _, v := range catmp {
+		var post models.Post
+		post.Categories = append(post.Categories, v.CategoryId)
+		post.CategoriesName = append(post.CategoriesName, catitle)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		erro := app.DB.QueryRow("SELECT * FROM post WHERE id=?", v.PostId).Scan(
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
 			&post.Img,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
 			&post.Flaged,
 		)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		if erro != nil {
+			http.Error(w, erro.Error(), http.StatusInternalServerError)
 		}
 
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		tmp = append(tmp, post)

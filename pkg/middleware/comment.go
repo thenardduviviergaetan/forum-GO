@@ -43,18 +43,22 @@ func Reportcomment(db *sql.DB, comment int) error {
 	return nil
 }
 
-func Removecomment(db *sql.DB, idcomment, currentuser int64) error {
-	var idpost int64
-	var img string
-	err := db.QueryRow("Select postid,img From comment Where id = ?", idcomment).Scan(&idpost, &img)
-	if err != nil {
-		fmt.Println(err)
+func Removecomment(db *sql.DB, idcomment, currentuser int64, isdeletpost bool) error {
+	var err error
+	if isdeletpost {
+		_, err = db.Exec("DELETE FROM comment WHERE id = ? ", idcomment)
+		if err != nil {
+			fmt.Println("Remove comment : ", err)
+			return err
+		}
+	} else {
+		_, err = db.Exec("DELETE FROM comment WHERE id = ? AND authorid = ? ", idcomment, currentuser)
+		if err != nil {
+			fmt.Println("Remove comment : ", err)
+			return err
+		}
 	}
-	err = os.RemoveAll("web/static/upload/img/post" + strconv.Itoa(int(idpost)) + "/comment/" + img)
-	if err != nil {
-		fmt.Println(err)
-	}
-	_, err = db.Exec("DELETE FROM comment WHERE id = ? AND authorid = ? ", idcomment, currentuser)
+	_, err = db.Exec("DELETE FROM linkcomment WHERE commentid = ?", idcomment)
 	if err != nil {
 		fmt.Println("Remove comment : ", err)
 		return err

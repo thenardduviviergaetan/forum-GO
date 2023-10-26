@@ -12,19 +12,49 @@ import (
 )
 
 func CreatePost(db *sql.DB, post *models.Post) (int, error) {
-	_, err := db.Exec("INSERT INTO post(authorid, author, categoryid, img, title, content, creation) VALUES(?,?,?,?,?,?, date())",
-		post.AuthorID, post.Author, post.Categoryid, "", post.Title, post.Content)
+	_, err := db.Exec("INSERT INTO post(authorid, author, img, title, content, creation) VALUES(?,?,?,?,?, datetime())",
+		post.AuthorID, post.Author, "", post.Title, post.Content)
 	if err != nil {
 		fmt.Println("ERROR CREATE POST", err)
 	}
-
 	sql, _ := db.Exec("SELECT last_insert_rowid()")
 	id, _ := sql.LastInsertId()
+	for _, v := range post.Categories {
+		_, err = db.Exec("INSERT INTO linkcatpost(categoryid, postid) VALUES(?,?)", v, id)
+		if err != nil {
+			fmt.Println("ERROR CREATE POST", err)
+		}
+	}
 	return int(id), nil
 }
 
 func RemovePost(db *sql.DB, idpost int64) error {
-	_, err := db.Exec("DELETE FROM post WHERE id = ?", idpost)
+	rows, err := db.Query("SELECT id FROM comment WHERE postid = ?", idpost)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	var tabidcomment []int64
+	for rows.Next() {
+		var commentid int64
+		rows.Scan(&commentid)
+		tabidcomment = append(tabidcomment, commentid)
+	}
+	rows.Close()
+	for _, commentid := range tabidcomment {
+		Removecomment(db, commentid, 0, true)
+	}
+	_, err = db.Exec("DELETE FROM linkpost WHERE postid = ?", idpost)
+	if err != nil {
+		fmt.Println("Remove post : ", err)
+		return err
+	}
+	_, err = db.Exec("DELETE FROM linkcatpost WHERE postid = ?", idpost)
+	if err != nil {
+		fmt.Println("Remove post : ", err)
+		return err
+	}
+	_, err = db.Exec("DELETE FROM post WHERE id = ?", idpost)
 	if err != nil {
 		fmt.Println("Remove post : ", err)
 		return err
@@ -37,12 +67,27 @@ func RemovePost(db *sql.DB, idpost int64) error {
 }
 
 func UpdatePost(db *sql.DB, post *models.Post) error {
-	_, err := db.Exec("UPDATE post SET content = ? , title = ? , categoryid = ? WHERE id = ?", post.Content, post.Title, post.Categoryid, post.ID)
+	_, err := db.Exec("UPDATE post SET content = ? , title = ? WHERE id = ?", post.Content, post.Title, post.ID)
 	if err != nil {
 		fmt.Println("Update comment : ", err)
 		return err
 	}
 	return nil
+}
+
+func UpdateCategory(db *sql.DB, post *models.Post) error {
+	// delete everything and reinsert everything method
+	_, err := db.Exec("DELETE FROM linkcatpost WHERE postid = ?", post.ID)
+	if err != nil {
+		return err
+	}
+	for _, v := range post.Categories {
+		_, err := db.Exec("INSERT INTO linkcatpost(categoryid, postid) VALUES(?,?)", v, post.ID)
+		if err != nil {
+			return err
+		}
+	}
+	return err
 }
 
 func UpdateImgPoste(db *sql.DB, idpost int64, newimg string) error {

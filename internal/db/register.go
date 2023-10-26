@@ -50,6 +50,12 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			if err.Error() == "passwords do not match" {
 				errMsg = "Passwords do not match!"
 			}
+			if err.Error() == "passwords parsing error" {
+				errMsg = "password lengh must be at least 8 characters long and can only contain alphanumerical characters!"
+			}
+			if err.Error() == "email not valid" {
+				errMsg = "Email is not valid!"
+			}
 			http.Redirect(w, r, "/register?error="+url.QueryEscape(errMsg), http.StatusFound)
 			return
 		}

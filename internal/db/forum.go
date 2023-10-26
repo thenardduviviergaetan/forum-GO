@@ -6,11 +6,13 @@ import (
 
 	models "forum/pkg/models"
 	s "forum/sessions"
+	//"fmt"
 )
 
 // Display the home page handler
 func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 	app.Data.Posts = nil
+
 	tmpl, err := template.ParseFiles(
 		"web/templates/index.html",
 		"web/templates/head.html",
@@ -23,22 +25,14 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.Data.Connected = func() bool {
-		if cookie, err := r.Cookie("session_token"); err == nil {
+		if c, err := r.Cookie("session_token"); err == nil {
 			s.CheckSession(app.DB, w, r)
-			var userstypeid int
-			app.DB.QueryRow("SELECT userstypeid FROM users WHERE session_token=?", cookie.Value).Scan(&userstypeid)
-			if userstypeid == 2 {
-				app.Data.Moderator = true
-			} else if userstypeid == 3 {
-				app.Data.Admin = true
-			} else if userstypeid == 4 {
-				app.Data.Modlight = true
-			}
+			app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
+			app.Data.Admin = s.GlobalSessions[c.Value].Admin
+			app.Data.Modlight = s.GlobalSessions[c.Value].Modlight
 			return true
 		}
 		s.CheckActive()
-		app.Data.Moderator = false
-		app.Data.Admin = false
 		return false
 	}()
 
@@ -46,6 +40,7 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := tmpl.Execute(w, app.Data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -55,13 +50,11 @@ func GetRecentPosts(app *App_db) error {
 	if err != nil {
 		return err
 	}
-
 	for rows.Next() {
 		err := rows.Scan(
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
-			&post.Categoryid,
 			&post.Img,
 			&post.Title,
 			&post.Content,
@@ -71,9 +64,28 @@ func GetRecentPosts(app *App_db) error {
 		if err != nil {
 			return err
 		}
-		err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", post.Categoryid).Scan(&post.Category)
-
+		// get catids from mid table
+		catrows, erro := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid=?", post.ID)
+		if erro != nil {
+			return erro
+		}
+		for catrows.Next() {
+			var catid int
+			err = catrows.Scan(&catid)
+			if err != nil {
+				return err
+			}
+			post.Categories = append(post.Categories, catid)
+			var catitle string
+			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", catid).Scan(&catitle)
+			if err != nil {
+				return err
+			}
+			post.CategoriesName = append(post.CategoriesName, catitle)
+		}
 		app.Data.Posts = append(app.Data.Posts, post)
+		post.Categories = []int{}
+		post.CategoriesName = []string{}
 	}
 
 	if err := rows.Err(); err != nil {

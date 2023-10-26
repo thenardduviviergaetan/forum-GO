@@ -26,6 +26,56 @@
                 <div>Your demande to become a comment moderator is being examinated.</div>
             {{end}}
         </div>
+        {{ if .Connected}}
+            <div class="content">
+                <div class="data">
+                    <h2>Liked post</h2>
+                    {{ range .Data.Likedpost}}
+                    <div class="post"><a href="/post/id?id={{.ID}}">Title : {{.Title}} Creation date : {{.CreationDate}}</a></div>
+                    {{ end }}
+                    <h2>Disliked post</h2>
+                    {{ range .Data.Dislikedpost}}
+                    <div class="post"><a href="/post/id?id={{.ID}}">Title : {{.Title}} Creation date : {{.CreationDate}}</a></div>
+                    {{ end }}
+                    <h2>Liked comment</h2>
+                    {{ range .Data.Likedcomment}}
+                    <div class="post"><a href="/post/id?id={{.Post.ID}}">Post title : {{.Post.Title}}
+                        <br>Comment content: {{.Comment.Content}}</br></a></div>
+                    {{ end }}
+                    <h2>Disliked comment</h2>
+                    {{ range .Data.Dislikedcomment}}
+                    <div class="post"><a href="/post/id?id={{.Post.ID}}">Post title : {{.Post.Title}}
+                        <br>Comment content: {{.Comment.Content}}</br></a></div>
+                    {{ end }}
+                </div>
+                <div class="notified">
+                    <h2>TEST</h2>
+                    {{range .Data.Notified}}
+                        <div class="post"><a href="/post/id?id={{.Post.ID}}">Post title : {{.Post.Title}}</a>
+                            <br><label for="listcomment">List comment :</label></br>
+                            <lu name="listcomment">
+                                {{range .Tab_comment}}
+                                    <li>{{.Author}} commented : {{.Content}}</li>
+                                {{end}}
+                            </lu>
+                        
+                            <br><label for="listcomment">List reactions :</label></br>
+                            <lu name="listliked">
+                                {{range .Tabliked}}
+                                    <li>{{.Username}} 
+                                        {{ if .Is_Liked}}
+                                            liked post
+                                        {{else}}
+                                            disliked post
+                                        {{end}}
+                                    </li>
+                                {{end}}
+                            </lu>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        {{end}}
         <!-- make other functionnality, user data available with .User -->
     </div>
 </main>
