@@ -15,6 +15,7 @@ import (
 )
 
 func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
+	
 	tmpl, err := template.ParseFiles(
 		"web/templates/admin.html",
 		"web/templates/head.html",
@@ -30,9 +31,9 @@ func (app *App_db) AdminHandler(w http.ResponseWriter, r *http.Request) {
 
 	c, err := r.Cookie("session_token")
 	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-
 	// check if user is admin
 	if !s.GlobalSessions[c.Value].Admin {
 		http.Redirect(w, r, "/", http.StatusFound)

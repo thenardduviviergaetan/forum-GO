@@ -6,11 +6,15 @@ import (
 
 	models "forum/pkg/models"
 	s "forum/sessions"
-	//"fmt"
 )
 
 // Display the home page handler
 func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.URL.Path != "/" {
+		UserError(w, r, "404: Unknown")
+		return
+	}
 	app.Data.Posts = nil
 	tmpl, err := template.ParseFiles(
 		"web/templates/index.html",

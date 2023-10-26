@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"log"
 	//"time"
-	"fmt"
+	//"fmt"
 	models "forum/pkg/models"
 )
 
@@ -66,7 +66,6 @@ func FetchFlagedPost(db *sql.DB) []models.Post {
 		}
 		defer catrows.Close()
 		for catrows.Next() {
-			fmt.Println("nice")
 			var catid int
 			err = catrows.Scan(&catid)
 			if err != nil {
