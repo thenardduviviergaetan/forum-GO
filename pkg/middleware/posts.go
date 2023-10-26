@@ -28,7 +28,12 @@ func CreatePost(db *sql.DB, post *models.Post) (int, error) {
 }
 
 func RemovePost(db *sql.DB, idpost int64) error {
-	_, err := db.Exec("DELETE FROM post WHERE id = ?", idpost)
+	_, err := db.Exec("DELETE FROM linkcatpost WHERE postid = ?", idpost)
+	if err != nil {
+		fmt.Println("Remove post : ", err)
+		return err
+	}
+	_, err = db.Exec("DELETE FROM post WHERE id = ?", idpost)
 	if err != nil {
 		fmt.Println("Remove post : ", err)
 		return err
