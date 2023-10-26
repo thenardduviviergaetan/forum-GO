@@ -26,7 +26,7 @@ func (app *App_db) PosteditHandler(w http.ResponseWriter, r *http.Request, curre
 		return
 	}
 
-	//potential more work TODO
+	// potential more work TODO
 	app.Data.Categories = middle.FetchCat(app.DB, app.Data.CurrentPost.Categories)
 
 	Returncurentpost(app, w, r, currentuser)
@@ -85,7 +85,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 				if s.GlobalSessions[c.Value].Moderator || s.GlobalSessions[c.Value].Admin || s.GlobalSessions[c.Value].Modlight {
 					middle.DelCom(app.DB, r)
 				} else {
-					middle.Removecomment(app.DB, int64(idcomment), currentuser)
+					middle.Removecomment(app.DB, int64(idcomment), currentuser, false)
 				}
 			}
 			// edit comment
@@ -133,7 +133,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 					// id, _ := strconv.Atoi(r.FormValue("post-editor"))
 					// post.ID = int64(id)
 					post.ID = app.Data.CurrentPost.ID
-					//to change category
+					// to change category
 					var cat []int
 					for _, v := range r.Form["categories-editor"] {
 						temp, _ := strconv.Atoi(v)
@@ -141,7 +141,7 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 					}
 					post.Categories = cat
 					middle.UpdateCategory(app.DB, &post)
-					//update category
+					// update category
 					post.Title = r.FormValue("title-editor")
 					middle.UpdatePost(app.DB, &post)
 					Returncurentpost(app, w, r, currentuser)
@@ -175,7 +175,7 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			http.Error(w, "invalid query", http.StatusBadRequest)
 			return false
 		}
-		//get middle table
+		// get middle table
 		rows, err := app.DB.Query("SELECT categoryid FROM linkcatpost WHERE postid = ?", post.ID)
 		for rows.Next() {
 			var catid int
@@ -191,7 +191,7 @@ func Returncurentpost(app *App_db, w http.ResponseWriter, r *http.Request, curre
 			}
 			post.CategoriesName = append(post.CategoriesName, catname)
 		}
-		
+
 		post.User_like, post.User_dislike = linkpost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		post.Ifcurrentuser = post.AuthorID == currentuser
@@ -219,7 +219,7 @@ func renderpost_id(w http.ResponseWriter, tmpl *template.Template, app *App_db) 
 
 // Handler that shows the post creation page and ensures that users are certified to create posts.
 func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
-	//Checking for rights to access this page
+	// Checking for rights to access this page
 	cookie, errCookie := r.Cookie("session_token")
 	if errCookie != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -279,7 +279,7 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			temp, _ := strconv.Atoi(v)
 			cat = append(cat, temp)
 		}
-		
+
 		post = &models.Post{
 			Title:      r.FormValue("title"),
 			Content:    r.FormValue("content"),

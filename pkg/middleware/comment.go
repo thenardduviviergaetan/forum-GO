@@ -33,7 +33,6 @@ func Updatecomment(db *sql.DB, comment *models.Comment) error {
 }
 
 func Reportcomment(db *sql.DB, comment int) error {
-	
 	_, err := db.Exec("UPDATE comment SET flaged = ? WHERE id = ?", 1, comment)
 	if err != nil {
 		fmt.Println("Update comment : ", err)
@@ -42,11 +41,24 @@ func Reportcomment(db *sql.DB, comment int) error {
 	return nil
 }
 
-func Removecomment(db *sql.DB, idcomment, currentuser int64) error {
-
-	_, err := db.Exec("DELETE FROM comment WHERE id = ? AND authorid = ? ", idcomment, currentuser)
+func Removecomment(db *sql.DB, idcomment, currentuser int64, isdeletpost bool) error {
+	var err error
+	if isdeletpost {
+		_, err = db.Exec("DELETE FROM comment WHERE id = ? ", idcomment)
+		if err != nil {
+			fmt.Println("Remove comment : ", err)
+			return err
+		}
+	} else {
+		_, err = db.Exec("DELETE FROM comment WHERE id = ? AND authorid = ? ", idcomment, currentuser)
+		if err != nil {
+			fmt.Println("Remove comment : ", err)
+			return err
+		}
+	}
+	_, err = db.Exec("DELETE FROM linkcomment WHERE commentid = ?", idcomment)
 	if err != nil {
-		fmt.Println("Remove comment : ", err)
+		fmt.Println("Remove post : ", err)
 		return err
 	}
 	return nil
