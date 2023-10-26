@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
 	//"database/sql"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"

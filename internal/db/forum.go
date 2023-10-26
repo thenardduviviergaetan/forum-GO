@@ -12,6 +12,7 @@ import (
 // Display the home page handler
 func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 	app.Data.Posts = nil
+
 	tmpl, err := template.ParseFiles(
 		"web/templates/index.html",
 		"web/templates/head.html",
@@ -39,6 +40,7 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := tmpl.Execute(w, app.Data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -66,7 +68,7 @@ func GetRecentPosts(app *App_db) error {
 		if erro != nil {
 			return erro
 		}
-		for catrows.Next() {		
+		for catrows.Next() {
 			var catid int
 			err = catrows.Scan(&catid)
 			if err != nil {
@@ -81,6 +83,8 @@ func GetRecentPosts(app *App_db) error {
 			post.CategoriesName = append(post.CategoriesName, catitle)
 		}
 		app.Data.Posts = append(app.Data.Posts, post)
+		post.Categories = []int{}
+		post.CategoriesName = []string{}
 	}
 
 	if err := rows.Err(); err != nil {

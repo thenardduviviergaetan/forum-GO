@@ -80,6 +80,12 @@ main {
             }
         }
 
+        .checkbox{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
         button {
             width: 100px;
             padding: 5px 3px;
