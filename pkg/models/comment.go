@@ -5,6 +5,7 @@ type Comment struct {
 	AuthorID      int64  `json:"author_id"`
 	Author        string `json:"author"`
 	IfCurrentUser bool
+	Img           string
 	PostID        int64 `json:"post_id"`
 	Post          string
 	Content       string `json:"content"`

@@ -192,6 +192,7 @@ func ReturnCurrentPost(app *App_db, w http.ResponseWriter, r *http.Request, curr
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
+			&post.Img,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,

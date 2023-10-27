@@ -2,7 +2,7 @@
 {{ template "navbar" .}}
 <main class="form">
   <h1>Edit Post :</h1>
-  <form name="postForm" action="/post/id?id={{ .CurrentPost.ID}}" method="POST">
+  <form enctype="multipart/form-data" name="postForm" action="/post/id?id={{ .CurrentPost.ID}}" method="POST">
     <div class="field">
       <label for="title">Title</label>
       <input type="text" name="title-editor" value="{{ .CurrentPost.Title}}">
@@ -29,6 +29,12 @@
     <div class="field">
       <label for="content-editor">Content</label>
       <textarea id="" name="content-editor" rows="10" cols="20">{{.CurrentPost.Content}}</textarea>
+      <label for="myFile">new image?</label>
+      <input type="file" name="myFile" accept=".svg,image/gif,image/png,image/jpeg"/>
+      <div class="check">
+        <label for="deleteimg">delete image?</label>
+        <input type="checkbox" name="deleteimg" value="true" >  
+      </div>
     </div>
     <button type="submit" name="post-editor" value="{{ .CurrentPost.ID}}">Save</button>
   </form>

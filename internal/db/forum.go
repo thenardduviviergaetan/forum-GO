@@ -10,7 +10,6 @@ import (
 
 // Display the home page handler
 func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
-
 	if r.URL.Path != "/" {
 		ErrorHandler(w, r, http.StatusNotFound)
 		return
@@ -40,7 +39,10 @@ func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 		return false
 	}()
 
-	GetRecentPosts(app, w, r)
+	err = GetRecentPosts(app, w, r)
+	if err != nil {
+		return
+	}
 
 	if err := template.Execute(w, app.Data); err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError)
@@ -59,6 +61,7 @@ func GetRecentPosts(app *App_db, w http.ResponseWriter, r *http.Request) error {
 			&post.ID,
 			&post.AuthorID,
 			&post.Author,
+			&post.Img,
 			&post.Title,
 			&post.Content,
 			&post.CreationDate,
@@ -66,23 +69,27 @@ func GetRecentPosts(app *App_db, w http.ResponseWriter, r *http.Request) error {
 		)
 		if err != nil {
 			ErrorHandler(w, r, http.StatusInternalServerError)
+			return err
 		}
-		//get cat ids from mid table
+		// get cat ids from mid table
 		cat_rows, err_row := app.DB.Query("SELECT category_id FROM link_cat_post WHERE post_id=?", post.ID)
 		if err_row != nil {
 			ErrorHandler(w, r, http.StatusInternalServerError)
+			return err
 		}
 		for cat_rows.Next() {
 			var cat_id int
 			err = cat_rows.Scan(&cat_id)
 			if err != nil {
 				ErrorHandler(w, r, http.StatusInternalServerError)
+				return err
 			}
 			post.Categories = append(post.Categories, cat_id)
 			var cat_title string
 			err = app.DB.QueryRow("SELECT title FROM categories WHERE id=?", cat_id).Scan(&cat_title)
 			if err != nil {
 				ErrorHandler(w, r, http.StatusInternalServerError)
+				return err
 			}
 			post.CategoriesName = append(post.CategoriesName, cat_title)
 		}
@@ -93,6 +100,7 @@ func GetRecentPosts(app *App_db, w http.ResponseWriter, r *http.Request) error {
 
 	if err := rows.Err(); err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError)
+		return err
 	}
 	return nil
 }

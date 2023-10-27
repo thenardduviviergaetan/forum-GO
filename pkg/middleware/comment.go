@@ -10,8 +10,8 @@ import (
 )
 
 func CreateComment(db *sql.DB, comment *models.Comment) (int, error) {
-	_, err := db.Exec("INSERT INTO comment(author_id, post_id, content, creation) VALUES(?,?,?, datetime())",
-		comment.AuthorID, comment.PostID, comment.Content)
+	_, err := db.Exec("INSERT INTO comment(author_id, post_id, img, content, creation) VALUES(?,?,?,?, datetime())",
+		comment.AuthorID, comment.PostID, "", comment.Content)
 	if err != nil {
 		return 0, err
 	}
@@ -52,7 +52,7 @@ func RemoveComment(db *sql.DB, id_comment, current_user int64, isdeletpost bool)
 			return err
 		}
 	}
-	_, err = db.Exec("DELETE FROM linkcomment WHERE commentid = ?", id_comment)
+	_, err = db.Exec("DELETE FROM link_comment WHERE comment_id = ?", id_comment)
 	if err != nil {
 		fmt.Println("Remove post : ", err)
 		return err

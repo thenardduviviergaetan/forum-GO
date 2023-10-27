@@ -47,13 +47,13 @@ func (app *App_db) CommentHandler(w http.ResponseWriter, r *http.Request, id_com
 func ReturnComment(app *App_db, w http.ResponseWriter, r *http.Request, current_user int64) {
 	var tab_comment []models.Comment
 	var comment models.Comment
-	rows, err := app.DB.Query("SELECT id, author_id, post_id, content, creation, flagged FROM comment WHERE post_id = ?", app.Data.CurrentPost.ID)
+	rows, err := app.DB.Query("SELECT id, author_id, post_id, img, content, creation, flagged FROM comment WHERE post_id = ?", app.Data.CurrentPost.ID)
 	if err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 	for rows.Next() {
-		rows.Scan(&comment.ID, &comment.AuthorID, &comment.PostID, &comment.Content, &comment.CreationDate, &comment.Flagged)
+		rows.Scan(&comment.ID, &comment.AuthorID, &comment.PostID, &comment.Img, &comment.Content, &comment.CreationDate, &comment.Flagged)
 		comment.PostID = app.Data.CurrentPost.ID
 		err = app.DB.QueryRow("SELECT username FROM users where id = ?", comment.AuthorID).Scan(&comment.Author)
 		if err != nil {
