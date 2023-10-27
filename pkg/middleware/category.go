@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"fmt"
 )
 
 func AddCategory(db *sql.DB, r *http.Request) error {
@@ -42,10 +43,15 @@ func DelCategory(db *sql.DB, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	_, err = db.Exec("DELETE FROM link_cat_post WHERE category_id=?", id)
+	if err != nil {
+		return err
+	}
 	rows, err := db.Query("SELECT id FROM post")
 	if err != nil {
 		return err
 	}
+	var to_delete []int
 	for rows.Next() {
 		var temp int
 		err = rows.Scan(&temp)
@@ -58,10 +64,13 @@ func DelCategory(db *sql.DB, r *http.Request) error {
 			return err
 		}
 		if !exist {
-			_, err = db.Exec("DELETE FROM post WHERE id=?", temp)
-			if err != nil {
-				return err
-			}
+			to_delete = append(to_delete, temp)
+		}
+	}
+	for _, v := range to_delete {
+		_, err = db.Exec("DELETE FROM post WHERE id=?", v)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
