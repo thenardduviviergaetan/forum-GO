@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"fmt"
 )
 
 func AddCategory(db *sql.DB, r *http.Request) error {

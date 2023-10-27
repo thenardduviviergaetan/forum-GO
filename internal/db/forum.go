@@ -11,7 +11,6 @@ import (
 // Display the home page handler
 func (app *App_db) ForumHandler(w http.ResponseWriter, r *http.Request) {
 
-	app.DB.Exec("DELETE FROM post WHERE id=?", 8)
 	if r.URL.Path != "/" {
 		ErrorHandler(w, r, http.StatusNotFound)
 		return
