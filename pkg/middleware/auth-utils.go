@@ -6,6 +6,9 @@ import (
 	"net/http"
 )
 
+// performRequest receive a request as argument and sends it then proceed to retrieve the response
+// and then extracts the body to send it back as a return. If anything went wrong, return a nil array
+// and an error.
 func performRequest(request *http.Request) ([]byte, error) {
 	response, respErr := http.DefaultClient.Do(request)
 	if respErr != nil {

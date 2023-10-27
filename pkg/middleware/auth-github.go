@@ -9,8 +9,8 @@ import (
 	models "forum/pkg/models"
 )
 
-// GetGithubToken takes the callback's code sent by github, the ID and Secret from the developper and use this to create a request
-// that will be sent back to github to request the clients infos. If everything checks out github returns a body with all the
+// GetGithubToken takes the callback's code sent by Github, the ID and Secret from the developper and use this to create a request
+// that will be sent back to Github to request the clients infos. If everything checks out github returns a body with all the
 // information about our user. The function then extracte the access_token and returns it if nothing went wrong.
 func GetGithubToken(code, id, secret string) (string, error) {
 	requestJSON, _ := json.Marshal(map[string]string{

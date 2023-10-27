@@ -18,9 +18,9 @@ func (app *App_db) GithubAuthHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
-// GithubCallbackHandler is a Handler that is waiting for the answer from Gitlab Login,
+// GithubCallbackHandler is a Handler that is waiting for the answer from Github Login,
 // once login is received the function retrieves the user token, then the user data
-// and hand all that info to the LoggedInHandler.
+// and hand all that info to the ThirdPartyLoginHandler.
 func (app *App_db) GithubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	token, errToken := middle.GetGithubToken(code, githubClientID, githubClientSecret)

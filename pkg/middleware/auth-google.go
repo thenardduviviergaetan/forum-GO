@@ -6,6 +6,9 @@ import (
 	"net/http"
 )
 
+// GetGoogleToken takes the callback's code sent by Google, the ID and Secret from the developper and use this to create a request
+// that will be sent back to Google to request the clients infos. If everything checks out github returns a body with all the
+// information about our user. The function then extracte the access_token and returns it if nothing went wrong.
 func GetGoogleToken(code, id, secret string) (string, string, error) {
 	reqURL := fmt.Sprintf("%s?%s&%s&%s&%s&%s",
 		"https://www.googleapis.com/oauth2/v4/token",
@@ -46,6 +49,8 @@ func GetGoogleToken(code, id, secret string) (string, string, error) {
 	return googleTokenResp["access_token"].(string), googleTokenResp["id_token"].(string), nil
 }
 
+// GetGoogleData takes the user access token and wil create a request with the token embed inside,
+// Google then returns a json with all the information about the user if no problem is spotted.
 func GetGoogleData(access_token, id_token string) ([]byte, error) {
 	request, reqErr := http.NewRequest(
 		"GET",

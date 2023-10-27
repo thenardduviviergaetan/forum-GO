@@ -10,10 +10,14 @@ import (
 	"strings"
 )
 
+// LoginErrRedirect is a simple function to redirect every error during login to the main login page
+// including in the URL the error as a Query.
 func LoginErrRedirect(w http.ResponseWriter, r *http.Request, s string) {
 	http.Redirect(w, r, "/login?error="+url.QueryEscape(s), http.StatusInternalServerError)
 }
 
+// unmarshalData gets the data retrieved from the Login Third Party Query and parse it into
+// the according type depending on the "loginType" entered.
 func unmarshalData(data []byte, loginType string) (models.User, error) {
 	var usr = models.User{UserType: 1}
 	var errUnmarshal error
