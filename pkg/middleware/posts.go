@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	models "forum/pkg/models"
 )
 
 func CreatePost(db *sql.DB, post *models.Post) (int, error) {
-	_, err := db.Exec("INSERT INTO post(author_id, author, title, content, creation) VALUES(?,?,?,?, datetime())",
-		post.AuthorID, post.Author, post.Title, post.Content)
+	_, err := db.Exec("INSERT INTO post(author_id, author, img, title, content, creation) VALUES(?,?,?,?,?, datetime())",
+		post.AuthorID, post.Author, "", post.Title, post.Content)
 	if err != nil {
 		return -1, err
 	}
@@ -21,13 +22,44 @@ func CreatePost(db *sql.DB, post *models.Post) (int, error) {
 		_, err = db.Exec("INSERT INTO link_cat_post(category_id, post_id) VALUES(?,?)", v, id)
 		if err != nil {
 			fmt.Println("ERROR CREATE POST", err)
+			return -1, err
 		}
 	}
 	return int(id), nil
 }
 
+// func UpdateImgPoste(db *sql.DB, idpost int64, newimg string) error {
+// 	var lastimg string
+// 	rows, err := db.Query("SELECT img FROM post WHERE id = ?", idpost)
+// 	for rows.Next() {
+// 		rows.Scan(&lastimg)
+// 	}
+// 	if err != nil {
+// 		fmt.Println("Update img post err1: ", err)
+// 		return err
+// 	}
+// 	if lastimg != "" {
+// 		err := os.Remove("web/static/upload/img/post" + strconv.Itoa(int(idpost)) + "/" + lastimg)
+// 		if err != nil {
+// 			fmt.Println(err)
+// 		}
+// 		_, err = db.Exec("UPDATE post SET img = ? WHERE id = ?", newimg, idpost)
+// 		if err != nil {
+// 			fmt.Println("Update img post err2: ", err)
+// 			return err
+// 		}
+// 	} else {
+// 		_, err := db.Exec("UPDATE post SET img = ? WHERE id = ?", newimg, idpost)
+// 		if err != nil {
+// 			fmt.Println("Update img post err3: ", err)
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
+
 func RemovePost(db *sql.DB, id_post int64) error {
-	rows, err := db.Query("SELECT id FROM comment WHERE postid = ?", id_post)
+	rows, err := db.Query("SELECT id FROM comment WHERE post_id = ?", id_post)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -42,12 +74,12 @@ func RemovePost(db *sql.DB, id_post int64) error {
 	for _, commentid := range tabidcomment {
 		RemoveComment(db, commentid, 0, true)
 	}
-	_, err = db.Exec("DELETE FROM linkpost WHERE postid = ?", id_post)
+	_, err = db.Exec("DELETE FROM link_post WHERE post_id = ?", id_post)
 	if err != nil {
 		fmt.Println("Remove post : ", err)
 		return err
 	}
-	_, err = db.Exec("DELETE FROM linkcatpost WHERE postid = ?", id_post)
+	_, err = db.Exec("DELETE FROM link_cat_post WHERE post_id = ?", id_post)
 	if err != nil {
 		fmt.Println("Remove post : ", err)
 		return err
@@ -56,6 +88,10 @@ func RemovePost(db *sql.DB, id_post int64) error {
 	if err != nil {
 		fmt.Println("Remove post : ", err)
 		return err
+	}
+	err = os.RemoveAll("web/static/upload/img/post" + strconv.Itoa(int(id_post)))
+	if err != nil {
+		fmt.Println(err)
 	}
 	return nil
 }

@@ -7,6 +7,7 @@ type Post struct {
 	IfCurrentUser  bool
 	Categories     []int
 	CategoriesName []string
+	Img            string
 	Title          string `json:"title"`
 	Content        string `json:"content"`
 	Like           int

@@ -1,15 +1,17 @@
 package forum
 
 import (
-	s "forum/sessions"
 	"net/http"
 	"time"
+
+	s "forum/sessions"
 )
 
 // Disconnect user, remove session and clear cookies before redirecting to home page
 func (app *App_db) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 
