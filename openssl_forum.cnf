@@ -58,4 +58,3 @@ subjectAltName = @alt_names
 # alt_names is a name of my own invention
 [ alt_names ]
 DNS.1 = localhost
-# DNS.1 = 172.23.80.10
