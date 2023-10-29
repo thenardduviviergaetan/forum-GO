@@ -17,7 +17,6 @@ RUN go mod download
 
 # RUN go build -o /admin cmd/usercreation/main.go
 RUN go build -o /forum cmd/forum/main.go
-# RUN if [-f certgen.sh]; then chmod +x certgen.sh && ./certgen.sh; fi
 
 CMD ["/forum"]
 
