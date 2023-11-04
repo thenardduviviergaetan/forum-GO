@@ -42,114 +42,110 @@ main {
 }
 
 /**************LOGIN / REGISTER FORM *************/
-main {
+.login {
   display: flex;
   justify-content: space-around;
 }
-main .vl {
+.login .vert-ligne {
   border-left: 5px solid grey;
 }
-main .third_party_login {
+.login .third_party_login {
   display: block;
   margin: auto 0;
 }
-main .third_party_button {
-  background-color: grey;
+.login .third_party_button {
+  background-color: #3e3e3e;
   flex: 1;
   border-radius: 7px;
-  padding: 7px;
+  padding: 5px;
+  transition-duration: 1s;
+  transition-property: box-shadow, transform;
 }
-main .third_party_button * {
-  size: 100%;
-}
-main .third_party_button:hover {
+.login .third_party_button:hover {
   cursor: pointer;
+  transform: translate(-15px, -15px);
+  box-shadow: rgba(225, 25, 25, 0.4) 5px 5px, rgba(225, 25, 25, 0.3) 10px 10px, rgba(225, 25, 25, 0.2) 15px 15px;
 }
-main .third_party_button:not(:last-child) {
+.login .third_party_button:not(:last-child) {
   margin-bottom: 10px;
 }
-main .third_party_button a {
+.login .third_party_button a {
   all: unset;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  width: 270px;
+  align-items: stretch;
   text-decoration: none;
 }
-main .third_party_button a :first-child {
+.login .third_party_button a :first-child {
   border-radius: 9px 0 0 9px;
 }
-main .third_party_button a .light_bg_color {
-  padding: 5px;
-  background-color: lightgrey;
+.login .third_party_button a .light_bg_color {
+  display: flex;
+  background-color: #5b5b5b;
   background-clip: content-box;
+  align-items: center;
 }
-main .third_party_button a img {
+.login .third_party_button a .light_bg_color:last-child {
+  border-radius: 0 9px 9px 0;
+  margin-left: 4px;
+}
+.login .third_party_button a img {
   margin: 5px;
 }
-main .third_party_button a p {
+.login .third_party_button a p {
   font-weight: 700;
-  margin: auto 0;
+  margin: 0 15px;
 }
-main form {
+.login form {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
   margin: 20px 0;
 }
-main img {
-  width: 50px;
+.login img {
+  width: 40px;
 }
 
-/*
 .alert {
-    color: #FF0000;
+  color: #FF0000;
 }
 
 .form {
-    width: 90%;
-    margin: auto;
-
-    form {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        align-items: center;
-        margin: 20px 0;
-
-        h5 {
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            margin: 10px 0;
-            width: 50%;
-
-            label {
-                margin-bottom: 5px;
-            }
-
-            input {
-                padding: 5px;
-            }
-        }
-
-        button {
-            width: 100px;
-            padding: 5px 3px;
-        }
-    }
-
-    p {
-        text-align: center;
-    }
-
+  width: 90%;
+  margin: auto;
 }
-*/
+.form form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin: 20px 0;
+}
+.form form h5 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+.form form .field {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+  width: 50%;
+}
+.form form .field label {
+  margin-bottom: 5px;
+}
+.form form .field input {
+  padding: 5px;
+}
+.form form button {
+  width: 100px;
+  padding: 5px 3px;
+}
+.form p {
+  text-align: center;
+}
+
 /*****************Filter************/
 .filter {
   margin-bottom: 50px;

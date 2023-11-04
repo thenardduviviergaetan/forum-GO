@@ -1,45 +1,51 @@
 {{ template "head" .}}
 
 <main>
-  <section class="form">
-    <a href="/" class="back_btn">Back Home</a>
-
-    <form action="" method="post">
-      <h5>Login</h5>
-      <div class="field">
-        <label for="">email</label>
-        <input type="email" name="email" />
-      </div>
-      <div class="field">
-        <label for="">Password</label>
-        <input type="password" name="password" />
-      </div>
-
-      <button type="submit">Submit</button>
-    </form>
-    {{ if .ErrorMessage}}
-    <div class="alert">*{{ .ErrorMessage}}</div>
-    {{ end }}
-    <p>No account? <a href="/register"><span class="link">Register</span></a> now</p>
-  </section>
-  <div class="vl"></div>
-  <section class="third_party_login">
-    <div class="third_party_button">
-      <a href="/github/auth">
-        <img src="../static/assets/authentication/github-fill-svgrepo-com.svg" alt="Github Sign-in and Register button">
-        <p>Connect with Github</p>
-      </a>
-    </div>
-    <div class="third_party_button">
-      <a href="/google/auth">
-        <div class="light_bg_color">
-          <img src="../static/assets/authentication/google-color-svgrepo-com.svg" alt="Google Sign-in logo">
+  <a href="/" class="back_btn">Back Home</a>
+  <section class="login">
+    <section class="login-form">
+      <form action="" method="post">
+        <h5>Login</h5>
+        <div class="field">
+          <label for="">email</label>
+          <input type="email" name="email" />
         </div>
-        <div class="light_bg_color">
-          <p>Connect with Google</p>
+        <div class="field">
+          <label for="">Password</label>
+          <input type="password" name="password" />
         </div>
-      </a>
-    </div>
+
+        <button type="submit">Submit</button>
+      </form>
+      {{ if .ErrorMessage}}
+      <div class="alert">*{{ .ErrorMessage}}</div>
+      {{ end }}
+      <p>No account? <a href="/register"><span class="link">Register</span></a> now</p>
+    </section>
+    <div class="vert-ligne"></div>
+    <section class="third_party_login">
+      <div class="third_party_button">
+        <a href="/github/auth">
+          <div class="light_bg_color">
+            <img src="../static/assets/authentication/github-fill-svgrepo-com.svg"
+              alt="Github Sign-in and Register button">
+          </div>
+          <div class="light_bg_color">
+            <p>Connect with Github</p>
+          </div>
+        </a>
+      </div>
+      <div class="third_party_button">
+        <a href="/google/auth">
+          <div class="light_bg_color">
+            <img src="../static/assets/authentication/google-color-svgrepo-com.svg" alt="Google Sign-in logo">
+          </div>
+          <div class="light_bg_color">
+            <p>Connect with Google</p>
+          </div>
+        </a>
+      </div>
+    </section>
   </section>
 </main>
 {{ template "footer" .}}
