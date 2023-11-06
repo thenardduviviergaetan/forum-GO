@@ -33,7 +33,7 @@ stateOrProvinceName=	Normandie
 localityName=		Rouen
 organizationName=	Zone01
 organizationalUnitName=	Some Department
-commonName=		www.forum.com
+commonName= forum_group
 emailAddress=		group@forum.com
 
 [ req_attributes ]
