@@ -52,7 +52,7 @@ func (app *App_db) ThirdPartyLoginHandler(w http.ResponseWriter, r *http.Request
 	usr, errUnmarshal := unmarshalData(data, loginType)
 	if errUnmarshal != nil {
 		fmt.Println(errUnmarshal)
-		LoginErrRedirect(w, r, fmt.Sprintf("Error trying to login with %s", loginType))
+		AuthErrRedirect(w, r, fmt.Sprintf("Error trying to login with %s", loginType), "login")
 	}
 
 	errCheckRegistered := middle.CheckThirdPartyRegister(app.DB, &usr)
@@ -60,10 +60,8 @@ func (app *App_db) ThirdPartyLoginHandler(w http.ResponseWriter, r *http.Request
 	//Checks for user in the database, if user does not exist then it adds it to the database.
 	switch {
 	case errCheckRegistered == nil:
-		if errCreate := app.CreateUser(&usr); errCreate != nil {
-			LoginErrRedirect(w, r, "An error occured while trying to login, please try again")
-		}
-		fallthrough
+		AuthErrRedirect(w, r, "You don't seem to be registered, please first create an account", "login")
+		return
 	case errCheckRegistered.Error() == "username or email already exist":
 		var form = make(url.Values, 0)
 		form.Add("password", usr.Password)
@@ -71,14 +69,13 @@ func (app *App_db) ThirdPartyLoginHandler(w http.ResponseWriter, r *http.Request
 		r.URL.RawQuery = form.Encode()
 		if err := middle.Auth(app.DB, w, r); err != nil {
 			fmt.Println("Error during login ? ", err)
-			LoginErrRedirect(w, r, "An error occured while trying to login, please try again")
+			AuthErrRedirect(w, r, "An error occured while trying to login, please try again", "login")
 			return
 		}
 	default:
-		LoginErrRedirect(w, r, "An error occured while trying to login, please try again")
+		AuthErrRedirect(w, r, "An error occured while trying to login, please try again", "login")
 		return
 	}
 
-	//Final redirect to Main or Profile Page
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

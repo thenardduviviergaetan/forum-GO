@@ -12,8 +12,15 @@ import (
 
 // LoginErrRedirect is a simple function to redirect every error during login to the main login page
 // including in the URL the error as a Query.
-func LoginErrRedirect(w http.ResponseWriter, r *http.Request, s string) {
-	http.Redirect(w, r, "/login?error="+url.QueryEscape(s), http.StatusInternalServerError)
+func AuthErrRedirect(w http.ResponseWriter, r *http.Request, s string, auth_type string) {
+	switch auth_type {
+	case "login":
+		http.Redirect(w, r, "/login?error="+url.QueryEscape(s), http.StatusSeeOther)
+	case "register":
+		http.Redirect(w, r, "/register?error="+url.QueryEscape(s), http.StatusSeeOther)
+	default:
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
 }
 
 // unmarshalData gets the data retrieved from the Login Third Party Query and parse it into

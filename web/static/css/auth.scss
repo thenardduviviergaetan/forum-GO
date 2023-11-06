@@ -1,6 +1,7 @@
-.login {
+.login, .register {
     display: flex;
     justify-content: space-around;
+  margin-bottom: 30px;
 
   .vert-ligne {
     border-left: 5px solid grey;
@@ -9,7 +10,25 @@
   .third_party_login {
     display: block;
     margin: auto 0 ;
+  }
 
+  .auth-form {
+    // margin: auto;
+
+    h5 {
+      text-align: center;
+    }
+
+    form .field{
+      display: flex;
+      width: 100%;
+      margin-bottom: 20px;
+      justify-content: space-between;
+
+      label {
+        margin-right: 20px;
+      }
+    }
   }
 
   $corner_r: 7px;
@@ -85,4 +104,9 @@
   img {
     width: 40px;
   }
+}
+
+.error {
+  display: flex;
+  justify-content: center;
 }

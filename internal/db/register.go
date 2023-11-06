@@ -1,6 +1,7 @@
 package forum
 
 import (
+	"fmt"
 	middle "forum/pkg/middleware"
 	models "forum/pkg/models"
 	"net/http"
@@ -65,4 +66,37 @@ func (app *App_db) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.Execute(w, map[string]string{"ErrorMessage": errMsg}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+// GithubSessionHandler handles the connection once that everything necessary has been sent by github,
+// the function will then unmarshall the data needed for the DataBase.
+// If a user exist with the same
+func (app *App_db) ThirdPartyRegisterHandler(w http.ResponseWriter, r *http.Request, data []byte, loginType string) {
+	w.Header().Set("Content-type", "application/json")
+
+	usr, errUnmarshal := unmarshalData(data, loginType)
+	if errUnmarshal != nil {
+		fmt.Println(errUnmarshal)
+		AuthErrRedirect(w, r, fmt.Sprintf("Error trying to login with %s", loginType), "register")
+	}
+
+	errCheckRegistered := middle.CheckThirdPartyRegister(app.DB, &usr)
+
+	//Checks for user in the database, if user does not exist then it adds it to the database.
+
+	switch {
+	case errCheckRegistered == nil:
+		if errCreate := app.CreateUser(&usr); errCreate != nil {
+			AuthErrRedirect(w, r, "An error occured while trying to login, please try again", "register")
+		}
+		app.ThirdPartyLoginHandler(w, r, data, loginType)
+	case errCheckRegistered.Error() == "username or email already exist":
+		AuthErrRedirect(w, r, "You already have an account, proceed to the login page", "register")
+	default:
+		AuthErrRedirect(w, r, "An error occured while trying to login, please try again", "register")
+	}
+
+	return
+	//Final redirect to Main or Profile Page
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

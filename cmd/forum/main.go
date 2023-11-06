@@ -33,12 +33,12 @@ func main() {
 	http.HandleFunc("/logout", app.LogoutHandler)
 
 	//Alternative Github Authentication
-	http.HandleFunc("/github/auth", app.GithubAuthHandler)
-	http.HandleFunc("/github/callback", app.GithubCallbackHandler)
+	http.HandleFunc("/github/auth/", app.GithubAuthHandler)
+	http.HandleFunc("/github/callback/", app.GithubCallbackHandler)
 
 	//Alternative Google Authentication
-	http.HandleFunc("/google/auth", app.GoogleAuthHandler)
-	http.HandleFunc("/google/callback", app.GoogleCallbackHandler)
+	http.HandleFunc("/google/auth/", app.GoogleAuthHandler)
+	http.HandleFunc("/google/callback/", app.GoogleCallbackHandler)
 
 	//Post related handlers
 	http.HandleFunc("/category", app.CategoryHandler)
