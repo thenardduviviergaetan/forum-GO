@@ -43,3 +43,19 @@ func CheckRegister(db *sql.DB, r *http.Request, user *models.User) error {
 	user.Username, user.Email, user.Password, user.UserType = username, email, password, 1
 	return nil
 }
+
+// Prevent duplicate credentials in database during register procedure
+func CheckThirdPartyRegister(db *sql.DB, user *models.User) error {
+	var tmpuser models.User
+
+	err := db.QueryRow(
+		"SELECT username,email FROM users WHERE username=? OR email=?",
+		user.Username,
+		user.Email).Scan(&tmpuser.Username, &tmpuser.Email)
+
+	if err == nil {
+		return errors.New("username or email already exist")
+	}
+
+	return nil
+}

@@ -37,6 +37,18 @@ func main() {
 	s.HandleWithLimiter("/register", app.RegisterHandler, limiter)
 	s.HandleWithLimiter("/logout", app.LogoutHandler, limiter)
 
+	//Alternative Github Authentication
+	s.HandleWithLimiter("/github/auth/", app.GithubAuthHandler, limiter)
+	s.HandleWithLimiter("/github/callback/", app.GithubCallbackHandler, limiter)
+	// http.HandleFunc("/github/auth/", app.GithubAuthHandler)
+	// http.HandleFunc("/github/callback/", app.GithubCallbackHandler)
+
+	//Alternative Google Authentication
+	s.HandleWithLimiter("/google/auth/", app.GoogleAuthHandler, limiter)
+	s.HandleWithLimiter("/google/callback/", app.GoogleCallbackHandler, limiter)
+	// http.HandleFunc("/google/auth/", app.GoogleAuthHandler)
+	// http.HandleFunc("/google/callback/", app.GoogleCallbackHandler)
+
 	//Post related handlers
 	s.HandleWithLimiter("/category", app.CategoryHandler, limiter)
 	s.HandleWithLimiter("/post/create", app.PostCreateHandler, limiter)

@@ -1,0 +1,84 @@
+.login, .register {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 30px;
+}
+.login .vert-ligne, .register .vert-ligne {
+  border-left: 5px solid grey;
+}
+.login .third_party_login, .register .third_party_login {
+  display: block;
+  margin: auto 0;
+}
+.login .auth-form h5, .register .auth-form h5 {
+  text-align: center;
+}
+.login .auth-form form .field, .register .auth-form form .field {
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
+  justify-content: space-between;
+}
+.login .auth-form form .field label, .register .auth-form form .field label {
+  margin-right: 20px;
+}
+.login .third_party_button, .register .third_party_button {
+  background-color: #3e3e3e;
+  flex: 1;
+  border-radius: 7px;
+  padding: 5px;
+  transition-duration: 1s;
+  transition-property: box-shadow, transform;
+}
+.login .third_party_button:hover, .register .third_party_button:hover {
+  cursor: pointer;
+  transform: translate(-15px, -15px);
+  box-shadow: rgba(225, 25, 25, 0.4) 5px 5px, rgba(225, 25, 25, 0.3) 10px 10px, rgba(225, 25, 25, 0.2) 15px 15px;
+}
+.login .third_party_button:not(:last-child), .register .third_party_button:not(:last-child) {
+  margin-bottom: 10px;
+}
+.login .third_party_button a, .register .third_party_button a {
+  all: unset;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  text-decoration: none;
+}
+.login .third_party_button a :first-child, .register .third_party_button a :first-child {
+  border-radius: 9px 0 0 9px;
+}
+.login .third_party_button a .light_bg_color, .register .third_party_button a .light_bg_color {
+  display: flex;
+  background-color: #5b5b5b;
+  background-clip: content-box;
+  align-items: center;
+}
+.login .third_party_button a .light_bg_color:last-child, .register .third_party_button a .light_bg_color:last-child {
+  border-radius: 0 9px 9px 0;
+  margin-left: 4px;
+}
+.login .third_party_button a img, .register .third_party_button a img {
+  margin: 5px;
+}
+.login .third_party_button a p, .register .third_party_button a p {
+  font-weight: 700;
+  margin: 0 15px;
+}
+.login form, .register form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin: 20px 0;
+}
+.login img, .register img {
+  width: 40px;
+}
+
+.error {
+  display: flex;
+  justify-content: center;
+}
+
+/*# sourceMappingURL=auth.css.map */
