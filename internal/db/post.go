@@ -2,7 +2,6 @@ package forum
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,7 +13,7 @@ import (
 	s "forum/sessions"
 )
 
-func (app *App_db) PostedIdHandler(w http.ResponseWriter, r *http.Request, current_user int64) {
+func (app *App_db) PostedIdHandler(w http.ResponseWriter, r *http.Request, current_user int64, post models.Post, message string) {
 	template, err := template.ParseFiles(
 		"web/templates/edit-post.html",
 		"web/templates/head.html",
@@ -27,9 +26,12 @@ func (app *App_db) PostedIdHandler(w http.ResponseWriter, r *http.Request, curre
 	}
 
 	// potential more work TODO
-	app.Data.Categories = middle.FetchCat(app.DB, app.Data.CurrentPost.Categories)
+	// app.Data.Categories = middle.FetchCat(app.DB, app.Data.CurrentPost.Categories)
+	app.Data.Categories = middle.FetchCat(app.DB, post.Categories)
+	app.Data.ErrMessage = message
+	app.Data.CurrentPost = post
 
-	ReturnCurrentPost(app, w, r, current_user)
+	// ReturnCurrentPost(app, w, r, current_user)
 	if err := template.Execute(w, app.Data); err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError)
 		return
@@ -145,11 +147,15 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				// edit post
 				if r.FormValue("edit-post") != "" {
-					app.PostedIdHandler(w, r, current_user)
+					ReturnCurrentPost(app, w, r, current_user)
+					app.PostedIdHandler(w, r, current_user, app.Data.CurrentPost, "")
 					return
 				}
 				if r.FormValue("post-editor") != "" {
+					img, imgerr := InitImg(r)
+					// fmt.Println(imgerr)
 					var post models.Post
+					post.Title = r.FormValue("title-editor")
 					post.Content = r.FormValue("content-editor")
 					post.ID = app.Data.CurrentPost.ID
 					// to change category
@@ -163,9 +169,19 @@ func (app *App_db) PostIdHandler(w http.ResponseWriter, r *http.Request) {
 						cat = append(cat, temp)
 					}
 					post.Categories = cat
+					if imgerr != nil && imgerr.Error() != "http: no such file" {
+						app.PostedIdHandler(w, r, current_user, post, imgerr.Error())
+						// app.PageCreatePost(w, r, *post, "Bad format")
+						return
+					}
+					// update img
+					if r.FormValue("deleteimg") == "true" {
+						middle.UpdateImgPoste(app.DB, post.ID, "")
+					} else if imgerr == nil {
+						mkdirPostAsset(app, post.ID, &post, img)
+					}
 					middle.UpdateCategory(app.DB, &post)
 					// update category
-					post.Title = r.FormValue("title-editor")
 					middle.UpdatePost(app.DB, &post)
 					ReturnCurrentPost(app, w, r, current_user)
 				}
@@ -222,6 +238,7 @@ func ReturnCurrentPost(app *App_db, w http.ResponseWriter, r *http.Request, curr
 		post.User_like, post.User_dislike = linkPost(app, post.ID)
 		post.Like, post.Dislike = len(post.User_like), len(post.User_dislike)
 		post.IfCurrentUser = post.AuthorID == current_user
+		post.Ifimg = post.Img != ""
 		app.Data.CurrentPost = post
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -255,39 +272,11 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		template, err := template.ParseFiles(
-			"web/templates/post-create.html",
-			"web/templates/head.html",
-			"web/templates/navbar.html",
-			"web/templates/footer.html",
-		)
-		if err != nil {
-			ErrorHandler(w, r, http.StatusInternalServerError)
-			return
-		}
-
-		app.Data.Categories = middle.FetchCat(app.DB, []int{0})
-
-		app.Data.Connected = func() bool {
-			if c, err := r.Cookie("session_token"); err == nil {
-				s.CheckSession(app.DB, w, r)
-				app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
-				app.Data.Admin = s.GlobalSessions[c.Value].Admin
-				app.Data.ModLight = s.GlobalSessions[c.Value].ModLight
-				return true
-			}
-			s.CheckActive()
-			return false
-		}()
-
-		if err := template.Execute(w, app.Data); err != nil {
-			ErrorHandler(w, r, http.StatusInternalServerError)
-			return
-		}
-
+		app.PageCreatePost(w, r, models.Post{}, "")
+		return
 	case "POST":
 		var post *models.Post
-
+		img, errimg := InitImg(r)
 		errParse := r.ParseForm()
 		if errParse != nil {
 			ErrorHandler(w, r, http.StatusInternalServerError)
@@ -299,11 +288,14 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			temp, _ := strconv.Atoi(v)
 			cat = append(cat, temp)
 		}
-
 		post = &models.Post{
 			Title:      r.FormValue("title"),
 			Content:    r.FormValue("content"),
 			Categories: cat,
+		}
+		if errimg != nil && errimg.Error() != "http: no such file" {
+			app.PageCreatePost(w, r, *post, errimg.Error())
+			return
 		}
 
 		err := app.DB.QueryRow("SELECT id, username FROM users where session_token = ?", cookie.Value).Scan(&post.AuthorID, &post.Author)
@@ -316,26 +308,41 @@ func (app *App_db) PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 			ErrorHandler(w, r, http.StatusBadRequest)
 			return
 		}
+		mkdirPostAsset(app, int64(id), post, img)
 		http.Redirect(w, r, "/post/id?id="+strconv.Itoa(id), http.StatusFound)
 	}
 }
 
-func linkPost(app *App_db, post_id int64) (tab_like map[int64]bool, tab_dislike map[int64]bool) {
-	tab_like, tab_dislike = make(map[int64]bool), make(map[int64]bool)
-	rows, err := app.DB.Query("SELECT user_id,likes FROM link_post WHERE post_id = ?", post_id)
+func (app *App_db) PageCreatePost(w http.ResponseWriter, r *http.Request, post models.Post, message string) {
+	template, err := template.ParseFiles(
+		"web/templates/post-create.html",
+		"web/templates/head.html",
+		"web/templates/navbar.html",
+		"web/templates/footer.html",
+	)
 	if err != nil {
-		fmt.Println(err)
-		return nil, nil
+		ErrorHandler(w, r, http.StatusInternalServerError)
+		return
 	}
-	var user_id int64
-	var like bool
-	for rows.Next() {
-		rows.Scan(&user_id, &like)
-		if like {
-			tab_like[user_id] = true
-		} else {
-			tab_dislike[user_id] = true
+	// app.Data.Categories = middle.FetchCat(app.DB, []int{0})
+	app.Data.ErrMessage = message
+	app.Data.CurrentPost = post
+	app.Data.Categories = middle.FetchCat(app.DB, post.Categories)
+
+	app.Data.Connected = func() bool {
+		if c, err := r.Cookie("session_token"); err == nil {
+			s.CheckSession(app.DB, w, r)
+			app.Data.Moderator = s.GlobalSessions[c.Value].Moderator
+			app.Data.Admin = s.GlobalSessions[c.Value].Admin
+			app.Data.ModLight = s.GlobalSessions[c.Value].ModLight
+			return true
 		}
+		s.CheckActive()
+		return false
+	}()
+
+	if err := template.Execute(w, app.Data); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError)
+		return
 	}
-	return
 }

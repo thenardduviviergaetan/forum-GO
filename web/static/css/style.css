@@ -210,7 +210,13 @@ a:hover {
 }
 
 .body-post {
+  display: flex;
   padding: 20px 0;
+  align-items: center;
+}
+.body-post img {
+  width: 30%;
+  margin: 10px;
 }
 
 /**********COMMENT***********/

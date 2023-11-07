@@ -9,4 +9,5 @@ type Data struct {
 	CurrentPost    Post
 	CurrentComment Comment
 	Categories     []Categories
+	ErrMessage     string
 }

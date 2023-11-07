@@ -31,6 +31,7 @@
       <textarea id="" name="content-editor" rows="10" cols="20">{{.CurrentPost.Content}}</textarea>
       <label for="myFile">new image?</label>
       <input type="file" name="myFile" accept=".svg,image/gif,image/png,image/jpeg"/>
+      <p>{{.ErrMessage}}</p>
       <div class="check">
         <label for="deleteimg">delete image?</label>
         <input type="checkbox" name="deleteimg" value="true" >  
