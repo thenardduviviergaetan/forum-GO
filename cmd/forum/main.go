@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"fmt"
+	config "forum/config"
 	s "forum/sessions"
 	"log"
 	"net/http"
@@ -50,14 +52,40 @@ func main() {
 	// http.HandleFunc("/google/auth/", app.GoogleAuthHandler)
 	// http.HandleFunc("/google/callback/", app.GoogleCallbackHandler)
 
-	// Post related handlers
-	http.HandleFunc("/category", app.CategoryHandler)
-	http.HandleFunc("/post/create", app.PostCreateHandler)
-	http.HandleFunc("/post", app.PostHandler)
-	http.HandleFunc("/post/id", app.PostIdHandler)
-
-	fmt.Println("Listening on port 8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
+	//Post related handlers
+	s.HandleWithLimiter("/category", app.CategoryHandler, limiter)
+	s.HandleWithLimiter("/post/create", app.PostCreateHandler, limiter)
+	s.HandleWithLimiter("/post", app.PostHandler, limiter)
+	s.HandleWithLimiter("/post/id", app.PostIdHandler, limiter)
+	config.GenerateCert()
+	cert := "cert.pem"
+	key := "cert-key.pem"
+	serverTLSCert, err := tls.LoadX509KeyPair(cert, key)
+	if err != nil {
+		log.Fatalf("Error loading certificate and key: %v", err)
 	}
+	srv := &http.Server{
+		Addr:    ":8080", // Replace ":8080" with ":443" for production
+		Handler: nil,
+		TLSConfig: &tls.Config{
+			MinVersion:               tls.VersionTLS12,
+			InsecureSkipVerify:       true,
+			Certificates:             []tls.Certificate{serverTLSCert},
+			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+			PreferServerCipherSuites: true,
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+				tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+			},
+		},
+		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  15 * time.Second,
+	}
+	defer srv.Close()
+	fmt.Println("Listening on port 8080 for development(should be 443 for prod)...")
+	log.Fatal(srv.ListenAndServeTLS("", ""))
 }
