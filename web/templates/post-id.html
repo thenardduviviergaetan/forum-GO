@@ -10,6 +10,9 @@
             <p>Date: {{.CurrentPost.CreationDate}}</p>
         </div>
         <div class="body-post">
+            {{if .CurrentPost.Ifimg}}
+                <img src="/img/post{{.CurrentPost.ID}}/{{.CurrentPost.Img}}"/>
+            {{end}}
             <p>{{.CurrentPost.Content}}</p>
         </div>
     {{ if .Connected }}

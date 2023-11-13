@@ -1,19 +1,15 @@
 package main
 
 import (
-	"crypto/tls"
 	"database/sql"
 	"fmt"
-	config "forum/config"
-	. "forum/internal/db"
-	s "forum/sessions"
 	"log"
 	"net/http"
-	"time"
+
+	. "forum/internal/db"
 )
 
 func main() {
-
 	db, err := sql.Open("sqlite3", "config/db/forum.db")
 	if err != nil {
 		log.Fatal(err)
@@ -25,57 +21,26 @@ func main() {
 		log.Fatal(err)
 	}
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
+	img := http.FileServer(http.Dir("web/static/upload/img"))
+	http.Handle("/img/", http.StripPrefix("/img", img))
 
-	limiter := s.NewBucket(5, time.Second)
+	http.HandleFunc("/", app.ForumHandler)
+	http.HandleFunc("/admin", app.AdminHandler)
+	http.HandleFunc("/moderation", app.ModHandler)
+	http.HandleFunc("/com_moderation", app.ComModHandler)
+	http.HandleFunc("/profile", app.ProfileHandler)
+	http.HandleFunc("/login", app.LoginHandler)
+	http.HandleFunc("/register", app.RegisterHandler)
+	http.HandleFunc("/logout", app.LogoutHandler)
 
-	s.HandleWithLimiter("/", app.ForumHandler, limiter)
-	s.HandleWithLimiter("/admin", app.AdminHandler, limiter)
-	s.HandleWithLimiter("/moderation", app.ModHandler, limiter)
-	s.HandleWithLimiter("/com_moderation", app.ComModHandler, limiter)
-	s.HandleWithLimiter("/profile", app.ProfileHandler, limiter)
-	s.HandleWithLimiter("/login", app.LoginHandler, limiter)
-	s.HandleWithLimiter("/register", app.RegisterHandler, limiter)
-	s.HandleWithLimiter("/logout", app.LogoutHandler, limiter)
+	// Post related handlers
+	http.HandleFunc("/category", app.CategoryHandler)
+	http.HandleFunc("/post/create", app.PostCreateHandler)
+	http.HandleFunc("/post", app.PostHandler)
+	http.HandleFunc("/post/id", app.PostIdHandler)
 
-	//Post related handlers
-	s.HandleWithLimiter("/category", app.CategoryHandler, limiter)
-	s.HandleWithLimiter("/post/create", app.PostCreateHandler, limiter)
-	s.HandleWithLimiter("/post", app.PostHandler, limiter)
-	s.HandleWithLimiter("/post/id", app.PostIdHandler, limiter)
-
-	config.GenerateCert()
-
-	cert := "cert.pem"
-	key := "cert-key.pem"
-
-	serverTLSCert, err := tls.LoadX509KeyPair(cert, key)
-	if err != nil {
-		log.Fatalf("Error loading certificate and key: %v", err)
+	fmt.Println("Listening on port 8080...")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
 	}
-
-	srv := &http.Server{
-		Addr:    ":8080", // Replace ":8080" with ":443" for production
-		Handler: nil,
-		TLSConfig: &tls.Config{
-			MinVersion:               tls.VersionTLS12,
-			InsecureSkipVerify:       true,
-			Certificates:             []tls.Certificate{serverTLSCert},
-			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
-			PreferServerCipherSuites: true,
-			CipherSuites: []uint16{
-				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-				tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-			},
-		},
-		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  15 * time.Second,
-	}
-
-	defer srv.Close()
-	fmt.Println("Listening on port 8080 for development(should be 443 for prod)...")
-	log.Fatal(srv.ListenAndServeTLS("", ""))
 }

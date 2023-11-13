@@ -28,35 +28,35 @@ func CreatePost(db *sql.DB, post *models.Post) (int, error) {
 	return int(id), nil
 }
 
-// func UpdateImgPoste(db *sql.DB, idpost int64, newimg string) error {
-// 	var lastimg string
-// 	rows, err := db.Query("SELECT img FROM post WHERE id = ?", idpost)
-// 	for rows.Next() {
-// 		rows.Scan(&lastimg)
-// 	}
-// 	if err != nil {
-// 		fmt.Println("Update img post err1: ", err)
-// 		return err
-// 	}
-// 	if lastimg != "" {
-// 		err := os.Remove("web/static/upload/img/post" + strconv.Itoa(int(idpost)) + "/" + lastimg)
-// 		if err != nil {
-// 			fmt.Println(err)
-// 		}
-// 		_, err = db.Exec("UPDATE post SET img = ? WHERE id = ?", newimg, idpost)
-// 		if err != nil {
-// 			fmt.Println("Update img post err2: ", err)
-// 			return err
-// 		}
-// 	} else {
-// 		_, err := db.Exec("UPDATE post SET img = ? WHERE id = ?", newimg, idpost)
-// 		if err != nil {
-// 			fmt.Println("Update img post err3: ", err)
-// 			return err
-// 		}
-// 	}
-// 	return nil
-// }
+func UpdateImgPoste(db *sql.DB, idpost int64, newimg string) error {
+	var lastimg string
+	rows, err := db.Query("SELECT img FROM post WHERE id = ?", idpost)
+	for rows.Next() {
+		rows.Scan(&lastimg)
+	}
+	if err != nil {
+		fmt.Println("Update img post err1: ", err)
+		return err
+	}
+	if lastimg != "" {
+		err := os.Remove("web/static/upload/img/post" + strconv.Itoa(int(idpost)) + "/" + lastimg)
+		if err != nil {
+			fmt.Println(err)
+		}
+		_, err = db.Exec("UPDATE post SET img = ? WHERE id = ?", newimg, idpost)
+		if err != nil {
+			fmt.Println("Update img post err2: ", err)
+			return err
+		}
+	} else {
+		_, err := db.Exec("UPDATE post SET img = ? WHERE id = ?", newimg, idpost)
+		if err != nil {
+			fmt.Println("Update img post err3: ", err)
+			return err
+		}
+	}
+	return nil
+}
 
 func RemovePost(db *sql.DB, id_post int64) error {
 	rows, err := db.Query("SELECT id FROM comment WHERE post_id = ?", id_post)

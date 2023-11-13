@@ -8,6 +8,7 @@ type Post struct {
 	Categories     []int
 	CategoriesName []string
 	Img            string
+	Ifimg          bool
 	Title          string `json:"title"`
 	Content        string `json:"content"`
 	Like           int
