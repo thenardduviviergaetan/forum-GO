@@ -57,6 +57,7 @@ func main() {
 	s.HandleWithLimiter("/post/create", app.PostCreateHandler, limiter)
 	s.HandleWithLimiter("/post", app.PostHandler, limiter)
 	s.HandleWithLimiter("/post/id", app.PostIdHandler, limiter)
+
 	config.GenerateCert()
 	cert := "cert.pem"
 	key := "cert-key.pem"
