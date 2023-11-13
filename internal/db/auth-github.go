@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+var githubClientID = "githubUser"
+var githubClientSecret = "githubUserSecret"
+
 // GithubAuthHandler is the handler for the "login" and "register" page using Github.
 // The function redirects to a the API providing a "callback" url that will
 // be waiting for the data from github.

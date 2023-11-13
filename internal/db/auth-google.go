@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+var googleClientID = "googleUser"
+var googleClientSecret = "googleUserSecret"
+
 // GoogleAuthHandler is the handler for the "login" and "register" page using Google.
 // The function redirects to a the API providing a "callback" url that will
 // be waiting for the data from github.
