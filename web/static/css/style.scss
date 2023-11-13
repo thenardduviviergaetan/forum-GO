@@ -45,6 +45,7 @@ main {
 }
 
 /**************LOGIN / REGISTER FORM *************/
+@import 'auth';
 .alert {
     color: #FF0000;
 }
@@ -96,8 +97,8 @@ main {
         text-align: center;
     }
 
-
 }
+
 
 /*****************Filter************/
 

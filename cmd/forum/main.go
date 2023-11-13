@@ -21,17 +21,32 @@ func main() {
 		log.Fatal(err)
 	}
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
+
+	limiter := s.NewBucket(5, time.Second)
+
 	img := http.FileServer(http.Dir("web/static/upload/img"))
 	http.Handle("/img/", http.StripPrefix("/img", img))
 
-	http.HandleFunc("/", app.ForumHandler)
-	http.HandleFunc("/admin", app.AdminHandler)
-	http.HandleFunc("/moderation", app.ModHandler)
-	http.HandleFunc("/com_moderation", app.ComModHandler)
-	http.HandleFunc("/profile", app.ProfileHandler)
-	http.HandleFunc("/login", app.LoginHandler)
-	http.HandleFunc("/register", app.RegisterHandler)
-	http.HandleFunc("/logout", app.LogoutHandler)
+	s.HandleWithLimiter("/", app.ForumHandler, limiter)
+	s.HandleWithLimiter("/admin", app.AdminHandler, limiter)
+	s.HandleWithLimiter("/moderation", app.ModHandler, limiter)
+	s.HandleWithLimiter("/com_moderation", app.ComModHandler, limiter)
+	s.HandleWithLimiter("/profile", app.ProfileHandler, limiter)
+	s.HandleWithLimiter("/login", app.LoginHandler, limiter)
+	s.HandleWithLimiter("/register", app.RegisterHandler, limiter)
+	s.HandleWithLimiter("/logout", app.LogoutHandler, limiter)
+
+	//Alternative Github Authentication
+	s.HandleWithLimiter("/github/auth/", app.GithubAuthHandler, limiter)
+	s.HandleWithLimiter("/github/callback/", app.GithubCallbackHandler, limiter)
+	// http.HandleFunc("/github/auth/", app.GithubAuthHandler)
+	// http.HandleFunc("/github/callback/", app.GithubCallbackHandler)
+
+	//Alternative Google Authentication
+	s.HandleWithLimiter("/google/auth/", app.GoogleAuthHandler, limiter)
+	s.HandleWithLimiter("/google/callback/", app.GoogleCallbackHandler, limiter)
+	// http.HandleFunc("/google/auth/", app.GoogleAuthHandler)
+	// http.HandleFunc("/google/callback/", app.GoogleCallbackHandler)
 
 	// Post related handlers
 	http.HandleFunc("/category", app.CategoryHandler)

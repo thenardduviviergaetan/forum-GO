@@ -47,6 +47,7 @@ func SetToken(db *sql.DB, w http.ResponseWriter, r *http.Request, user *models.U
 		Name:    "session_token",
 		Value:   sessionToken.String(),
 		Expires: expiresAt,
+		Path:    "/",
 	})
 	return nil
 }
